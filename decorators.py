@@ -1,7 +1,8 @@
 import numpy as np
 from time import time
+from warnings import deprecated
 
-
+@deprecated
 def validate_size(size: int):
     def decorator(func):
         def wrapper(w: np.ndarray):
