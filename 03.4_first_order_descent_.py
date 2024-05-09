@@ -1,9 +1,7 @@
 import numbers
 
 from newton import newton
-from decorators import validate_size
 import numpy as np
-import numpy.typing as npt
 from typing import Callable
 from autograd import grad
 
@@ -28,7 +26,6 @@ def min_first_order_descent(
 
 
 if __name__ == '__main__':
-    @validate_size(2)
     def f(w: np.ndarray) -> float:
         return 2 * (np.dot(w, w) + w[0] * w[1] + 10)
     #print(min_first_order_descent(f, [3, 4]))

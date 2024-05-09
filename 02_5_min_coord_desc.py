@@ -1,7 +1,7 @@
 from typing import Callable
 import numpy as np
 from decorators import check_arr_size
-from common_02 import displace, generate_basis
+from common_02 import generate_basis
 
 
 '''

@@ -1,17 +1,5 @@
 import numpy as np
 from time import time
-from warnings import deprecated
-
-@deprecated
-def validate_size(size: int):
-    def decorator(func):
-        def wrapper(w: np.ndarray):
-            if not w.size == size:
-                raise Exception(f'Arg must have size={size}')
-            return func(w)
-        return wrapper
-    return decorator
-
 
 def check_arr_size(func):
     def wrapper(*args: np.ndarray):

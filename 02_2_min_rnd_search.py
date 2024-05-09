@@ -2,8 +2,6 @@ from typing import Callable
 import numpy as np
 from decorators import check_arr_size, timeit
 from common_02 import generate_displacements, displace
-import matplotlib.pyplot as plt
-import seaborn as sns; sns.set_theme()
 
 
 '''
