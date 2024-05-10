@@ -7,15 +7,20 @@ def newton(
         x0: float,
         df: Callable[[float], float] = None,
         delta: float = .001,
-        max_iter: int = 100) -> tuple[float, float]:
+        max_iter: int = 100,
+        silly = False) -> tuple[float, float]:
     df = grad(f) if df is None else df
     x = x0
+    _f = f(x)
     for _ in range(max_iter):
         x = x - f(x) / df(x)
-        if abs(x) < delta:
+        _f = f(x)
+        if abs(_f) < delta:
             break
-    return x, f(x)
+    assert abs(_f) < delta or silly
+    return x, _f
 
 
 if __name__ == "__main__":
-    print(newton(lambda x: x**2 - 2, 1.0))
+    f = lambda x: x**2 - 2
+    print(newton(f, 1.0))
