@@ -14,7 +14,7 @@ def gg(w1, w2):
 
 
 if __name__ == '__main__':
-    task = 4
+    task = 1
     
     if task == 1:
         g_g = grad(g)

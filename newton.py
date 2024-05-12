@@ -1,5 +1,5 @@
 from typing import Callable
-from autograd import grad
+from autograd import grad, value_and_grad
 
 
 def newton(
@@ -15,7 +15,7 @@ def newton(
     for _ in range(max_iter):
         x = x - f(x) / df(x)
         _f = f(x)
-        if abs(_f) < delta:
+        if abs(_f) < delta: 
             break
     assert abs(_f) < delta or silly
     return x, _f

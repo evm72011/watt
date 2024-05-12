@@ -15,3 +15,8 @@ def displace(point: np.ndarray, displacements: np.ndarray)->np.ndarray:
 
 def generate_basis(dim: int, size: float)->np.ndarray:
     return np.concatenate((np.identity(dim), -np.identity(dim))) * size
+
+
+def normalize(x: np.ndarray, size: float = 1.0) -> np.ndarray:
+    length = np.sqrt(sum(x**2))
+    return x if length == 0 else x * (size / length)
