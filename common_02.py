@@ -20,3 +20,7 @@ def generate_basis(dim: int, size: float)->np.ndarray:
 def normalize(x: np.ndarray, size: float = 1.0) -> np.ndarray:
     length = np.sqrt(sum(x**2))
     return x if length == 0 else x * (size / length)
+
+
+def normalize_component(x: np.ndarray, size: float = 1.0) -> np.ndarray:
+    return np.where(x > 0, size, -size)
