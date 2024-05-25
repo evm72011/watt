@@ -1,5 +1,7 @@
 use num::Float;
+use std::fmt::Debug;
 
+#[derive(Debug)]
 pub struct Tensor<T = f32> where T: Float {
     pub shape: Vec<usize>,
     pub data: Vec<T>
@@ -10,6 +12,17 @@ impl<T> Tensor<T> where T: Float {
         let matching = self.shape.iter().zip(&tensor.shape).any(|(&a, &b)| a == b);
         assert!(matching, "Shape mismatch");
     }
+
+    pub fn is_vector(&self) -> bool {
+        self.shape.len() == 1
+    }
+
+    /*
+    pub fn normalize(&self) {
+        assert!(!self.is_vector(), "Must be vector");
+        let length = T::sqrt(self.data.iter().map(|&x| x * x).collect().sum());
+    }
+    */
 
     pub fn shape(&self) -> &Vec<usize> {
         &self.shape
