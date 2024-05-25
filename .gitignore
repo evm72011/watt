@@ -1,3 +1,8 @@
 .vscode
+.idea
 venv
 __pycache__
+
+ruwatt/src/main.exe
+ruwatt/src/main.pdb
+ruwatt/target
