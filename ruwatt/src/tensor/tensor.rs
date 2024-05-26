@@ -2,30 +2,23 @@ use num::Float;
 use std::fmt::Debug;
 
 #[derive(Debug)]
+#[derive(Clone)]
 pub struct Tensor<T = f32> where T: Float {
     pub shape: Vec<usize>,
     pub data: Vec<T>
 }
 
 impl<T> Tensor<T> where T: Float {
-    pub fn compare_shape(&self, tensor: &Tensor<T>) {
-        let matching = self.shape.iter().zip(&tensor.shape).any(|(&a, &b)| a == b);
-        assert!(matching, "Shape mismatch");
+    pub fn compare_shape(&self, shape: &Vec<usize>) {
+        assert_eq!(self.shape, *shape, "Shape mismatch");
     }
-
-    pub fn is_vector(&self) -> bool {
-        self.shape.len() == 1
-    }
-
-    /*
-    pub fn normalize(&self) {
-        assert!(!self.is_vector(), "Must be vector");
-        let length = T::sqrt(self.data.iter().map(|&x| x * x).collect().sum());
-    }
-    */
 
     pub fn shape(&self) -> &Vec<usize> {
         &self.shape
+    }
+
+    pub fn is_small(&self, delta: T) -> bool {
+        self.data.iter().any(|x| T::abs(*x) < delta)
     }
 
     pub fn data(&self) -> &Vec<T> {

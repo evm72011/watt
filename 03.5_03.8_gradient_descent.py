@@ -29,7 +29,7 @@ def min_gradient_descent(
 
 
 if __name__ == '__main__':
-    task = 4
+    task = 3
     if task == 1:
         g = lambda w: (w**4 + w**2 + 10*w) / 50
         print(min_gradient_descent(g, [2], 1000, 1))

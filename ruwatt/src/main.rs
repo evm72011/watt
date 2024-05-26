@@ -1,21 +1,26 @@
 mod tensor;
-use num::Float;
-use tensor::{Tensor, gradient_descent};
+mod optimization;
 
-fn test<T>(vector: &Tensor<T>) -> T where T: Float {
+use tensor::Tensor; //GradientDescent
+use optimization::GradientDescent;
+
+fn f(vector: &Tensor<f64>) -> f64 {
     let w0 = vector.get(vec![0]).unwrap();
     let w1 = vector.get(vec![1]).unwrap();
-    let f1_5 = T::from(1.5).unwrap();
-    let f2_0 = T::from(2.0).unwrap();
-    T::powi(*w0, 2) + T::powi(*w1, 2) + f2_0 * T::powi(T::sin(f1_5 * (*w0 + *w1)), 2) + f2_0
+    w0.powi(2) + w1.powi(2) + 2.0 * f64::sin(1.5 * (*w0 + *w1)).powi(2) + 2.0
 }
 
 fn main() {
-    let vector = Tensor::<f64>::vector(&[3.0, 3.0]);
-    println!("Vector: {}", vector);
+    let mut optimizator = GradientDescent::<f64> {
+        func: &f,
+        start_point: Tensor::vector(&[3.0, 3.0]),
+        ..Default::default()
+    };
+    optimizator.run();
+    let result = optimizator.result.unwrap();
+    println!("minimum: {}", result.value);
+    println!("arg: {}", result.arg);
+    println!("logs: {:?}", optimizator.logs);
+    //println!("history: {:?}", optimizator.log.data);
 
-    println!("Test: {}", test(&vector));
-
-    let minimum = gradient_descent(&test, vector, 10, 0.1, false);
-    println!("minimum: {}", minimum);
 }
