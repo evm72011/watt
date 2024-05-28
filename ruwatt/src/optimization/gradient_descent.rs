@@ -89,7 +89,6 @@ impl<'a, T> GradientDescent<'a, T> where T: Float + Debug {
         self.save_result((self.func)(&arg), arg.clone());
         for step in 0..self.step_count {
             let size = self.calc_step_size(step);
-            //let mut grad = gradient(self.func, &arg, self.derivative_delta);
             let mut grad = match self.grad_func {
                 Some(grad_func) => grad_func(&arg),
                 None => gradient(self.func, &arg, self.derivative_delta)

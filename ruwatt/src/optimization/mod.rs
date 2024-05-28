@@ -1,5 +1,5 @@
 pub mod derivative;
-pub mod optimization;
+pub mod gradient_descent;
 
 pub use derivative::*;
-pub use optimization::*;
+pub use gradient_descent::*;

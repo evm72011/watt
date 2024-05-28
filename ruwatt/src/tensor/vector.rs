@@ -15,7 +15,7 @@ impl<T> Tensor<T> where T: Float {
   }
 
   pub fn length(&self) -> T {
-      assert!(self.is_vector(), "Must be vector");
+      assert!(self.is_vector(), "Must be a vector");
       self.data.iter()
           .map(|&x| x * x)
           .fold(T::zero(), |sum, val| sum + val)
@@ -23,7 +23,7 @@ impl<T> Tensor<T> where T: Float {
   }
 
   pub fn set_length(&mut self, length: T) {
-      assert!(self.is_vector(), "Must be vector");
+      assert!(self.is_vector(), "Must be a vector");
       let scale = length / (self.length() + T::min_positive_value());
       for elem in &mut self.data {
           *elem = *elem * scale;

@@ -1,7 +1,7 @@
 mod tensor;
 mod optimization;
 
-use tensor::Tensor; //GradientDescent
+use tensor::Tensor;
 use optimization::GradientDescent;
 
 fn f(vector: &Tensor<f64>) -> f64 {
