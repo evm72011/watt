@@ -44,6 +44,7 @@ pub enum SmallGradientBehaviour {
 
 pub struct GradientDescent<'a, T> where T: Float + Debug {
     pub func: &'a dyn Fn(&Tensor<T>) -> T,
+    pub grad_func: Option<&'a dyn Fn(&Tensor<T>) -> Tensor<T>>,
     pub start_point: Tensor<T>, 
     pub step_count: i16,
     pub betta: T, 
@@ -63,6 +64,7 @@ impl<'a, T> Default for GradientDescent<'a, T> where T: Float + Debug {
     fn default() -> Self {
         Self {
             func: &|_| T::zero(),
+            grad_func: None,
             start_point: Tensor::<T>::vector(&[T::zero()]),
             step_count: 1000,
             betta: T::from(0.7).unwrap(), 
@@ -87,8 +89,11 @@ impl<'a, T> GradientDescent<'a, T> where T: Float + Debug {
         self.save_result((self.func)(&arg), arg.clone());
         for step in 0..self.step_count {
             let size = self.calc_step_size(step);
-            let mut grad = gradient(self.func, &arg, self.derivative_delta);
-
+            //let mut grad = gradient(self.func, &arg, self.derivative_delta);
+            let mut grad = match self.grad_func {
+                Some(grad_func) => grad_func(&arg),
+                None => gradient(self.func, &arg, self.derivative_delta)
+            };
             match &self.small_gradient_behaviour {
                 SmallGradientBehaviour::Displace => {
                     if grad.is_small(self.small_gradient_value) {

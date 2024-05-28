@@ -1,8 +1,7 @@
 use num::Float;
 use std::fmt::Debug;
 
-#[derive(Debug)]
-#[derive(Clone)]
+#[derive(Debug, Clone)]
 pub struct Tensor<T = f32> where T: Float {
     pub shape: Vec<usize>,
     pub data: Vec<T>
