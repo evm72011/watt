@@ -20,6 +20,11 @@ impl<T> Tensor<T> where T: Float {
         self.data.iter().any(|x| T::abs(*x) < delta)
     }
 
+    pub fn is_near(&self, other: Self, delta: T) -> bool {
+        self.compare_shape(&other.shape);
+        self.data.iter().zip(self.data.iter()).any(|(a,b)| T::abs(*a-*b) < delta)
+    }
+
     pub fn data(&self) -> &Vec<T> {
         &self.data
     }

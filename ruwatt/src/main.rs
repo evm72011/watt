@@ -1,6 +1,8 @@
 mod tensor;
 mod optimization;
 
+use std::process::exit;
+
 use tensor::Tensor;
 use optimization::GradientDescent;
 
@@ -16,14 +18,18 @@ fn grad_f(vector: &Tensor<f64>) -> Tensor<f64> {
     let common_teil = 3.0 * f64::sin(3.0 * (*w0 + *w1));
     let dw0 = w0 * 2.0 + common_teil;
     let dw1 = w1 * 2.0 + common_teil;
-    Tensor::vector(&vec![dw0, dw1])
+    Tensor::vector(vec![dw0, dw1])
 }
 
 fn main() {
+    let scalar = Tensor::<f32>::vector(vec![1.0]);
+    println!("scalar: {:?}", scalar);
+    exit(0);
+    /*
     let mut optimizator = GradientDescent::<f64> {
         func: &f,
         grad_func: Some(&grad_f),
-        start_point: Tensor::vector(&[3.0, 3.0]),
+        start_point: Tensor::vector(vec![3.0, 3.0]),
         ..Default::default()
     };
     optimizator.run();
@@ -32,5 +38,5 @@ fn main() {
     println!("arg: {}", result.arg);
     println!("logs: {:?}", optimizator.logs);
     //println!("history: {:?}", optimizator.log.data);
-
+    */
 }

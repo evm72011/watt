@@ -2,12 +2,18 @@ use num::Float;
 use super::Tensor;
 
 impl<T> Tensor<T> where T: Float {    
-  pub fn vector(data: &[T]) -> Self {
+  pub fn vector(data: Vec<T>) -> Self {
     let shape = [data.len()].to_vec();
     Self {
         shape,
         data: data.to_vec()
     }
+  }
+
+  pub fn ort(dim: usize, index: usize, length: T) -> Self {
+    let mut result = Tensor::<T>::zeros(vec![dim]);
+    result.set(vec![index], length);
+    result
   }
 
   pub fn is_vector(&self) -> bool {
@@ -37,7 +43,7 @@ mod tests {
 
     #[test]
     fn test_vector() {
-        let vector = Tensor::vector(&vec![1.0, 1.0]);
+        let vector = Tensor::vector(vec![1.0, 1.0]);
         let tensor = Tensor::ones(vec![2]);
         assert_eq!(vector, tensor);
     }
@@ -64,7 +70,7 @@ mod tests {
 
     #[test]
     fn test_length() {
-        let tensor = Tensor::vector(&vec![3.0, 4.0]);
+        let tensor = Tensor::vector(vec![3.0, 4.0]);
         let length = tensor.length();
         assert_eq!(length, 5.0);
     }
