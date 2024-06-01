@@ -30,3 +30,50 @@ impl<T> Tensor<T> where T: Float {
       }
   }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::Tensor;
+
+    #[test]
+    fn test_vector() {
+        let vector = Tensor::vector(&vec![1.0, 1.0]);
+        let tensor = Tensor::ones(vec![2]);
+        assert_eq!(vector, tensor);
+    }
+
+    #[test]
+    fn test_is_vector_true() -> Result<(), String> {
+        let tensor = Tensor::new(vec![3], 1.0);
+        assert_eq!(tensor.is_vector(), true);
+        Ok(())
+    }
+
+    #[test]
+    fn test_is_vector_false() {
+        let tensor = Tensor::new(vec![3, 3], 1.0);
+        assert_eq!(tensor.is_vector(), false);
+    }
+
+    #[test]
+    #[should_panic(expected = "Must be a vector")]
+    fn test_length_for_vector_only() {
+        let tensor = Tensor::new(vec![3, 3], 1.0);
+        tensor.length();
+    }
+
+    #[test]
+    fn test_length() {
+        let tensor = Tensor::vector(&vec![3.0, 4.0]);
+        let length = tensor.length();
+        assert_eq!(length, 5.0);
+    }
+
+    
+    #[test]
+    #[should_panic(expected = "Must be a vector")]
+    fn test_set_length_for_vector_only() {
+        let mut tensor = Tensor::new(vec![3, 3], 1.0);
+        tensor.set_length(5.0);
+    }
+}
