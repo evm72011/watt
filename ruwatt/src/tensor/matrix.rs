@@ -1,8 +1,7 @@
 use num::Float;
 use super::Tensor;
-use std::fmt::Debug;
 
-impl<T> Tensor<T> where T: Float + Debug {    
+impl<T> Tensor<T> where T: Float {    
     pub fn identity(size: usize) -> Self {
         let mut result = Self::zeros(vec![ size, size ]);
         for i in 0..size {
@@ -21,6 +20,14 @@ impl<T> Tensor<T> where T: Float + Debug {
         }
         }
         result
+    }
+
+    pub fn is_matrix(&self) -> bool {
+        self.shape.len() == 2
+    }
+
+    pub fn is_square_matrix(&self) -> bool {
+        self.shape.len() == 2 && self.shape[0] == self.shape[1]
     }
 
     pub fn tr(&self) -> Self {

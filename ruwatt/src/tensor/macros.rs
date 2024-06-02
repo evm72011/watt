@@ -21,6 +21,28 @@ macro_rules! assert_vector {
 }
 
 #[macro_export]
+macro_rules! assert_ket {
+    ($tensor:expr) => {
+        assert!(
+            $tensor.is_ket(),
+            "Tensor is not a ket vector: shape = {:?}",
+            $tensor.shape
+        );
+    };
+}
+
+#[macro_export]
+macro_rules! assert_square_matrix {
+    ($tensor:expr) => {
+        assert!(
+            $tensor.is_square_matrix(),
+            "Tensor is not a square matrix: shape = {:?}",
+            $tensor.shape
+        );
+    };
+}
+
+#[macro_export]
 macro_rules! assert_shape {
     ($tensor1:ident, $tensor2:ident) => {
         assert!(
