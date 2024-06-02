@@ -77,6 +77,6 @@ mod tests {
             vec![2.0, 0.0],
             vec![0.0, 2.0],
         ]);
-        assert!(expected.is_near(recieved, 0.001))
+        assert!(expected.is_near(recieved, 0.001)) 
     }
 }

@@ -20,12 +20,6 @@ fn grad_f(vector: &Tensor<f64>) -> Tensor<f64> {
 }
 
 fn main() {
-    let bra = Tensor::bra(vec![ 1.0, 2.0 ]);
-    let ket = Tensor::ket(vec![ 3.0, 4.0 ]);
-    let recieved = dot(&bra, &ket);
-    println!("recieved: {:?}", recieved);
-
-
     let mut optimizator = GradientDescent::<f64> {
         func: &f,
         grad_func: Some(&grad_f),

@@ -149,3 +149,49 @@ impl<'a, T> GradientDescent<'a, T> where T: Float + Debug {
         }
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::{Tensor, GradientDescent};
+
+    fn f(x: &Tensor) -> f32 {
+        2.0 + x.get_v(0).powi(2) + x.get_v(1).powi(2)
+    }
+
+    fn grad_f(vector: &Tensor) -> Tensor {
+        let w0 = vector.get_v(0);
+        let w1 = vector.get_v(1);
+        Tensor::ket(vec![2.0*w0, 2.0*w1])
+    }
+
+    #[test]
+    fn gradient_descent_analytic_grad() {
+        let mut optimizator = GradientDescent {
+            func: &f,
+            grad_func: Some(&grad_f),
+            start_point: Tensor::ket(vec![3.0, 3.0]),
+            ..Default::default()
+        };
+        optimizator.run();
+        let result = optimizator.result.unwrap();
+        let arg_expected = Tensor::ket(vec![0.0, 0.0]);
+        assert!(f32::abs(result.value - 2.0) < 0.001);
+        assert!(result.arg.is_ket());
+        assert!(result.arg.is_near(arg_expected, 0.001))
+    }
+
+    #[test]
+    fn gradient_descent_numeric_grad() {
+        let mut optimizator = GradientDescent {
+            func: &f,
+            start_point: Tensor::ket(vec![3.0, 3.0]),
+            ..Default::default()
+        };
+        optimizator.run();
+        let result = optimizator.result.unwrap();
+        let arg_expected = Tensor::ket(vec![0.0, 0.0]);
+        assert!(f32::abs(result.value - 2.0) < 0.001);
+        assert!(result.arg.is_ket());
+        assert!(result.arg.is_near(arg_expected, 0.001))
+    }
+}
