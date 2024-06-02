@@ -21,9 +21,8 @@ impl<T> Tensor<T> where T: Float {
     }
 
     pub fn get(&self, indices: Vec<usize>) -> T {
-        let index = self.calculate_index(indices);
+        let index = self.calc_index(indices);
         self.data[index]
-        //self.calculate_index(indices).and_then(|idx| self.data.get(idx))
     }
 
     pub fn get_v(&self, index: usize) -> &T {
@@ -33,37 +32,11 @@ impl<T> Tensor<T> where T: Float {
     }
 
     pub fn set(&mut self, indices: Vec<usize>, value: T) {
-        let index = self.calculate_index(indices);
+        let index = self.calc_index(indices);
         self.data[index] = value;
     }
 
-    /*
-    pub fn set(&mut self, indices: Vec<usize>, value: T) -> Option<()> {
-        if let Some(idx) = self.calculate_index(indices) {
-            if let Some(elem) = self.data.get_mut(idx) {
-                *elem = value;
-                return Some(());
-            }
-        }
-        None
-    }
-
-    fn _calculate_index(&self, indices: Vec<usize>) -> Option<usize> {
-        assert_out_of_range!(self, indices);
-        let mut index = 0;
-        let mut stride = 1;
-        for (i, &dim) in self.shape.iter().rev().enumerate() {
-            if indices[self.shape.len() - 1 - i] >= dim {
-                return None;
-            }
-            index += indices[self.shape.len() - 1 - i] * stride;
-            stride *= dim;
-        }
-        Some(index)
-    }
-    */
-
-    fn calculate_index(&self, indices: Vec<usize>) -> usize {
+    fn calc_index(&self, indices: Vec<usize>) -> usize {
         assert_out_of_range!(self, indices);
         let mut index = 0;
         let mut stride = 1;
@@ -103,7 +76,7 @@ mod tests {
     fn set_get() {
         let mut matrix = Tensor::zeros(vec![3, 3]);
         matrix.set(vec![1, 1], 5.0);
-        let value = matrix.get(vec![1, 1]).unwrap();
-        assert_eq!(*value, 5.0);
+        let value = matrix.get(vec![1, 1]);
+        assert_eq!(value, 5.0);
     }
 }

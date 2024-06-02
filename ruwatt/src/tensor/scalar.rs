@@ -1,5 +1,6 @@
 use num::Float;
 use super::Tensor;
+use crate::assert_scalar;
 
 impl<T> Tensor<T> where T: Float {    
   pub fn scalar(value: T) -> Self {
@@ -11,6 +12,11 @@ impl<T> Tensor<T> where T: Float {
 
   pub fn is_scalar(&self) -> bool {
     self.shape == vec![0]
+  }
+
+  pub fn get_s(&self) -> T {
+    assert_scalar!(self);
+    self.data[0]
   }
 }
 

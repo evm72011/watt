@@ -22,7 +22,31 @@ impl<T> Tensor<T> where T: Float + Debug {
         }
         result
     }
+
+    pub fn tr(&self) -> Self {
+        if self.shape.len() > 2 {
+            unimplemented!("This method is not yet implemented for dim > 2");
+        }
+        let rows = self.shape[0];
+        let cols = self.shape[1];
+        let data = if self.is_vector() {
+            self.data.to_vec()
+        } else {
+            let mut transposed_data = vec![T::zero(); self.data.len()];
+            for i in 0..rows {
+                for j in 0..cols {
+                    transposed_data[j * rows + i] = self.data[i * cols + j].clone();
+                }
+            }
+            transposed_data
+        };
+
+        Tensor {
+            shape: vec![cols, rows],
+            data
+        }
     }
+}
 
 #[cfg(test)]
 mod tests {
@@ -37,8 +61,35 @@ mod tests {
 
     #[test]
     fn matrix() {
-        let matrix = Tensor::<f32>::matrix(vec![vec![1.0, 2.0], vec![3.0, 4.0]]);
+        let matrix = Tensor::matrix(vec![
+            vec![1.0, 2.0], 
+            vec![3.0, 4.0]
+        ]);
         assert_eq!(matrix.shape, vec![2, 2]);
         assert_eq!(matrix.data, vec![1.0, 2.0, 3.0, 4.0]);
+    }
+
+    #[test]
+    fn tr_vector() {
+        let vector = Tensor::bra(vec![1.0, 2.0, 3.0]);
+        let expected = Tensor::ket(vec![1.0, 2.0, 3.0]);
+        let recieved = vector.tr();
+        assert!(recieved == expected);
+    }
+
+    #[test]
+    fn tr_matrix() {
+        let matrix = Tensor::matrix(vec![
+            vec![1.0, 2.0, 3.0], 
+            vec![4.0, 5.0, 6.0]
+        ]);
+
+        let expected = Tensor::matrix(vec![
+            vec![1.0, 4.0], 
+            vec![2.0, 5.0], 
+            vec![3.0, 6.0]
+        ]);
+        let recieved = matrix.tr();
+        assert_eq!(expected, recieved);
     }
 }

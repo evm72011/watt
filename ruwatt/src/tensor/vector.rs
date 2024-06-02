@@ -4,16 +4,27 @@ use super::Tensor;
 
 
 impl<T> Tensor<T> where T: Float {    
-  pub fn vector(data: Vec<T>) -> Self {
+  pub fn bra(data: Vec<T>) -> Self {
+    Self {
+        shape: vec![1, data.len()],
+        data: data.to_vec()
+    }
+  }
+
+  pub fn ket(data: Vec<T>) -> Self {
     Self {
         shape: vec![data.len(), 1],
         data: data.to_vec()
     }
   }
 
+  pub fn vector(data: Vec<T>) -> Self {
+    Self::ket(data)
+  }
+
   pub fn ort(dim: usize, index: usize, length: T) -> Self {
     let mut result = Tensor::<T>::zeros(vec![dim, 1]);
-    result.set(vec![index, 1], length);
+    result.set(vec![index, 0], length);
     result
   }
 

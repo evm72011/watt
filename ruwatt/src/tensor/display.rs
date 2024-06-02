@@ -3,11 +3,8 @@ use std::fmt;
 use super::Tensor;
 
 fn print_cell<T>(tensor: &Tensor<T>, indices: Vec<usize>, f: &mut fmt::Formatter) -> fmt::Result where T: Float + fmt::Display {
-    if let Some(value) = tensor.get(indices) {
-        write!(f, "{:>8} ", value)?;
-    } else {
-        write!(f, "{:>8} ", "NaN")?; // This case shouldn't happen
-    }
+    let value = tensor.get(indices);
+    write!(f, "{:>8} ", value)?;
     Ok(())
 }
 

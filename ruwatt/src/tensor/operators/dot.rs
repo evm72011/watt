@@ -2,17 +2,11 @@ use num::Float;
 use super::super::Tensor;
 
 pub fn dot<T>(a: &Tensor<T>, b: &Tensor<T>) -> Tensor<T> where T: Float {
-    assert!(a.shape.len() <= 2);
-    assert!(b.shape.len() <= 2);
-    assert!(a.shape.len() >= a.shape.len());
-
-    if a.shape.len() == 1 && b.shape.len() == 1 {
-        assert_eq!(a.shape[0], b.shape[0]);
-        let product = a.data.iter().zip(b.data.iter()).map(|(a,b)| *a * *b).fold(T::zero(), |sum, val| sum + val);
-        return Tensor::<T>::vector(vec![product]);
+    if a.is_scalar() || b.is_scalar() || a.shape.len() > 2 || a.shape.len() > 2 {
+        unimplemented!("This method is not yet implemented");
     }
 
-    assert_eq!(a.shape[1], b.shape[0]);
+    assert_eq!(a.shape[1], b.shape[0], "Incompatible shapes to dot: {:?} vs {:?}", a.shape, b.shape);
     let rows = a.shape[0];
     let cols = b.shape[1];
     let summs = a.shape[1];
@@ -21,7 +15,7 @@ pub fn dot<T>(a: &Tensor<T>, b: &Tensor<T>) -> Tensor<T> where T: Float {
         for col in 0..cols {
             let mut value = T::zero();
             for i in 0..summs  {
-                value = value + *a.get(vec![row, i]).unwrap() * *b.get(vec![i, col]).unwrap();
+                value = value + a.get(vec![row, i]) * b.get(vec![i, col]);
             }
             result.set(vec![row, col], value);
         }
@@ -34,11 +28,20 @@ mod tests {
     use super::{Tensor, dot};
 
     #[test]
+    #[should_panic(expected = "Incompatible shapes to dot: [1, 2] vs [1, 2]")]
+    fn dot_error() {
+        let vector = Tensor::bra(vec![ 1.0, 2.0 ]);
+        dot(&vector, &vector);
+    }
+
+
+    #[test]
     fn dot_vector_vector() {
-        let vector = Tensor::vector(vec![ 1.0, 2.0 ]);
-        let recieved = dot(&vector, &vector);
-        let expected = Tensor::vector(vec![ 5.0 ]);
-        assert!(expected.is_near(recieved))
+        let bra = Tensor::bra(vec![ 1.0, 2.0 ]);
+        let ket = Tensor::ket(vec![ 3.0, 4.0 ]);
+        let recieved = dot(&bra, &ket);
+        let expected = Tensor::vector(vec![ 11.0 ]);
+        assert!(recieved == expected)
     }
 
     #[test]
@@ -57,6 +60,6 @@ mod tests {
             vec![ 22.0, 28.0 ],
             vec![ 49.0, 64.0 ]
         ]);
-        assert!(expected == recieved)
+        assert_eq!(expected, recieved)
     }
 }
