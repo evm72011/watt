@@ -40,7 +40,7 @@ mod tests {
         let bra = Tensor::bra(vec![ 1.0, 2.0 ]);
         let ket = Tensor::ket(vec![ 3.0, 4.0 ]);
         let recieved = dot(&bra, &ket);
-        let expected = Tensor::vector(vec![ 11.0 ]);
+        let expected = Tensor::new(vec![ 1, 1 ], 11.0);
         assert!(recieved == expected)
     }
 

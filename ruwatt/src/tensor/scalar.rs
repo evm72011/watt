@@ -39,7 +39,7 @@ mod tests {
 
     #[test]
     fn is_scalar_false() {
-        let scalar = Tensor::vector(vec![ 1.0, 2.0 ]);
+        let scalar = Tensor::new(vec![ 1, 2 ], 1.0);
         assert!(!scalar.is_scalar());
     }
 }

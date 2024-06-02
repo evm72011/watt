@@ -4,49 +4,85 @@ use super::Tensor;
 
 
 impl<T> Tensor<T> where T: Float {    
-  pub fn bra(data: Vec<T>) -> Self {
-    Self {
-        shape: vec![1, data.len()],
-        data: data.to_vec()
+    pub fn bra(data: Vec<T>) -> Self {
+        Self {
+            shape: vec![1, data.len()],
+            data: data.to_vec()
+        }
     }
-  }
 
-  pub fn ket(data: Vec<T>) -> Self {
-    Self {
-        shape: vec![data.len(), 1],
-        data: data.to_vec()
+    pub fn ket(data: Vec<T>) -> Self {
+        Self {
+            shape: vec![data.len(), 1],
+            data: data.to_vec()
+        }
     }
-  }
+  
+    pub fn get_v(&self, index: usize) -> &T {
+        assert_vector!(self);
+        assert!(index < *self.shape.iter().max().unwrap());
+        self.data.get(index).unwrap()
+    }
 
-  pub fn vector(data: Vec<T>) -> Self {
-    Self::ket(data)
-  }
+    pub fn set_v(&mut self, index: usize, value: T) {
+        assert_vector!(self);
+        assert!(index < *self.shape.iter().max().unwrap());
+        self.data[index] = value
+    }
 
-  pub fn ort(dim: usize, index: usize, length: T) -> Self {
-    let mut result = Tensor::<T>::zeros(vec![dim, 1]);
-    result.set(vec![index, 0], length);
-    result
-  }
+    pub fn ort(is_bra: bool, dim: usize, index: usize, length: T) -> Self {
+        if is_bra {
+            Self::bra_ort(dim, index, length)
+        } else {
+            Self::ket_ort(dim, index, length)
+        }
+    }
 
-  pub fn is_vector(&self) -> bool {
-    self.shape.len() == 2 && (self.shape[0] == 1 || self.shape[1] == 1)
-  }
+    pub fn bra_ort(dim: usize, index: usize, length: T) -> Self {
+        let mut result = Tensor::<T>::zeros(vec![1, dim]);
+        result.set_v(index, length);
+        result
+    }
 
-  pub fn length(&self) -> T {
-      assert_vector!(self);
-      self.data.iter()
-          .map(|&x| x * x)
-          .fold(T::zero(), |sum, val| sum + val)
-          .sqrt()
-  }
+    pub fn ket_ort(dim: usize, index: usize, length: T) -> Self {
+        let mut result = Tensor::<T>::zeros(vec![dim, 1]);
+        result.set_v(index, length);
+        result
+    }
 
-  pub fn set_length(&mut self, length: T) {
-    assert_vector!(self);
-    let scale = length / (self.length() + T::min_positive_value());
-      for elem in &mut self.data {
-          *elem = *elem * scale;
-      }
-  }
+    pub fn is_vector(&self) -> bool {
+        self.shape.len() == 2 && (self.shape[0] == 1 || self.shape[1] == 1)
+    }
+
+    pub fn is_bra(&self) -> bool {
+        self.shape.len() == 2 && self.shape[0] == 1
+    }
+
+    pub fn is_ket(&self) -> bool {
+        self.shape.len() == 2 && self.shape[1] == 1
+    }
+
+    
+    pub fn dim(&self) -> usize {
+        assert_vector!(self);
+        *self.shape.iter().max().unwrap()
+    }
+
+    pub fn length(&self) -> T {
+        assert_vector!(self);
+        self.data.iter()
+            .map(|&x| x * x)
+            .fold(T::zero(), |sum, val| sum + val)
+            .sqrt()
+    }
+
+    pub fn set_length(&mut self, length: T) {
+        assert_vector!(self);
+        let scale = length / (self.length() + T::min_positive_value());
+        for elem in &mut self.data {
+            *elem = *elem * scale;
+        }
+    }
 }
 
 #[cfg(test)]
@@ -54,16 +90,36 @@ mod tests {
     use super::Tensor;
 
     #[test]
-    fn vector() {
-        let vector = Tensor::vector(vec![1.0, 1.0]);
+    fn bra() {
+        let vector = Tensor::bra(vec![1.0, 2.0]);
+        assert_eq!(vector.shape, vec![1, 2]);
+        assert_eq!(vector.data, vec![1.0, 2.0]);
+        assert!(vector.is_bra());
+        assert!(!vector.is_ket());
+    }
+
+    #[test]
+    fn ket() {
+        let vector = Tensor::ket(vec![1.0, 2.0]);
         assert_eq!(vector.shape, vec![2, 1]);
-        assert_eq!(vector.shape, vec![2, 1]);
+        assert_eq!(vector.data, vec![1.0, 2.0]);
+        assert!(!vector.is_bra());
+        assert!(vector.is_ket());
+    }
+
+    #[test]
+    fn set_get_v() {
+        let mut vector = Tensor::bra(vec![1.0, 2.0, 3.0]);
+        vector.set_v(1, 4.0);
+        let value = vector.get_v(1);
+        assert_eq!(*value, 4.0);
     }
 
     #[test]
     fn ort() {
-        let vector = Tensor::ort(3, 1, 2.0);
-        assert_eq!(vector.shape, vec![3, 1]);
+        let vector = Tensor::ort(true, 3, 1, 2.0);
+        assert!(vector.is_bra());
+        assert_eq!(vector.shape, vec![1, 3]);
         assert_eq!(vector.data, vec![0.0, 2.0, 0.0]);
     }
 
@@ -88,12 +144,20 @@ mod tests {
     }
 
     #[test]
+    fn dim() {
+        let bra = Tensor::bra(vec![1.0, 2.0, 3.0]);
+        assert_eq!(bra.dim(), 3);
+
+        let ket = Tensor::ket(vec![1.0, 2.0, 3.0]);
+        assert_eq!(ket.dim(), 3);
+    }
+
+    #[test]
     fn length() {
-        let tensor = Tensor::vector(vec![3.0, 4.0]);
+        let tensor = Tensor::bra(vec![3.0, 4.0]);
         let length = tensor.length();
         assert_eq!(length, 5.0);
     }
-
     
     #[test]
     #[should_panic(expected = "Tensor is not a vector: shape = [3, 3]")]

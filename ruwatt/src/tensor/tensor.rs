@@ -1,6 +1,6 @@
 use num::Float;
 use std::fmt::Debug;
-use crate::{ assert_shape, assert_vector, assert_out_of_range };
+use crate::{ assert_shape, assert_out_of_range };
 
 #[derive(Debug, Clone)]
 pub struct Tensor<T = f32> where T: Float {
@@ -14,21 +14,14 @@ impl<T> Tensor<T> where T: Float {
         self.data.iter().any(|x| T::abs(*x) < delta)
     }
 
-    pub fn is_near(&self, other: Self) -> bool {
-        let delta = T::from(0.0001).unwrap();
+    pub fn is_near(&self, other: Self, delta: T) -> bool {
         assert_shape!(self, other);
-        self.data.iter().zip(self.data.iter()).any(|(a, b)| T::abs(*a-*b) < delta)
+        self.data.iter().zip(other.data.iter()).any(|(a, b)| T::abs(*a - *b) < delta)
     }
 
     pub fn get(&self, indices: Vec<usize>) -> T {
         let index = self.calc_index(indices);
         self.data[index]
-    }
-
-    pub fn get_v(&self, index: usize) -> &T {
-        assert_vector!(self);
-        assert!(index < self.shape[0]);
-        self.data.get(index).unwrap()
     }
 
     pub fn set(&mut self, indices: Vec<usize>, value: T) {
@@ -59,17 +52,18 @@ mod tests {
     }
 
     #[test]
-    fn is_near() {
-        let tensor1 = Tensor::new(vec![2, 2], 0.000001);
-        let tensor2 = Tensor::new(vec![2, 2], 0.000001);
-        assert!(tensor1.is_near(tensor2));
+    fn is_near_true() {
+        let tensor1 = Tensor::new(vec![2, 2], 1.0001);
+        let tensor2 = Tensor::new(vec![2, 2], 1.0);
+        assert!(tensor1.is_near(tensor2, 0.001));
     }
 
+    
     #[test]
-    fn get_v() {
-        let vector = Tensor::vector(vec![1.0, 2.0, 3.0]);
-        let value = vector.get_v(2);
-        assert_eq!(*value, 3.0);
+    fn is_near_false() {
+        let tensor1 = Tensor::new(vec![2, 2], 1.0);
+        let tensor2 = Tensor::new(vec![2, 2], 2.0);
+        assert!(!tensor1.is_near(tensor2, 0.001));
     }
 
     #[test]

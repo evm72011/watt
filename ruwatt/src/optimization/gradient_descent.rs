@@ -64,7 +64,7 @@ impl<'a, T> Default for GradientDescent<'a, T> where T: Float + Debug {
         Self {
             func: &|_| T::zero(),
             grad_func: None,
-            start_point: Tensor::<T>::vector(vec![T::zero()]),
+            start_point: Tensor::<T>::ket(vec![T::zero()]),
             step_count: 1000,
             betta: T::from(0.7).unwrap(), 
             step_size: T::one(), 
@@ -75,7 +75,7 @@ impl<'a, T> Default for GradientDescent<'a, T> where T: Float + Debug {
             progress: OptimizationProgress::new(),
             result: None,
             logs: vec![],
-            grad_prev: Tensor::<T>::vector(vec![T::zero()])
+            grad_prev: Tensor::<T>::ket(vec![T::zero()])
         }
     }
 }
