@@ -47,8 +47,8 @@ mod tests {
     fn test_hessian_x2_plus_y2() {
         let f = |x: &Tensor::<f32>| x.get(vec![0]).unwrap().powi(2) + x.get(vec![1]).unwrap().powi(2);
         let recieved = hessian(&f, &Tensor::<f32>::zeros(vec![2]), 0.001);
-        let mut expected = Tensor::<f32>::identity(2, 2);
+        let mut expected = Tensor::<f32>::identity(2);
         expected = expected * 2.0;
-        assert!(expected.is_near(recieved, 0.00001))
+        assert!(expected.is_near(recieved))
     }
 }

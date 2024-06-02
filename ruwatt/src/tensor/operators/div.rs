@@ -1,12 +1,13 @@
 use std::ops;
 use num::Float;
 use super::super::Tensor;
+use crate::assert_shape;
 
 impl<T> ops::Div<&Tensor<T>> for &Tensor<T> where T: Float {
     type Output = Tensor<T>;
 
     fn div(self, other: &Tensor<T>) -> Tensor<T>  {
-        self.compare_shape(&other.shape);
+        assert_shape!(self, other);
         let data = self.data.iter().zip(&other.data).map(|(&a, &b)| a / b).collect();
         Tensor {
             data,

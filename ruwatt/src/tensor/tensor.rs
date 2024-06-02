@@ -1,5 +1,6 @@
 use num::Float;
 use std::fmt::Debug;
+use crate::{ assert_shape, assert_vector, assert_out_of_range };
 
 #[derive(Debug, Clone)]
 pub struct Tensor<T = f32> where T: Float {
@@ -8,31 +9,35 @@ pub struct Tensor<T = f32> where T: Float {
 }
 
 impl<T> Tensor<T> where T: Float {
-    pub fn compare_shape(&self, shape: &Vec<usize>) {
-        assert_eq!(self.shape, *shape, "Shape mismatch");
-    }
-
-    pub fn shape(&self) -> &Vec<usize> {
-        &self.shape
-    }
-
-    pub fn is_small(&self, delta: T) -> bool {
+    pub fn is_small(&self) -> bool {
+        let delta = T::from(0.0001).unwrap();
         self.data.iter().any(|x| T::abs(*x) < delta)
     }
 
-    pub fn is_near(&self, other: Self, delta: T) -> bool {
-        self.compare_shape(&other.shape);
-        self.data.iter().zip(self.data.iter()).any(|(a,b)| T::abs(*a-*b) < delta)
+    pub fn is_near(&self, other: Self) -> bool {
+        let delta = T::from(0.0001).unwrap();
+        assert_shape!(self, other);
+        self.data.iter().zip(self.data.iter()).any(|(a, b)| T::abs(*a-*b) < delta)
     }
 
-    pub fn data(&self) -> &Vec<T> {
-        &self.data
+    pub fn get(&self, indices: Vec<usize>) -> T {
+        let index = self.calculate_index(indices);
+        self.data[index]
+        //self.calculate_index(indices).and_then(|idx| self.data.get(idx))
     }
 
-    pub fn get(&self, indices: Vec<usize>) -> Option<&T> {
-        self.calculate_index(indices).and_then(|idx| self.data.get(idx))
+    pub fn get_v(&self, index: usize) -> &T {
+        assert_vector!(self);
+        assert!(index < self.shape[0]);
+        self.data.get(index).unwrap()
     }
 
+    pub fn set(&mut self, indices: Vec<usize>, value: T) {
+        let index = self.calculate_index(indices);
+        self.data[index] = value;
+    }
+
+    /*
     pub fn set(&mut self, indices: Vec<usize>, value: T) -> Option<()> {
         if let Some(idx) = self.calculate_index(indices) {
             if let Some(elem) = self.data.get_mut(idx) {
@@ -43,10 +48,8 @@ impl<T> Tensor<T> where T: Float {
         None
     }
 
-    fn calculate_index(&self, indices: Vec<usize>) -> Option<usize> {
-        if indices.len() != self.shape.len() {
-            return None;
-        }
+    fn _calculate_index(&self, indices: Vec<usize>) -> Option<usize> {
+        assert_out_of_range!(self, indices);
         let mut index = 0;
         let mut stride = 1;
         for (i, &dim) in self.shape.iter().rev().enumerate() {
@@ -57,5 +60,50 @@ impl<T> Tensor<T> where T: Float {
             stride *= dim;
         }
         Some(index)
+    }
+    */
+
+    fn calculate_index(&self, indices: Vec<usize>) -> usize {
+        assert_out_of_range!(self, indices);
+        let mut index = 0;
+        let mut stride = 1;
+        for (i, &dim) in self.shape.iter().rev().enumerate() {
+            index += indices[self.shape.len() - 1 - i] * stride;
+            stride *= dim;
+        }
+        index
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::Tensor;
+
+    #[test]
+    fn is_small() {
+        let tensor = Tensor::new(vec![2, 2], 0.00001);
+        assert!(tensor.is_small());
+    }
+
+    #[test]
+    fn is_near() {
+        let tensor1 = Tensor::new(vec![2, 2], 0.000001);
+        let tensor2 = Tensor::new(vec![2, 2], 0.000001);
+        assert!(tensor1.is_near(tensor2));
+    }
+
+    #[test]
+    fn get_v() {
+        let vector = Tensor::vector(vec![1.0, 2.0, 3.0]);
+        let value = vector.get_v(2);
+        assert_eq!(*value, 3.0);
+    }
+
+    #[test]
+    fn set_get() {
+        let mut matrix = Tensor::zeros(vec![3, 3]);
+        matrix.set(vec![1, 1], 5.0);
+        let value = matrix.get(vec![1, 1]).unwrap();
+        assert_eq!(*value, 5.0);
     }
 }

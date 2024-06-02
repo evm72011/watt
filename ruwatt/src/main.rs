@@ -1,9 +1,7 @@
 mod tensor;
 mod optimization;
 
-use std::process::exit;
-
-use tensor::Tensor;
+use tensor::{dot::dot, Tensor};
 use optimization::GradientDescent;
 
 fn f(vector: &Tensor<f64>) -> f64 {
@@ -22,10 +20,10 @@ fn grad_f(vector: &Tensor<f64>) -> Tensor<f64> {
 }
 
 fn main() {
-    let scalar = Tensor::<f32>::vector(vec![1.0]);
-    println!("scalar: {:?}", scalar);
-    exit(0);
-    /*
+    let mut result = Tensor::<f32>::zeros(vec![3, 1]);
+    result.set(vec![1, 1], 2.0);
+    println!("result: {:?}", result);
+    
     let mut optimizator = GradientDescent::<f64> {
         func: &f,
         grad_func: Some(&grad_f),
@@ -38,5 +36,5 @@ fn main() {
     println!("arg: {}", result.arg);
     println!("logs: {:?}", optimizator.logs);
     //println!("history: {:?}", optimizator.log.data);
-    */
+    
 }

@@ -51,7 +51,6 @@ pub struct GradientDescent<'a, T> where T: Float + Debug {
     pub step_size: T, 
     pub decrement_step: bool,
     pub analyze_progress: bool,
-    pub small_gradient_value: T,
     pub small_gradient_behaviour: SmallGradientBehaviour,
     pub derivative_delta: T,
     pub progress: OptimizationProgress<T>,
@@ -71,7 +70,6 @@ impl<'a, T> Default for GradientDescent<'a, T> where T: Float + Debug {
             step_size: T::one(), 
             decrement_step: true,
             analyze_progress: true,
-            small_gradient_value: T::from(0.0001).unwrap(),
             small_gradient_behaviour: SmallGradientBehaviour::Interrupt,
             derivative_delta: T::from(0.0001).unwrap(),
             progress: OptimizationProgress::new(),
@@ -95,14 +93,14 @@ impl<'a, T> GradientDescent<'a, T> where T: Float + Debug {
             };
             match &self.small_gradient_behaviour {
                 SmallGradientBehaviour::Displace => {
-                    if grad.is_small(self.small_gradient_value) {
+                    if grad.is_small() {
                         arg = Tensor::random(arg.shape.to_vec());
                         self.logs.push(format!("Step {}: Small gradient. Change point.", step));
                         continue;                        
                     }
                 }
                 SmallGradientBehaviour::Interrupt => {
-                    if grad.is_small(self.small_gradient_value) {
+                    if grad.is_small() {
                         self.logs.push(format!("Step {}: Small gradient. Interrupted.", step));
                         break;
                     }

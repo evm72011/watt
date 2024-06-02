@@ -23,16 +23,4 @@ impl<T> Tensor<T> where T: Float {
         let data = (0..size).map(|_| T::from(rng.gen::<f32>()).unwrap()).collect();
         Self { shape, data }
     } 
-
-    pub fn identity(dim: usize, size: usize) -> Self {
-        let shape = vec![size; dim];
-        let data_size = shape.iter().product();
-        let data = vec![T::zero(); data_size];
-        let mut tensor = Self { shape, data };
-        for i in 0..size {
-            let indices = vec![i; dim];
-            tensor.set(indices, T::one());
-        }
-        tensor
-    }
 }

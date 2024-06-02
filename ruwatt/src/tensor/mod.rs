@@ -1,14 +1,13 @@
 pub mod tensor;
 pub mod constructors;
-//pub mod functions;
 pub mod operators;
 pub mod display;
-//pub mod derivative;
-//pub mod optimization;
+pub mod scalar;
 pub mod vector;
+pub mod matrix;
+pub mod macros;
 
 pub use tensor::Tensor;
-//pub use functions::*;
 pub use constructors::*;
-//pub use derivative::*;
-//pub use optimization::*;
+pub use operators::*;
+pub use macros::*;
