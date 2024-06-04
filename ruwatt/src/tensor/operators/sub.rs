@@ -28,6 +28,14 @@ impl<T> ops::Sub<Tensor<T>> for Tensor<T> where T: Float {
     }
 }
 
+impl<T> ops::Sub<Tensor<T>> for &Tensor<T> where T: Float {
+    type Output = Tensor<T>;
+
+    fn sub(self, other: Tensor<T>) -> Self::Output  {
+        sub_tensors(self, &other)
+  }
+}
+
 #[cfg(test)]
 mod tests {
     use super::Tensor;

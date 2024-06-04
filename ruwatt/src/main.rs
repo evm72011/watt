@@ -2,7 +2,7 @@ mod tensor;
 mod optimization;
 
 use tensor::Tensor;
-use optimization::GradientDescent;
+use optimization::{systemle::system_le, GradientDescent};
 
 fn f(vector: &Tensor<f64>) -> f64 {
     let w0 = vector.get_v(0);
@@ -20,6 +20,18 @@ fn grad_f(vector: &Tensor<f64>) -> Tensor<f64> {
 }
 
 fn main() {
+    let a = Tensor::matrix(vec![
+        vec![1.0, 2.0, 1.0],
+        vec![2.0, 1.0, 2.0],
+        vec![3.0, 3.0, 1.0]
+    ]);
+    let b= Tensor::ket(vec![8.0, 10.0, 12.0]);
+
+    let recieved = system_le(&a, &b, 1000, 0.001);
+
+    let expected = Tensor::ket(vec![1.0, 2.0, 3.0]);
+    assert_eq!(recieved, expected);
+    
     let mut optimizator = GradientDescent::<f64> {
         func: &f,
         grad_func: Some(&grad_f),

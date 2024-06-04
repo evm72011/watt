@@ -28,6 +28,15 @@ impl<T> ops::Add<Tensor<T>> for Tensor<T> where T: Float {
     }
 }
 
+
+impl<T> ops::Add<&Tensor<T>> for Tensor<T> where T: Float {
+    type Output = Tensor<T>;
+
+    fn add(self, other: &Tensor<T>) -> Tensor<T>  {
+        add_tensors(&self, other)
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::Tensor;
