@@ -3,7 +3,7 @@ use super::super::Tensor;
 use crate::{ assert_ket, assert_square_matrix, tensor::dot::dot };
 
 // x_(k+1) = (I-A)*x_k + b
-
+#[allow(dead_code)]
 pub fn system_le<T>(a: &Tensor<T>, b: &Tensor<T>, step_count: usize, delta: T) -> Tensor<T> where T: Float {
     assert_square_matrix!(a);
     assert_ket!(b);

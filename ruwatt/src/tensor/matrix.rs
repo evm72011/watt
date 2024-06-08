@@ -31,8 +31,8 @@ impl<T> Tensor<T> where T: Float {
     }
 
     pub fn tr(&self) -> Self {
-        if self.shape.len() > 2 {
-            unimplemented!("This method is not yet implemented for dim > 2");
+        if self.shape.len() != 2 {
+            unimplemented!("This method is implemented for matrix only");
         }
         let rows = self.shape[0];
         let cols = self.shape[1];
@@ -52,6 +52,14 @@ impl<T> Tensor<T> where T: Float {
             shape: vec![cols, rows],
             data
         }
+    }
+
+    pub fn get_row(&self, row: usize) -> Self {
+        let size = self.shape[1];
+        let start = size * row;
+        let end = size * row + size;
+        let data: Vec<T> = self.data[start..end].to_vec();
+        Tensor::<T>::bra(data)
     }
 }
 
@@ -97,6 +105,20 @@ mod tests {
             vec![3.0, 6.0]
         ]);
         let recieved = matrix.tr();
+        assert_eq!(expected, recieved);
+    }
+
+    #[test]
+    fn get_row() {
+        let matrix = Tensor::matrix(vec![
+            vec![1.0, 2.0, 3.0], 
+            vec![4.0, 5.0, 6.0],
+            vec![7.0, 8.0, 9.0]
+        ]);
+
+        let expected = Tensor::bra(vec![4.0, 5.0, 6.0]);
+
+        let recieved = matrix.get_row(1);
         assert_eq!(expected, recieved);
     }
 }

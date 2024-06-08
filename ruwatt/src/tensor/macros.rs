@@ -32,6 +32,28 @@ macro_rules! assert_ket {
 }
 
 #[macro_export]
+macro_rules! assert_bra {
+    ($tensor:expr) => {
+        assert!(
+            $tensor.is_bra(),
+            "Tensor is not a bra vector: shape = {:?}",
+            $tensor.shape
+        );
+    };
+}
+
+#[macro_export]
+macro_rules! assert_matrix {
+    ($tensor:expr) => {
+        assert!(
+            $tensor.is_matrix(),
+            "Tensor is not a matrix: shape = {:?}",
+            $tensor.shape
+        );
+    };
+}
+
+#[macro_export]
 macro_rules! assert_square_matrix {
     ($tensor:expr) => {
         assert!(

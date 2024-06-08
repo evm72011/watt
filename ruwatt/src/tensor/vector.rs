@@ -1,4 +1,4 @@
-use crate::assert_vector;
+use crate::{assert_vector, assert_ket, assert_bra};
 use num::Float;
 use super::Tensor;
 
@@ -83,6 +83,17 @@ impl<T> Tensor<T> where T: Float {
             *elem = *elem * scale;
         }
     }
+
+    pub fn to_bra(&mut self) {
+        assert_ket!(self);
+        self.shape.reverse()
+
+    }
+
+    pub fn to_ket(&mut self) {
+        assert_bra!(self);
+        self.shape.reverse()
+    }
 }
 
 #[cfg(test)]
@@ -164,5 +175,19 @@ mod tests {
     fn set_length_for_vector_only() {
         let mut tensor = Tensor::new(vec![3, 3], 1.0);
         tensor.set_length(5.0);
+    }
+
+    #[test]
+    fn to_bra() {
+        let mut tensor = Tensor::ket(vec![3.0, 4.0]);
+        tensor.to_bra();
+        assert!(tensor.is_bra());
+    }
+
+    #[test]
+    fn to_ket() {
+        let mut tensor = Tensor::bra(vec![3.0, 4.0]);
+        tensor.to_ket();
+        assert!(tensor.is_ket());
     }
 }

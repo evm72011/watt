@@ -22,6 +22,7 @@ pub fn gradient<T>(f: &dyn Fn(&Tensor<T>) -> T, point: &Tensor<T>, delta: T) -> 
     result
 }
 
+#[allow(dead_code)]
 pub fn hessian<T>(f: &dyn Fn(&Tensor<T>) -> T, point: &Tensor<T>, delta: T) -> Tensor<T> where T: Float {
     assert_vector!(point);
     let dim = point.dim();
