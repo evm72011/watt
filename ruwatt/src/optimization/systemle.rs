@@ -7,8 +7,8 @@ use crate::{ assert_ket, assert_square_matrix, tensor::dot::dot };
 pub fn system_le<T>(a: &Tensor<T>, b: &Tensor<T>, step_count: usize, delta: T) -> Tensor<T> where T: Float {
     assert_square_matrix!(a);
     assert_ket!(b);
-    let mut result = b.clone();
-    let a_mod = a - Tensor::<T>::identity(b.dim());
+    let mut result = Tensor::<T>::new(b.shape.clone(), T::from(0.5).unwrap());
+    let a_mod = &Tensor::<T>::identity(b.dim()) - a;
 
     for _ in 0..step_count {
         let result_new = dot(&a_mod, &result) + b;
@@ -33,7 +33,7 @@ mod tests {
         ]);
         let b= Tensor::ket(vec![8.0, 10.0, 12.0]);
 
-        let recieved = system_le(&a, &b, 100, 0.001);
+        let recieved = system_le(&a, &b, 2, 0.001);
 
         let expected = Tensor::ket(vec![1.0, 2.0, 3.0]);
         assert_eq!(recieved, expected);
