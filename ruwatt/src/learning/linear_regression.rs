@@ -90,4 +90,12 @@ impl<'a, T> LinearRegression<'a, T> where T: Float + Send + Sync + 'static {
             })
             .collect()
     }
+
+    fn calc_cost_function(&self, value: T) -> T {
+        if self.cost_function == CostFunction::Abs { 
+            T::abs(value)
+        } else {
+            T::powi(value, 2) 
+        }
+    }
 }
