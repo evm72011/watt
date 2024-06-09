@@ -53,6 +53,9 @@ impl<T> LinearRegression<T> where T: Float {
             let mut optimizator = GradientDescent {
                 func: &f,
                 start_point: Tensor::bra(vec![T::one(); x.shape[1] + 1]),
+                derivative_delta: T::from(0.000001).unwrap(),
+                step_size: T::from(3.0).unwrap(),
+                step_count: 1_000,
                 ..Default::default()
             };
             optimizator.run();
@@ -60,6 +63,7 @@ impl<T> LinearRegression<T> where T: Float {
             let result = optimizator.result.unwrap();
             let arg: Vec<f32> = result.arg.data.iter().map(|v| v.to_f32().unwrap()).collect();
             println!("result.arg: {:?}", arg);
+            println!("result.value: {:?}", result.value.to_f32());
             println!("logs: {:?}", optimizator.logs);
             if step == 0 {
                 self.coef = result.arg.to_ket();
@@ -73,6 +77,7 @@ impl<T> LinearRegression<T> where T: Float {
 
     pub fn predict(&mut self, x: Tensor<T>) -> Tensor<T> {
         let x_modified = x.add_one().to_ket();
-        dot(&self.coef, &x_modified)
+        let w = self.coef.tr();
+        dot(&w, &x_modified)
     }
 }
