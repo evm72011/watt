@@ -3,15 +3,13 @@ use crate::{assert_matrix, optimization::GradientDescent};
 use crate::tensor::{Tensor, dot::dot};
 
 pub struct LinearRegression<T=f32> where T: Float {
-    pub coef: Tensor<T>,
-    pub bias: Tensor<T>
+    pub coef: Tensor<T>
 }
 
 impl<T> Default for LinearRegression<T> where T: Float  {
     fn default() -> Self {
         Self {
-            coef: Tensor::zeros(vec![1]),
-            bias: Tensor::zeros(vec![1])
+            coef: Tensor::zeros(vec![1])
         }
     }
 }
@@ -45,6 +43,7 @@ impl<T> LinearRegression<T> where T: Float {
             })
             .collect();
         
+        let mut step = 0;
         for closure in closures {
             let x_clone = x.clone();
             let y_clone = y.clone();
@@ -57,20 +56,23 @@ impl<T> LinearRegression<T> where T: Float {
                 ..Default::default()
             };
             optimizator.run();
-            println!("----------------------------------");
+            println!("step: {step}");
             let result = optimizator.result.unwrap();
-            println!("minimum: {}", result.value.to_f64().unwrap());
-            let data: Vec<f32> = result.arg.data.iter().map(|v| v.to_f32().unwrap()).collect();
-            println!("arg: {:?}", data);
+            let arg: Vec<f32> = result.arg.data.iter().map(|v| v.to_f32().unwrap()).collect();
+            println!("result.arg: {:?}", arg);
             println!("logs: {:?}", optimizator.logs);
+            if step == 0 {
+                self.coef = result.arg.to_ket();
+            } else {
+                self.coef.append_col(result.arg.to_ket())
+            }
+            step += 1;
+            println!("----------------------------------");
         }
     }
 
-    pub fn predict(&mut self, _x: Tensor<T>) -> Tensor<T> {
-        Tensor::zeros(vec![1])
+    pub fn predict(&mut self, x: Tensor<T>) -> Tensor<T> {
+        let x_modified = x.add_one().to_ket();
+        dot(&self.coef, &x_modified)
     }
 }
-
-/*
-
-*/

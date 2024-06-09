@@ -84,7 +84,9 @@ impl<'a, T> GradientDescent<'a, T> where T: Float {
         let now = Instant::now();
         let mut arg = self.start_point.clone();
         self.save_result((self.func)(&arg), arg.clone());
+        let mut step_counter = 0;
         for step in 0..self.step_count {
+            step_counter += 1;
             let size = self.calc_step_size(step);
             let mut grad = match self.grad_func {
                 Some(grad_func) => grad_func(&arg),
@@ -114,7 +116,7 @@ impl<'a, T> GradientDescent<'a, T> where T: Float {
             self.save_result((self.func)(&arg), arg.clone());
         }
         self.result = self.progress.get_optimal_result();
-        self.logs.push(format!("Elapsed: {:.2?}.", now.elapsed()));
+        self.logs.push(format!("Elapsed: {:.2?} and {} steps.", now.elapsed(), step_counter));
     }
 
     fn save_result(&mut self, value: T, arg: Tensor<T>) {

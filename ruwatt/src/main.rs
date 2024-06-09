@@ -30,7 +30,6 @@ fn main() {
         vec![1.0, 1.0],
         vec![2.0, 2.0],
     ]);
-    println!("x_train: {:?}", x_train.clone());
     let y_train = Tensor::matrix(vec![
         vec![0.0, 1.0, 2.0],    //y_0 = x_0^2 + x_1^2
         vec![2.0, 3.0, 4.0],    //y_1 = x_0^2 + x_1^2 + 1
@@ -41,7 +40,6 @@ fn main() {
     let y_test = model.predict(x_test);
     println!("y_test: {:?}", y_test);
     println!("coef: {:?}", model.coef);
-    println!("bias: {:?}", model.bias);
 
     /*    
     let mut optimizator = GradientDescent::<f64> {
