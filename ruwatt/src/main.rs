@@ -2,10 +2,11 @@ mod tensor;
 mod optimization;
 mod learning;
 
-use learning::LinearRegression;
+use learning::{LinearRegression, CostFunction};
 use tensor::Tensor;
 use optimization::GradientDescent;
 
+/*
 fn f(vector: &Tensor<f64>) -> f64 {
     let w0 = vector.get_v(0);
     let w1 = vector.get_v(1);
@@ -20,9 +21,16 @@ fn grad_f(vector: &Tensor<f64>) -> Tensor<f64> {
     let dw1 = w1 * 2.0 + common_teil;
     Tensor::ket(vec![dw0, dw1])
 }
+    */
 
 fn main() {
     let mut model = LinearRegression {
+        cost_function: CostFunction::LeastSquares,
+        optimizator: GradientDescent {
+            step_count: 1000,
+            step_size: 3.0,
+            ..Default::default()
+        },
         ..Default::default()
     };
     let x_train = Tensor::matrix(vec![

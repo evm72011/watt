@@ -1,3 +1,3 @@
 pub mod linear_regression;
 
-pub use linear_regression::LinearRegression;
+pub use linear_regression::*;

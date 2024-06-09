@@ -10,6 +10,7 @@ pub struct OptimizationResult<T> where T: Float {
     pub arg: Tensor<T>
 }
 
+#[derive(Clone)]
 pub struct OptimizationProgress<T> where T: Float {
     pub data: Vec<OptimizationResult<T>>
 }
@@ -35,12 +36,14 @@ impl<T> OptimizationProgress<T> where T: Float {
 }
 
 #[allow(dead_code)]
+#[derive(Clone)]
 pub enum SmallGradientBehaviour {
     Ignore,
     Interrupt,
     Displace
 }
 
+#[derive(Clone)]
 pub struct GradientDescent<'a, T> where T: Float {
     pub func: &'a dyn Fn(&Tensor<T>) -> T,
     pub grad_func: Option<&'a dyn Fn(&Tensor<T>) -> Tensor<T>>,
