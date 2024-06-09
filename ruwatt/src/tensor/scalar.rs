@@ -11,10 +11,10 @@ impl<T> Tensor<T> where T: Float {
   }
 
   pub fn is_scalar(&self) -> bool {
-    self.shape == vec![0]
+    self.shape == vec![0] || self.shape == vec![1] || self.shape == vec![1, 1]
   }
 
-  pub fn get_s(&self) -> T {
+  pub fn to_scalar(&self) -> T {
     assert_scalar!(self);
     self.data[0]
   }

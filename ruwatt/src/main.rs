@@ -43,6 +43,7 @@ fn main() {
     println!("coef: {:?}", model.coef);
     println!("bias: {:?}", model.bias);
 
+    /*    
     let mut optimizator = GradientDescent::<f64> {
         func: &f,
         grad_func: Some(&grad_f),
@@ -55,5 +56,5 @@ fn main() {
     println!("arg: {}", result.arg);
     println!("logs: {:?}", optimizator.logs);
     //println!("history: {:?}", optimizator.log.data);
-    
+    */
 }

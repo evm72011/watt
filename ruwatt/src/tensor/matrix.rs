@@ -1,4 +1,6 @@
 use num::Float;
+use crate::assert_matrix;
+
 use super::Tensor;
 
 impl<T> Tensor<T> where T: Float {    
@@ -13,13 +15,10 @@ impl<T> Tensor<T> where T: Float {
     pub fn matrix(data: Vec<Vec<T>>) -> Self {
         let rows = data.len();
         let cols = data[0].len();
-        let mut result = Tensor::<T>::zeros(vec![rows, cols]);
-        for row in 0..rows {
-        for col in 0..cols {
-            result.set(vec![row, col], data[row][col]);
+        Tensor {
+            shape: vec![rows, cols],
+            data: data.into_iter().flatten().collect()
         }
-        }
-        result
     }
 
     pub fn is_matrix(&self) -> bool {
@@ -31,21 +30,20 @@ impl<T> Tensor<T> where T: Float {
     }
 
     pub fn tr(&self) -> Self {
-        if self.shape.len() != 2 {
-            unimplemented!("This method is implemented for matrix only");
-        }
-        let rows = self.shape[0];
-        let cols = self.shape[1];
+        assert_matrix!(self);
+        let rows = self.row_count();
+        let cols = self.col_count();
         let data = if self.is_vector() {
             self.data.to_vec()
         } else {
-            let mut transposed_data = vec![T::zero(); self.data.len()];
+
+            let mut result = vec![T::zero(); self.data.len()];
             for i in 0..rows {
                 for j in 0..cols {
-                    transposed_data[j * rows + i] = self.data[i * cols + j].clone();
+                    result[j * rows + i] = self.data[i * cols + j].clone();
                 }
             }
-            transposed_data
+            result
         };
 
         Tensor {
@@ -54,10 +52,21 @@ impl<T> Tensor<T> where T: Float {
         }
     }
 
-    pub fn get_row(&self, row: usize) -> Self {
-        let size = self.shape[1];
-        let start = size * row;
-        let end = size * row + size;
+    pub fn row_count(&self) -> usize {
+        assert_matrix!(self);
+        self.shape[0]
+    }
+
+    pub fn col_count(&self) -> usize {
+        assert_matrix!(self);
+        self.shape[1]
+    }
+
+    pub fn row(&self, row: usize) -> Self {
+        assert_matrix!(self);
+        let col_count = self.col_count();
+        let start = col_count * row;
+        let end = col_count * (row + 1);
         let data: Vec<T> = self.data[start..end].to_vec();
         Tensor::<T>::bra(data)
     }
@@ -109,7 +118,7 @@ mod tests {
     }
 
     #[test]
-    fn get_row() {
+    fn row() {
         let matrix = Tensor::matrix(vec![
             vec![1.0, 2.0, 3.0], 
             vec![4.0, 5.0, 6.0],
@@ -118,7 +127,7 @@ mod tests {
 
         let expected = Tensor::bra(vec![4.0, 5.0, 6.0]);
 
-        let recieved = matrix.get_row(1);
+        let recieved = matrix.row(1);
         assert_eq!(expected, recieved);
     }
 }

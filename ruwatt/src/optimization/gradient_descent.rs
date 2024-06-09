@@ -1,21 +1,20 @@
 use num::Float;
 use super::gradient;
 use super::super::Tensor;
-use std::fmt::Debug;
 use std::cmp::Ordering;
 use std::time::Instant;
 
-#[derive(Debug, Clone)]
-pub struct OptimizationResult<T> where T: Float + Debug {
+#[derive(Clone)]
+pub struct OptimizationResult<T> where T: Float {
     pub value: T,
     pub arg: Tensor<T>
 }
 
-pub struct OptimizationProgress<T> where T: Float + Debug {
+pub struct OptimizationProgress<T> where T: Float {
     pub data: Vec<OptimizationResult<T>>
 }
 
-impl<T> OptimizationProgress<T> where T: Float + Debug {
+impl<T> OptimizationProgress<T> where T: Float {
     fn new() -> Self {
         Self { 
             data: vec![]
@@ -42,7 +41,7 @@ pub enum SmallGradientBehaviour {
     Displace
 }
 
-pub struct GradientDescent<'a, T> where T: Float + Debug {
+pub struct GradientDescent<'a, T> where T: Float {
     pub func: &'a dyn Fn(&Tensor<T>) -> T,
     pub grad_func: Option<&'a dyn Fn(&Tensor<T>) -> Tensor<T>>,
     pub start_point: Tensor<T>, 
@@ -59,7 +58,7 @@ pub struct GradientDescent<'a, T> where T: Float + Debug {
     pub grad_prev: Tensor<T>, 
 }
 
-impl<'a, T> Default for GradientDescent<'a, T> where T: Float + Debug {
+impl<'a, T> Default for GradientDescent<'a, T> where T: Float {
     fn default() -> Self {
         Self {
             func: &|_| T::zero(),
@@ -80,7 +79,7 @@ impl<'a, T> Default for GradientDescent<'a, T> where T: Float + Debug {
     }
 }
 
-impl<'a, T> GradientDescent<'a, T> where T: Float + Debug {
+impl<'a, T> GradientDescent<'a, T> where T: Float {
     pub fn run(&mut self) {
         let now = Instant::now();
         let mut arg = self.start_point.clone();

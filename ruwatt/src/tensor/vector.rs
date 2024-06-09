@@ -84,15 +84,24 @@ impl<T> Tensor<T> where T: Float {
         }
     }
 
-    pub fn to_bra(&mut self) {
+    pub fn to_bra(&self) -> Self{
         assert_ket!(self);
-        self.shape.reverse()
-
+        Tensor::bra(self.data.to_vec())
     }
 
-    pub fn to_ket(&mut self) {
+    pub fn to_ket(&self) -> Self {
         assert_bra!(self);
-        self.shape.reverse()
+        Tensor::ket(self.data.to_vec())
+    }
+
+    pub fn add_one(&self) -> Self {
+        let mut data = self.data.to_vec();
+        data.insert(0, T::one());
+        if self.is_bra() {
+            Tensor::bra(data)
+        } else {
+            Tensor::bra(data)
+        }
     }
 }
 
@@ -179,15 +188,15 @@ mod tests {
 
     #[test]
     fn to_bra() {
-        let mut tensor = Tensor::ket(vec![3.0, 4.0]);
-        tensor.to_bra();
-        assert!(tensor.is_bra());
+        let tensor = Tensor::ket(vec![3.0, 4.0]);
+        let recieved = tensor.to_bra();
+        assert!(recieved.is_bra());
     }
 
     #[test]
     fn to_ket() {
-        let mut tensor = Tensor::bra(vec![3.0, 4.0]);
-        tensor.to_ket();
-        assert!(tensor.is_ket());
+        let tensor = Tensor::bra(vec![3.0, 4.0]);
+        let recieved = tensor.to_ket();
+        assert!(recieved.is_ket());
     }
 }

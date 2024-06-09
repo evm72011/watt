@@ -14,13 +14,10 @@ impl<T> Iterator for TensorIterator<T> where T: Float {
 
     fn next(&mut self) -> Option<Self::Item> {
         let rows = self.tensor.shape[0];
-        let cols = self.tensor.shape[1];
         if self.index < rows {
-            let start = self.index * cols;
-            let end = self.index * cols + cols;
-            let data = self.tensor.data[start..end].to_vec();
+            let vector = self.tensor.row(self.index);
             self.index += 1;
-            Some(Tensor::<T>::bra(data))
+            Some(vector)
         } else {
             None
         }
@@ -28,7 +25,7 @@ impl<T> Iterator for TensorIterator<T> where T: Float {
 }
 
 impl<T> Tensor<T> where T: Float {
-    fn rows(self) -> TensorIterator<T> {
+    pub fn rows(self) -> TensorIterator<T> {
         assert_matrix!(self);
         TensorIterator {
             tensor: self,
