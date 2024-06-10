@@ -94,13 +94,13 @@ impl<T> Tensor<T> where T: Float {
         Tensor::ket(self.data.to_vec())
     }
 
-    pub fn add_one(&self) -> Self {
+    pub fn prepend_one(&self) -> Self {
         let mut data = self.data.to_vec();
         data.insert(0, T::one());
         if self.is_bra() {
             Tensor::bra(data)
         } else {
-            Tensor::bra(data)
+            Tensor::ket(data)
         }
     }
 }

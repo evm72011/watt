@@ -5,13 +5,13 @@ use crate::assert_scalar;
 impl<T> Tensor<T> where T: Float {    
   pub fn scalar(value: T) -> Self {
     Self {
-        shape: vec![0],
+        shape: Vec::new(),
         data: vec![value]
     }
   }
 
   pub fn is_scalar(&self) -> bool {
-    self.shape == vec![0] || self.shape == vec![1] || self.shape == vec![1, 1]
+    self.shape.iter().all(|&value| value == 1)
   }
 
   pub fn to_scalar(&self) -> T {
@@ -27,7 +27,7 @@ mod tests {
     #[test]
     fn scalar() {
         let scalar = Tensor::scalar(1.0);
-        assert_eq!(scalar.shape, vec![0]);
+        assert_eq!(scalar.shape, Vec::new());
         assert_eq!(scalar.data, vec![1.0]);
     }
 

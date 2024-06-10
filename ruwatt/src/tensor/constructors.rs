@@ -24,3 +24,27 @@ impl<T> Tensor<T> where T: Float {
         Self { shape, data }
     } 
 }
+
+#[cfg(test)]
+mod tests {
+    use super::Tensor; 
+
+    #[test]
+    fn new() {
+        let tensor = Tensor::<f32>::new(vec![2], 1.0);
+        assert_eq!(tensor.data, vec![1.0, 1.0]);
+    }
+
+    #[test]
+    fn zeros() {
+        let tensor = Tensor::<f32>::zeros(vec![2]);
+        assert_eq!(tensor.data, vec![0.0, 0.0]);
+    }
+
+    
+    #[test]
+    fn ones() {
+        let tensor = Tensor::<f32>::ones(vec![2]);
+        assert_eq!(tensor.data, vec![1.0, 1.0]);
+    }
+}

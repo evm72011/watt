@@ -7,8 +7,8 @@ pub fn dot<T>(a: &Tensor<T>, b: &Tensor<T>) -> Tensor<T> where T: Float {
     }
 
     assert_eq!(a.shape[1], b.shape[0], "Incompatible shapes to dot: {:?} vs {:?}", a.shape, b.shape);
-    let rows = a.shape[0];
-    let cols = b.shape[1];
+    let rows = a.row_count();
+    let cols = b.col_count();
     let summs = a.shape[1];
     let mut result = Tensor::zeros(vec![rows, cols]);
     for row in 0..rows {

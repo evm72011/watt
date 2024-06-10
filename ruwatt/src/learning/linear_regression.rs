@@ -60,7 +60,7 @@ impl<'a, T> LinearRegression<'a, T> where T: Float + Send + Sync + 'static {
 
 
     pub fn predict(&mut self, x: Tensor<T>) -> Tensor<T> {
-        let x_modified = x.add_one().to_ket();
+        let x_modified = x.prepend_one().to_ket();
         dot(&self.coef, &x_modified)
     }
 
@@ -74,7 +74,7 @@ impl<'a, T> LinearRegression<'a, T> where T: Float + Send + Sync + 'static {
                         x.clone().rows()
                             .zip(y.clone().rows())
                             .map(|(x_test, y_test)| {
-                                let x_modified = x_test.add_one().to_ket();
+                                let x_modified = x_test.prepend_one().to_ket();
                                 let value = dot(&w, &x_modified).to_scalar() - *y_test.get_v(index);
                                 if cost_function == CostFunction::Abs { 
                                     T::abs(value)
