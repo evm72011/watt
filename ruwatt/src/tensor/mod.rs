@@ -9,6 +9,8 @@ pub mod macros;
 pub mod functions;
 pub mod matrix_rows;
 
+mod index_tools;
+
 pub use tensor::Tensor;
 pub use constructors::*;
 pub use operators::*;

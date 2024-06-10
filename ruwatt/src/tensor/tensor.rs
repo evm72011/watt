@@ -1,6 +1,8 @@
 use num::Float;
 use std::fmt::Debug;
-use crate::{ assert_shape, assert_out_of_range };
+use crate::assert_shape;
+
+use super::index_tools::IndexTools;
 
 #[derive(Debug, Clone)]
 pub struct Tensor<T = f32> where T: Float {
@@ -9,8 +11,7 @@ pub struct Tensor<T = f32> where T: Float {
 }
 
 impl<T> Tensor<T> where T: Float {
-    pub fn is_small(&self) -> bool {
-        let delta = T::from(0.0001).unwrap();
+    pub fn is_small(&self, delta: T) -> bool {
         self.data.iter().any(|x| T::abs(*x) < delta)
     }
 
@@ -20,15 +21,18 @@ impl<T> Tensor<T> where T: Float {
     }
 
     pub fn get(&self, indices: Vec<usize>) -> T {
-        let index = self.calc_index(indices);
-        self.data[index]
+        IndexTools::get_item(indices, &self.shape, &self.data)
+        //let index = self.calc_index(indices);
+        //self.data[index]
     }
 
     pub fn set(&mut self, indices: Vec<usize>, value: T) {
-        let index = self.calc_index(indices);
-        self.data[index] = value;
+        IndexTools::set_item(indices, value, &self.shape, &mut self.data);
+        //let index = self.calc_index(indices);
+        //self.data[index] = value;
     }
 
+    /*
     fn calc_index(&self, indices: Vec<usize>) -> usize {
         assert_out_of_range!(self, indices);
         let mut index = 0;
@@ -39,6 +43,7 @@ impl<T> Tensor<T> where T: Float {
         }
         index
     }
+    */
 }
 
 #[cfg(test)]
@@ -48,7 +53,7 @@ mod tests {
     #[test]
     fn is_small() {
         let tensor = Tensor::new(vec![2, 2], 0.00001);
-        assert!(tensor.is_small());
+        assert!(tensor.is_small(0.001));
     }
 
     #[test]

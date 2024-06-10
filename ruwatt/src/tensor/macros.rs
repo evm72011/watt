@@ -80,7 +80,7 @@ macro_rules! assert_shape {
 macro_rules! assert_out_of_range {
     ($tensor:ident, $indices:ident) => {
         assert!(
-            $tensor.shape.len() == $indices.len()&& 
+            $tensor.shape.len() == $indices.len() && 
             $tensor.shape.iter().zip($indices.iter()).any(|(a, b)| a > b),
             "Index out of range: shape = {:?}, indices = {:?}",
             $tensor.shape,

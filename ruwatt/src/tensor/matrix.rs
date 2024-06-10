@@ -1,5 +1,5 @@
 use num::Float;
-use crate::{assert_bra, assert_ket, assert_matrix};
+use crate::{assert_bra, assert_ket, assert_matrix, tensor::index_tools::IndexTools};
 
 use super::Tensor;
 
@@ -26,7 +26,7 @@ impl<T> Tensor<T> where T: Float {
     }
 
     pub fn is_square_matrix(&self) -> bool {
-        self.shape.len() == 2 && self.shape[0] == self.shape[1]
+        self.is_matrix() && self.row_count() == self.col_count()
     }
 
     pub fn tr(&self) -> Self {
@@ -54,33 +54,23 @@ impl<T> Tensor<T> where T: Float {
 
     pub fn row_count(&self) -> usize {
         assert_matrix!(self);
-        self.shape[0]
+        IndexTools::<T>::get_row_count(&self.shape)
     }
 
     pub fn col_count(&self) -> usize {
         assert_matrix!(self);
-        self.shape[1]
+        IndexTools::<T>::get_col_count(&self.shape)
     }
 
-    pub fn row(&self, row: usize) -> Self {
+    pub fn row(&self, index: usize) -> Self {
         assert_matrix!(self);
-        let col_count = self.col_count();
-        let start = col_count * row;
-        let end = col_count * (row + 1);
-        let data: Vec<T> = self.data[start..end].to_vec();
+        let data = IndexTools::<T>::get_row(index, &self.shape, &self.data);
         Tensor::<T>::bra(data)
     }
 
-    pub fn col(&self, col: usize) -> Self {
+    pub fn col(&self, index: usize) -> Self {
         assert_matrix!(self);
-        let row_count = self.row_count();
-        let col_count = self.col_count();
-        let data = (0..row_count)
-            .map(|row| {
-                let index = col_count * row + col;
-                self.data[index]
-            })
-            .collect();
+        let data = IndexTools::<T>::get_col(index, &self.shape, &self.data);
         Tensor::<T>::ket(data)
     }
 

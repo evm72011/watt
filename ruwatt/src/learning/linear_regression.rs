@@ -57,8 +57,6 @@ impl<'a, T> LinearRegression<'a, T> where T: Float + Send + Sync + 'static {
         }
     }
 
-
-
     pub fn predict(&mut self, x: Tensor<T>) -> Tensor<T> {
         let x_modified = x.prepend_one().to_ket();
         dot(&self.coef, &x_modified)
