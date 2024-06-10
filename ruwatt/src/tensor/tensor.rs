@@ -15,7 +15,7 @@ impl<T> Tensor<T> where T: Float {
         self.data.iter().any(|x| T::abs(*x) < delta)
     }
 
-    pub fn is_near(&self, other: Self, delta: T) -> bool {
+    pub fn is_near(&self, other: &Self, delta: T) -> bool {
         assert_shape!(self, other);
         self.data.iter().zip(other.data.iter()).all(|(a, b)| T::abs(*a - *b) < delta)
     }
@@ -60,7 +60,7 @@ mod tests {
     fn is_near_true() {
         let tensor1 = Tensor::new(vec![2, 2], 1.0001);
         let tensor2 = Tensor::new(vec![2, 2], 1.0);
-        assert!(tensor1.is_near(tensor2, 0.001));
+        assert!(tensor1.is_near(&tensor2, 0.001));
     }
 
     
@@ -68,7 +68,7 @@ mod tests {
     fn is_near_false() {
         let tensor1 = Tensor::new(vec![2, 2], 1.002);
         let tensor2 = Tensor::new(vec![2, 2], 1.0);
-        assert!(!tensor1.is_near(tensor2, 0.001));
+        assert!(!tensor1.is_near(&tensor2, 0.001));
     }
 
     #[test]

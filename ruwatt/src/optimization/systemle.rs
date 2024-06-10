@@ -1,10 +1,11 @@
 use num::Float;
+use std::iter::Sum;
 use super::super::Tensor;
 use crate::{ assert_ket, assert_square_matrix, tensor::dot::dot };
 
 // x_(k+1) = (I-A)*x_k + b
 #[allow(dead_code)]
-pub fn system_le<T>(a: &Tensor<T>, b: &Tensor<T>, step_count: usize, delta: T) -> Tensor<T> where T: Float {
+pub fn system_le<T>(a: &Tensor<T>, b: &Tensor<T>, step_count: usize, delta: T) -> Tensor<T> where T: Float + Sum {
     assert_square_matrix!(a);
     assert_ket!(b);
     let mut result = Tensor::<T>::new(b.shape.clone(), T::from(0.5).unwrap());
@@ -12,7 +13,7 @@ pub fn system_le<T>(a: &Tensor<T>, b: &Tensor<T>, step_count: usize, delta: T) -
 
     for _ in 0..step_count {
         let result_new = dot(&a_mod, &result) + b;
-        if result_new.is_near(result, delta) {
+        if result_new.is_near(&result, delta) {
             return result_new;
         }
         result = result_new;

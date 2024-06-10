@@ -182,7 +182,7 @@ mod tests {
         let arg_expected = Tensor::ket(vec![0.0, 0.0]);
         assert!(f32::abs(result.value - 2.0) < 0.001);
         assert!(result.arg.is_ket());
-        assert!(result.arg.is_near(arg_expected, 0.001))
+        assert!(result.arg.is_near(&arg_expected, 0.001))
     }
 
     #[test]
@@ -197,6 +197,6 @@ mod tests {
         let arg_expected = Tensor::ket(vec![0.0, 0.0]);
         assert!(f32::abs(result.value - 2.0) < 0.001);
         assert!(result.arg.is_ket());
-        assert!(result.arg.is_near(arg_expected, 0.001))
+        assert!(result.arg.is_near(&arg_expected, 0.001))
     }
 }

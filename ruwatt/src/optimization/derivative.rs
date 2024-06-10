@@ -67,7 +67,7 @@ mod tests {
         let vector = Tensor::ket(vec![1.0, 1.0]);
         let recieved = gradient(&f, &vector, 0.0001);
         let expected = Tensor::ket(vec![2.0, 2.0]);
-        assert!(expected.is_near(recieved, 0.001))
+        assert!(expected.is_near(&recieved, 0.001))
     }
 
     #[test]
@@ -78,6 +78,6 @@ mod tests {
             vec![2.0, 0.0],
             vec![0.0, 2.0],
         ]);
-        assert!(expected.is_near(recieved, 0.001)) 
+        assert!(expected.is_near(&recieved, 0.001)) 
     }
 }

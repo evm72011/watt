@@ -50,9 +50,13 @@ fn main() {
         vec![41.0, 49.0, 57.0],  
         vec![ 6.5,  8.5, 10.5],  
     ]);
-    let x_test = Tensor::ket(vec![7.0, 5.0]);
     model.fit(x_train, y_train);
     println!("coef: {:?}", model.coef);
+
+    let x_test = Tensor::matrix(vec![
+        vec![7.0, 5.0],
+        vec![5.0, 7.0]
+    ]);
 
     println!("x_test: {:?}", x_test);
     let y_test = model.predict(x_test);

@@ -1,5 +1,31 @@
 use num::Float;
+use std::iter::Sum;
+use crate::tensor::index_tools::IndexTools;
+
 use super::super::Tensor;
+
+pub fn _dot<T>(a: &Tensor<T>, b: &Tensor<T>) -> Tensor<T> where T: Float + Sum {
+    if a.is_scalar() || b.is_scalar() || a.shape.len() > 2 || b.shape.len() > 2 {
+        unimplemented!("This method is not yet implemented");
+    }
+
+    assert_eq!(a.col_count(), b.row_count(), "Incompatible shapes to dot: {:?} vs {:?}", a.shape, b.shape);
+    let row_count = a.row_count();
+    let col_count = b.col_count();
+    let shape = vec![row_count, col_count];
+    let mut data = vec![T::zero(); row_count * col_count];
+
+    for row_index in 0..row_count {
+        let row = IndexTools::<T>::get_row(row_index, &a.shape, &a.data);
+        for col_index in 0..col_count {
+            let col = IndexTools::<T>::get_col(col_index, &b.shape, &b.data);
+            let value = row.iter().zip(col.iter()).map(|(&a, &b)| a*b).sum();
+            data[row_index * row_count + col_index] = value;
+        }
+    }
+    Tensor { shape, data }
+}
+
 
 pub fn dot<T>(a: &Tensor<T>, b: &Tensor<T>) -> Tensor<T> where T: Float {
     if a.is_scalar() || b.is_scalar() || a.shape.len() > 2 || a.shape.len() > 2 {
