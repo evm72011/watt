@@ -15,6 +15,10 @@ impl<T> Tensor<T> where T: Float {
         self.data.iter().any(|x| T::abs(*x) < delta)
     }
 
+    pub fn is_empty(&self) -> bool {
+        self.data.len() == 0 && self.shape.len() == 0
+    }
+
     pub fn is_near(&self, other: &Self, delta: T) -> bool {
         assert_shape!(self, other);
         self.data.iter().zip(other.data.iter()).all(|(a, b)| T::abs(*a - *b) < delta)
@@ -22,28 +26,16 @@ impl<T> Tensor<T> where T: Float {
 
     pub fn get(&self, indices: Vec<usize>) -> T {
         IndexTools::get_item(indices, &self.shape, &self.data)
-        //let index = self.calc_index(indices);
-        //self.data[index]
     }
 
     pub fn set(&mut self, indices: Vec<usize>, value: T) {
         IndexTools::set_item(indices, value, &self.shape, &mut self.data);
-        //let index = self.calc_index(indices);
-        //self.data[index] = value;
     }
 
-    /*
-    fn calc_index(&self, indices: Vec<usize>) -> usize {
-        assert_out_of_range!(self, indices);
-        let mut index = 0;
-        let mut stride = 1;
-        for (i, &dim) in self.shape.iter().rev().enumerate() {
-            index += indices[self.shape.len() - 1 - i] * stride;
-            stride *= dim;
-        }
-        index
+    pub fn assign(&mut self, tensor: Tensor<T>) {
+        self.shape = tensor.shape;
+        self.data = tensor.data;
     }
-    */
 }
 
 #[cfg(test)]
@@ -54,6 +46,12 @@ mod tests {
     fn is_small() {
         let tensor = Tensor::new(vec![2, 2], 0.00001);
         assert!(tensor.is_small(0.001));
+    }
+
+    #[test]
+    fn is_empty() {
+        let tensor = Tensor::<f32> { shape: vec![], data: vec![] };
+        assert!(tensor.is_empty());
     }
 
     #[test]

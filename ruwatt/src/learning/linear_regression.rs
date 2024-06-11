@@ -20,7 +20,7 @@ pub struct LinearRegression<'a, T=f32> where T: Float + Sum {
 impl<'a, T> Default for LinearRegression<'a, T> where T: Float + Sum {
     fn default() -> Self {
         Self {
-            coef: Tensor::zeros(vec![1]),
+            coef: Tensor::empty(),
             cost_function: CostFunction::LeastSquares,
             optimizator: Default::default()
         }
@@ -37,7 +37,7 @@ impl<'a, T> LinearRegression<'a, T> where T: Float + Send + Sync + Sum + 'static
         let closures = self.create_closures(y.col_count());
         let self_arc = Arc::new(Mutex::new(self));
         
-        for (index, closure) in closures.iter().enumerate() {
+        for closure in closures.iter() {
             let self_arc = Arc::clone(&self_arc);
             let mut self_locked = self_arc.lock().unwrap();
             let x_clone = x.clone();
@@ -50,28 +50,18 @@ impl<'a, T> LinearRegression<'a, T> where T: Float + Send + Sync + Sum + 'static
             };
             optimizator.run();
             let result = optimizator.result.unwrap();
-            if index == 0 {
-                self_locked.coef = result.arg;
-            } else {
-                self_locked.coef.append_row(result.arg)
-            }
+            self_locked.coef.append_row(result.arg);
         }
     }
 
     pub fn predict(&mut self, x: Tensor<T>) -> Tensor<T> {
-        let mut result = Tensor::zeros(vec![]);
-        x.rows().enumerate().for_each(|(index, item)| {
+        let mut result = Tensor::empty();
+        x.rows().for_each(|item| {
             let x_modified = item.prepend_one().to_ket();
             let row = dot(&self.coef, &x_modified).to_bra();
-            if index == 0 {
-                result = row;
-            } else {
-                result.append_row(row)
-            }
+            result.append_row(row)
         });
         result
-        //let x_modified = x.prepend_one();
-        //dot(&self.coef, &x_modified)
     }
 
     fn create_closures(&self, count: usize) -> Vec<Box<dyn Fn(&Tensor<T>, &Tensor<T>, &Tensor<T>) -> T + Send + Sync>>{

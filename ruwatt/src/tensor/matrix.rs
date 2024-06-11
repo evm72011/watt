@@ -75,21 +75,28 @@ impl<T> Tensor<T> where T: Float {
     }
 
     pub fn append_row(&mut self, row: Tensor<T>) {
-        assert_matrix!(self);
         assert_bra!(row);
+        if self.is_empty() {
+            self.assign(row);
+            return;
+        }
+        assert_matrix!(self);
         assert_eq!(self.col_count(), row.dim(), "Size mismatch");
         self.shape[0] = self.shape[0] + 1;
         self.data.extend(row.data);
     }
 
     pub fn append_col(&mut self, col: Tensor<T>) {
-        assert_matrix!(self);
         assert_ket!(col);
-        assert_eq!(self.row_count(), col.dim(), "Size mismatch");
+        if self.is_empty() {
+            self.assign(col);
+            return;
+        }
 
+        assert_matrix!(self);
+        assert_eq!(self.row_count(), col.dim(), "Size mismatch");
         let col_count = self.col_count();
         self.shape[1] = col_count + 1;
-        
         for (i, value) in col.data.iter().enumerate() {
             self.data.insert(col_count * (i + 1) + i, *value)
         }
