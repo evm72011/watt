@@ -4,18 +4,18 @@ use crate::assert_matrix;
 
 use super::Tensor;
 
-pub struct TensorRowIterator<T> where T: Float {
+pub struct TensorColIterator<T> where T: Float {
     tensor: Tensor<T>,
     index: usize
 }
 
-impl<T> Iterator for TensorRowIterator<T> where T: Float {
+impl<T> Iterator for TensorColIterator<T> where T: Float {
     type Item = Tensor<T>;
 
     fn next(&mut self) -> Option<Self::Item> {
-        let row_count = self.tensor.row_count();
-        if self.index < row_count {
-            let vector = self.tensor.row(self.index);
+        let col_count = self.tensor.col_count();
+        if self.index < col_count {
+            let vector = self.tensor.col(self.index);
             self.index += 1;
             Some(vector)
         } else {
@@ -25,9 +25,9 @@ impl<T> Iterator for TensorRowIterator<T> where T: Float {
 }
 
 impl<T> Tensor<T> where T: Float {
-    pub fn rows(self) -> TensorRowIterator<T> {
+    pub fn cols(self) -> TensorColIterator<T> {
         assert_matrix!(self);
-        TensorRowIterator {
+        TensorColIterator {
             tensor: self,
             index: 0,
         }
@@ -41,12 +41,12 @@ mod tests {
     #[test]
     fn rows() {
         let matrix = Tensor::<f32>::identity(2);
-        for (index, item) in matrix.clone().rows().enumerate() {
+        for (index, item) in matrix.clone().cols().enumerate() {
             if index == 0 {
-                assert_eq!(item, Tensor::bra(vec![1.0, 0.0]));
+                assert_eq!(item, Tensor::ket(vec![1.0, 0.0]));
             }
             if index == 1 {
-                assert_eq!(item, Tensor::bra(vec![0.0, 1.0]));
+                assert_eq!(item, Tensor::ket(vec![0.0, 1.0]));
             }
         }
         let count = matrix.rows().count();

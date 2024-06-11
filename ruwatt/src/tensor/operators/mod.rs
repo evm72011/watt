@@ -4,3 +4,5 @@ pub mod sub;
 pub mod mul;
 pub mod eq;
 pub mod dot;
+
+pub use dot::dot;

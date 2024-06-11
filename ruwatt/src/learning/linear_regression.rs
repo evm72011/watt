@@ -3,7 +3,7 @@ use std::iter::Sum;
 use std::sync::{Arc, Mutex};
 
 use crate::{assert_matrix, optimization::GradientDescent};
-use crate::tensor::{Tensor, dot::dot};
+use crate::tensor::{ Tensor, dot };
 
 #[derive(PartialEq, Clone)]
 pub enum CostFunction {

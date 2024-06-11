@@ -17,6 +17,13 @@ impl<T> Tensor<T> where T: Float {
         Self::new(shape, T::one())
     }
 
+    pub fn empty() -> Self {
+        Self {
+            data: vec![],
+            shape: vec![]
+        }
+    }
+
     pub fn random(shape: Vec<usize>) -> Self {
         let size = shape.iter().product();
         let mut rng = rand::thread_rng();

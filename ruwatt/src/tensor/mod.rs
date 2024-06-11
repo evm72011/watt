@@ -8,6 +8,7 @@ pub mod matrix;
 pub mod macros;
 pub mod functions;
 pub mod matrix_rows;
+pub mod matrix_cols;
 
 mod index_tools;
 
