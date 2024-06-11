@@ -38,3 +38,26 @@ pub fn mad<T>(y_model: Tensor<T>, y_test: Tensor<T>) -> Tensor<T> where T : Floa
         Tensor::ket(data)
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::{mse, mad, Tensor};
+
+    #[test]
+    fn mse_test() {
+        let y_model = Tensor::matrix(vec![vec![1.0], vec![2.0], vec![3.0]]);
+        let y_test = Tensor::matrix(vec![vec![1.5], vec![1.5], vec![3.5]]);
+        let recieved = mse(y_model, y_test);
+        let expected = Tensor::ket(vec![0.25]);
+        assert_eq!(recieved, expected)
+    }
+
+    #[test]
+    fn mad_test() {
+        let y_model = Tensor::matrix(vec![vec![1.0], vec![2.0], vec![3.0]]);
+        let y_test = Tensor::matrix(vec![vec![1.5], vec![1.5], vec![3.5]]);
+        let recieved = mad(y_model, y_test);
+        let expected = Tensor::ket(vec![0.5]);
+        assert_eq!(recieved, expected)
+    }
+}
