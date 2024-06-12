@@ -1,6 +1,5 @@
 use num::Float;
 use std::iter::Sum;
-use std::sync::{Arc, Mutex};
 
 use crate::{assert_matrix, optimization::GradientDescent};
 use crate::tensor::{ Tensor, dot };
@@ -12,6 +11,8 @@ pub enum CostFunction {
 }
 
 pub struct LinearRegression<'a, T=f32> where T: Float + Sum {
+    pub trained: bool,
+    pub feature_count: usize,
     pub coef: Tensor<T>,
     pub cost_function: CostFunction,
     pub optimizator: GradientDescent<'a, T>
@@ -20,6 +21,8 @@ pub struct LinearRegression<'a, T=f32> where T: Float + Sum {
 impl<'a, T> Default for LinearRegression<'a, T> where T: Float + Sum {
     fn default() -> Self {
         Self {
+            trained: false,
+            feature_count: 0,
             coef: Tensor::empty(),
             cost_function: CostFunction::LeastSquares,
             optimizator: Default::default()
@@ -33,28 +36,26 @@ impl<'a, T> LinearRegression<'a, T> where T: Float + Send + Sync + Sum + 'static
         assert_matrix!(x);
         assert_matrix!(y);
         assert_eq!(x.row_count(), y.row_count(), "Count of x train not correspond to y");
+        self.feature_count = x.col_count();
 
         let closures = self.create_closures(y.col_count());
-        let self_arc = Arc::new(Mutex::new(self));
-        
         for closure in closures.iter() {
-            let self_arc = Arc::clone(&self_arc);
-            let mut self_locked = self_arc.lock().unwrap();
-            let x_clone = x.clone();
-            let y_clone = y.clone();
-            let f = move |w: &Tensor<T>| closure(w, &x_clone, &y_clone);
+            let f = |w: &Tensor<T>| closure(w, &x, &y);
             let mut optimizator = GradientDescent {
                 func: &f,
-                start_point: Tensor::bra(vec![T::one(); x.shape[1] + 1]),
-                ..self_locked.optimizator.clone()
+                start_point: Tensor::bra(vec![T::one(); x.col_count() + 1]),
+                ..self.optimizator.clone()
             };
             optimizator.run();
             let result = optimizator.result.unwrap();
-            self_locked.coef.append_row(result.arg);
+            self.coef.append_row(result.arg);
         }
+        self.trained = true;
     }
 
     pub fn predict(&mut self, x: Tensor<T>) -> Tensor<T> {
+        assert!(self.trained, "Model is not trained");
+        assert_eq!(self.feature_count, x.col_count(), "Feature count must be {}", self.feature_count);
         let mut result = Tensor::empty();
         x.rows().for_each(|item| {
             let x_modified = item.prepend_one().to_ket();
@@ -65,10 +66,9 @@ impl<'a, T> LinearRegression<'a, T> where T: Float + Send + Sync + Sum + 'static
     }
 
     fn create_closures(&self, count: usize) -> Vec<Box<dyn Fn(&Tensor<T>, &Tensor<T>, &Tensor<T>) -> T + Send + Sync>>{
-        let cost_function = self.cost_function.clone();
         (0..count)
                 .map(|index| {
-                    let cost_function = cost_function.clone();
+                    let cost_function = self.cost_function.clone();
                     Box::new(move |w: &Tensor<T>, x: &Tensor<T>, y: &Tensor<T>| {
                         x.clone().rows()
                             .zip(y.clone().rows())
@@ -82,7 +82,7 @@ impl<'a, T> LinearRegression<'a, T> where T: Float + Send + Sync + Sum + 'static
                                 }
                             })
                             .sum()
-                    }) as Box<dyn Fn(&Tensor<T>, &Tensor<T>, &Tensor<T>) -> T+ Send + Sync>
+                    }) as Box<dyn Fn(&Tensor<T>, &Tensor<T>, &Tensor<T>) -> T + Send + Sync>
             })
             .collect()
     }
@@ -129,7 +129,7 @@ mod tests {
 
             
     #[test]
-    fn new() {
+    fn linear_regression() {
         let train_size: usize = 10;
         let test_size: usize = 5;
         let (x_train, y_train, x_test, y_test) = create_train_test(train_size, test_size);

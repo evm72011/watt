@@ -24,9 +24,6 @@ fn grad_f(vector: &Tensor<f64>) -> Tensor<f64> {
     */
 
 fn main() {
-    let a = 5; //String::from("foo");
-    let b = a;
-    println!("{}", a);
     let mut model = LinearRegression {
         cost_function: CostFunction::LeastSquares,
         optimizator: GradientDescent {
