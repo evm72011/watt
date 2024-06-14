@@ -49,7 +49,8 @@ pub fn dot<T>(a: &Tensor<T>, b: &Tensor<T>) -> Tensor<T> where T: Float {
 
 #[cfg(test)]
 mod tests {
-    use super::{Tensor, dot, super::super::Matrix, super::super::Vector};
+    use super::{Tensor, dot};
+    use super::super::super::{Matrix, Vector};
 
     #[test]
     #[should_panic(expected = "Incompatible shapes to dot: [1, 2] vs [1, 2]")]

@@ -41,9 +41,8 @@ pub fn mad<T>(y_model: Tensor<T>, y_test: Tensor<T>) -> Tensor<T> where T : Floa
 
 #[cfg(test)]
 mod tests {
-    use crate::tensor::Matrix;
-
     use super::{mse, mad, Vector };
+    use super::super::super::Matrix;
 
     #[test]
     fn mse_test() {

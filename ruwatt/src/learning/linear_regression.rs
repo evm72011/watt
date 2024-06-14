@@ -91,8 +91,8 @@ impl<'a, T> LinearRegression<'a, T> where T: Float + Send + Sync + Sum + 'static
 #[cfg(test)]
 mod tests {
     use rand::prelude::*;
-    use crate::tensor::Matrix;
-
+    use super::super::super::Matrix;
+    
     use super::{ LinearRegression, Tensor, CostFunction, GradientDescent};
 
     fn generate_x(count: usize, x_min: f32, x_max: f32) -> Vec<Vec<f32>>{

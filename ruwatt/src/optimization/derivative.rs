@@ -48,10 +48,8 @@ pub fn hessian<T>(f: &dyn Fn(&Tensor<T>) -> T, point: &Tensor<T>, delta: T) -> T
 #[cfg(test)]
 mod tests {
     use num::abs;
-
-    use crate::tensor::{Matrix, Vector};
-
-    use super::{Tensor, hessian, gradient, derivative};
+    use super::super::super::Matrix;
+    use super::{Tensor, Vector, hessian, gradient, derivative};
 
     fn f(x: &Tensor) -> f32 {
         x.get_v(0).powi(2) + x.get_v(1).powi(2)
