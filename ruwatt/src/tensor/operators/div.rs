@@ -1,6 +1,6 @@
 use std::ops;
 use num::Float;
-use super::super::{Tensor};
+use super::super::Tensor;
 use crate::assert_shape;
 
 fn div_tensors<T: Float>(a: &Tensor<T>, b: &Tensor<T>) -> Tensor<T> {
