@@ -1,8 +1,7 @@
 use num::Float;
 use std::fmt::Debug;
 use crate::assert_shape;
-
-use super::index_tools::IndexTools;
+use super::IndexTools;
 
 #[derive(Debug, Clone)]
 pub struct Tensor<T = f32> where T: Float {
