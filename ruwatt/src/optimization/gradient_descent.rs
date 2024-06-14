@@ -1,4 +1,6 @@
 use num::Float;
+use crate::tensor::Vector;
+
 use super::gradient;
 use super::super::Tensor;
 use std::cmp::Ordering;
@@ -66,7 +68,7 @@ impl<'a, T> Default for GradientDescent<'a, T> where T: Float {
         Self {
             func: &|_| T::zero(),
             grad_func: None,
-            start_point: Tensor::<T>::ket(vec![T::zero()]),
+            start_point: Vector::ket(vec![T::zero()]),
             step_count: 1000,
             betta: T::from(0.7).unwrap(), 
             step_size: T::one(), 
@@ -77,7 +79,7 @@ impl<'a, T> Default for GradientDescent<'a, T> where T: Float {
             progress: OptimizationProgress::new(),
             result: None,
             logs: vec![],
-            grad_prev: Tensor::<T>::ket(vec![T::zero()])
+            grad_prev: Vector::ket(vec![T::zero()])
         }
     }
 }
@@ -157,6 +159,7 @@ impl<'a, T> GradientDescent<'a, T> where T: Float {
 
 #[cfg(test)]
 mod tests {
+    use crate::tensor::Vector;
     use super::{Tensor, GradientDescent};
 
     fn f(x: &Tensor) -> f32 {
@@ -166,7 +169,7 @@ mod tests {
     fn grad_f(vector: &Tensor) -> Tensor {
         let w0 = vector.get_v(0);
         let w1 = vector.get_v(1);
-        Tensor::ket(vec![2.0*w0, 2.0*w1])
+        Vector::ket(vec![2.0*w0, 2.0*w1])
     }
 
     #[test]
@@ -174,12 +177,12 @@ mod tests {
         let mut optimizator = GradientDescent {
             func: &f,
             grad_func: Some(&grad_f),
-            start_point: Tensor::ket(vec![3.0, 3.0]),
+            start_point: Vector::ket(vec![3.0, 3.0]),
             ..Default::default()
         };
         optimizator.run();
         let result = optimizator.result.unwrap();
-        let arg_expected = Tensor::ket(vec![0.0, 0.0]);
+        let arg_expected = Vector::ket(vec![0.0, 0.0]);
         assert!(f32::abs(result.value - 2.0) < 0.001);
         assert!(result.arg.is_ket());
         assert!(result.arg.is_near(&arg_expected, 0.001))
@@ -189,12 +192,12 @@ mod tests {
     fn gradient_descent_numeric_grad() {
         let mut optimizator = GradientDescent {
             func: &f,
-            start_point: Tensor::ket(vec![3.0, 3.0]),
+            start_point: Vector::ket(vec![3.0, 3.0]),
             ..Default::default()
         };
         optimizator.run();
         let result = optimizator.result.unwrap();
-        let arg_expected = Tensor::ket(vec![0.0, 0.0]);
+        let arg_expected = Vector::ket(vec![0.0, 0.0]);
         assert!(f32::abs(result.value - 2.0) < 0.001);
         assert!(result.arg.is_ket());
         assert!(result.arg.is_near(&arg_expected, 0.001))

@@ -1,8 +1,6 @@
 use num::Float;
 use std::iter::Sum;
-use crate::tensor::index_tools::IndexTools;
-
-use super::super::Tensor;
+use super::super::{Tensor, IndexTools};
 
 pub fn _dot<T>(a: &Tensor<T>, b: &Tensor<T>) -> Tensor<T> where T: Float + Sum {
     if a.is_scalar() || b.is_scalar() || a.shape.len() > 2 || b.shape.len() > 2 {
@@ -51,20 +49,20 @@ pub fn dot<T>(a: &Tensor<T>, b: &Tensor<T>) -> Tensor<T> where T: Float {
 
 #[cfg(test)]
 mod tests {
-    use super::{Tensor, dot, super::super::Matrix};
+    use super::{Tensor, dot, super::super::Matrix, super::super::Vector};
 
     #[test]
     #[should_panic(expected = "Incompatible shapes to dot: [1, 2] vs [1, 2]")]
     fn dot_error() {
-        let vector = Tensor::bra(vec![ 1.0, 2.0 ]);
+        let vector = Vector::bra(vec![ 1.0, 2.0 ]);
         dot(&vector, &vector);
     }
 
 
     #[test]
     fn dot_vector_vector() {
-        let bra = Tensor::bra(vec![ 1.0, 2.0 ]);
-        let ket = Tensor::ket(vec![ 3.0, 4.0 ]);
+        let bra = Vector::bra(vec![ 1.0, 2.0 ]);
+        let ket = Vector::ket(vec![ 3.0, 4.0 ]);
         let recieved = dot(&bra, &ket);
         let expected = Tensor::new(vec![ 1, 1 ], 11.0);
         assert!(recieved == expected)

@@ -1,6 +1,6 @@
 use std::ops;
 use num::Float;
-use super::super::Tensor;
+use super::super::{Tensor};
 use crate::assert_shape;
 
 fn div_tensors<T: Float>(a: &Tensor<T>, b: &Tensor<T>) -> Tensor<T> {
@@ -54,21 +54,21 @@ impl<T> ops::Div<T> for Tensor<T> where T: Float {
 
 #[cfg(test)]
 mod tests {
-    use super::Tensor;
+    use super::super::super::Vector;
 
     #[test]
     #[should_panic(expected = "Shapes do not match: [1, 2] vs [2, 1]")]
     fn div_error() {
-        let bra = Tensor::bra(vec![ 1.0, 2.0 ]);
-        let ket = Tensor::ket(vec![ 1.0, 2.0 ]);
+        let bra = Vector::bra(vec![ 1.0, 2.0 ]);
+        let ket = Vector::ket(vec![ 1.0, 2.0 ]);
         let _ = bra / ket;
     }
 
     #[test]
     fn div_tensors() {
-        let a = Tensor::bra(vec![ 4.0, 9.0 ]);
-        let b = Tensor::bra(vec![ 2.0, 3.0 ]);
-        let expected = Tensor::bra(vec![ 2.0, 3.0 ]);
+        let a = Vector::bra(vec![ 4.0, 9.0 ]);
+        let b = Vector::bra(vec![ 2.0, 3.0 ]);
+        let expected = Vector::bra(vec![ 2.0, 3.0 ]);
         let recieved = a / b;
         assert_eq!(expected, recieved)
     }
@@ -76,8 +76,8 @@ mod tests {
     
     #[test]
     fn div_tensor_number() {
-        let a = Tensor::bra(vec![ 2.0, 4.0 ]);
-        let expected = Tensor::bra(vec![ 1.0, 2.0 ]);
+        let a = Vector::bra(vec![ 2.0, 4.0 ]);
+        let expected = Vector::bra(vec![ 1.0, 2.0 ]);
         let recieved = a / 2.0;
         assert_eq!(expected, recieved)
     }

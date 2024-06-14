@@ -2,7 +2,7 @@ use num::Float;
 use std::iter::Sum;
 
 use crate::{assert_matrix, optimization::GradientDescent};
-use crate::tensor::{ Tensor, dot };
+use crate::tensor::{ dot, Tensor, Vector };
 
 #[derive(PartialEq, Clone)]
 pub enum CostFunction {
@@ -43,7 +43,7 @@ impl<'a, T> LinearRegression<'a, T> where T: Float + Send + Sync + Sum + 'static
             let f = |w: &Tensor<T>| closure(w, &x, &y);
             let mut optimizator = GradientDescent {
                 func: &f,
-                start_point: Tensor::bra(vec![T::one(); x.col_count() + 1]),
+                start_point: Vector::bra(vec![T::one(); x.col_count() + 1]),
                 ..self.optimizator.clone()
             };
             optimizator.run();

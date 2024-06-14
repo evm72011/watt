@@ -1,12 +1,11 @@
 use num::Float;
 use std::marker::PhantomData;
-use crate::{assert_bra, assert_ket, assert_matrix, tensor::index_tools::IndexTools};
-
-use super::Tensor;
+use crate::{assert_bra, assert_ket, assert_matrix};
+use super::super::{Tensor, IndexTools, Vector};
 
 pub struct Matrix<T = f32> {
     _marker: PhantomData<T>
- }
+}
 
 impl<T> Matrix<T> where T: Float {
     pub fn ident(size: usize) -> Tensor<T> {
@@ -72,13 +71,13 @@ impl<T> Tensor<T> where T: Float {
     pub fn row(&self, index: usize) -> Self {
         assert_matrix!(self);
         let data = IndexTools::<T>::get_row(index, &self.shape, &self.data);
-        Tensor::<T>::bra(data)
+        Vector::<T>::bra(data)
     }
 
     pub fn col(&self, index: usize) -> Self {
         assert_matrix!(self);
         let data = IndexTools::<T>::get_col(index, &self.shape, &self.data);
-        Tensor::<T>::ket(data)
+        Vector::<T>::ket(data)
     }
 
     pub fn append_row(&mut self, row: Tensor<T>) {
@@ -112,7 +111,7 @@ impl<T> Tensor<T> where T: Float {
 
 #[cfg(test)]
 mod tests {
-    use super::{ Tensor, Matrix };
+    use super::{ Tensor, Matrix, Vector };
 
     fn matrix123() -> Tensor {
         Matrix::new(vec![
@@ -139,8 +138,8 @@ mod tests {
 
     #[test]
     fn tr_vector() {
-        let vector = Tensor::bra(vec![1.0, 2.0, 3.0]);
-        let expected = Tensor::ket(vec![1.0, 2.0, 3.0]);
+        let vector = Vector::bra(vec![1.0, 2.0, 3.0]);
+        let expected = Vector::ket(vec![1.0, 2.0, 3.0]);
         let recieved = vector.tr();
         assert!(recieved == expected);
     }
@@ -160,7 +159,7 @@ mod tests {
     #[test]
     fn row() {
         let matrix = matrix123();
-        let expected = Tensor::bra(vec![4.0, 5.0, 6.0]);
+        let expected = Vector::bra(vec![4.0, 5.0, 6.0]);
         let recieved = matrix.row(1);
         assert_eq!(expected, recieved);
     }
@@ -168,7 +167,7 @@ mod tests {
     #[test]
     fn col() {
         let matrix = matrix123();
-        let expected = Tensor::ket(vec![2.0, 5.0, 8.0]);
+        let expected = Vector::ket(vec![2.0, 5.0, 8.0]);
         let recieved = matrix.col(1);
         assert_eq!(expected, recieved);
     }
@@ -179,7 +178,7 @@ mod tests {
             vec![1.0, 2.0], 
             vec![3.0, 4.0]
         ]);
-        let row = Tensor::bra(vec![5.0, 6.0]);
+        let row = Vector::bra(vec![5.0, 6.0]);
         matrix.append_row(row);
 
         let expected = Matrix::new(vec![
@@ -193,7 +192,7 @@ mod tests {
         #[test]
     fn append_col() {
         let mut matrix = matrix123();
-        let col = Tensor::ket(vec![10.0, 11.0, 12.0]);
+        let col = Vector::ket(vec![10.0, 11.0, 12.0]);
         matrix.append_col(col);
 
         let expected = Matrix::new(vec![

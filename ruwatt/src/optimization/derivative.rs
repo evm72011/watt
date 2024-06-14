@@ -1,9 +1,9 @@
 use num::Float;
 use super::super::Tensor;
-use crate::assert_vector;
+use crate::{assert_vector, tensor::Vector};
 
 fn derivative<T>(f: &dyn Fn(&Tensor<T>) -> T, index: usize, point: &Tensor<T>, delta: T) -> T where T: Float {
-    let dw = Tensor::<T>::ort(point.is_bra(), point.dim(), index, delta);
+    let dw = Vector::ort(point.is_bra(), point.dim(), index, delta);
     (f(&(point + &dw)) - f(point)) / delta
 }
 
@@ -11,9 +11,9 @@ pub fn gradient<T>(f: &dyn Fn(&Tensor<T>) -> T, point: &Tensor<T>, delta: T) -> 
     assert_vector!(point);
     let dim = point.dim();
     let mut result = if point.is_bra() {
-        Tensor::<T>::bra(vec![T::zero(); dim])
+        Vector::<T>::bra(vec![T::zero(); dim])
     } else {
-        Tensor::<T>::ket(vec![T::zero(); dim])
+        Vector::<T>::ket(vec![T::zero(); dim])
     };
     for i in 0..dim {
         let value = derivative(f, i, point, delta);
@@ -32,11 +32,11 @@ pub fn hessian<T>(f: &dyn Fn(&Tensor<T>) -> T, point: &Tensor<T>, delta: T) -> T
     for i in 0..dim {
         for j in 0..dim {
             let value = if i == j {
-                let dw = Tensor::<T>::ort(is_bra, dim, i, delta);
+                let dw = Vector::ort(is_bra, dim, i, delta);
                 f(&(point + &(&dw * &f_2))) - f_2 * f(&(point + &dw)) + f(point)
             } else {
-                let dw_i = Tensor::<T>::ort(is_bra, dim, i, delta);
-                let dw_j = Tensor::<T>::ort(is_bra, dim, j, delta);
+                let dw_i = Vector::ort(is_bra, dim, i, delta);
+                let dw_j = Vector::ort(is_bra, dim, j, delta);
                 f(&(point + &(&dw_i + &dw_j))) - f(&(point + &dw_i)) - f(&(point + &dw_j)) + f(point)
             };
             result.set(vec![i, j], value / (delta * delta));
@@ -49,7 +49,7 @@ pub fn hessian<T>(f: &dyn Fn(&Tensor<T>) -> T, point: &Tensor<T>, delta: T) -> T
 mod tests {
     use num::abs;
 
-    use crate::tensor::Matrix;
+    use crate::tensor::{Matrix, Vector};
 
     use super::{Tensor, hessian, gradient, derivative};
 
@@ -59,22 +59,22 @@ mod tests {
 
     #[test]
     fn test_derivative() {
-        let vector = Tensor::ket(vec![1.0, 1.0]);
+        let vector = Vector::ket(vec![1.0, 1.0]);
         let recieved = derivative(&f, 0, &vector, 0.0001);
         assert!(abs(recieved - 2.0) < 0.001)
     }
 
     #[test]
     fn test_gradient() {
-        let vector = Tensor::ket(vec![1.0, 1.0]);
+        let vector = Vector::ket(vec![1.0, 1.0]);
         let recieved = gradient(&f, &vector, 0.0001);
-        let expected = Tensor::ket(vec![2.0, 2.0]);
+        let expected = Vector::ket(vec![2.0, 2.0]);
         assert!(expected.is_near(&recieved, 0.001))
     }
 
     #[test]
     fn test_hessian() {
-        let vector = Tensor::ket(vec![0.0, 0.0]);
+        let vector = Vector::ket(vec![0.0, 0.0]);
         let recieved = hessian(&f, &vector, 0.0001);
         let expected = Matrix::new(vec![
             vec![2.0, 0.0],

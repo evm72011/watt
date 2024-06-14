@@ -1,23 +1,49 @@
-use crate::{assert_vector, assert_ket, assert_bra};
 use num::Float;
+use std::marker::PhantomData;
+use crate::{assert_vector, assert_ket, assert_bra};
 use super::Tensor;
 
+pub struct Vector<T = f32> {
+    _marker: PhantomData<T>
+}
 
-impl<T> Tensor<T> where T: Float {    
-    pub fn bra(data: Vec<T>) -> Self {
-        Self {
+impl<T> Vector<T> where T: Float {
+    pub fn bra(data: Vec<T>) -> Tensor<T> {
+        Tensor {
             shape: vec![1, data.len()],
             data: data.to_vec()
         }
     }
 
-    pub fn ket(data: Vec<T>) -> Self {
-        Self {
+    pub fn ket(data: Vec<T>) -> Tensor<T> {
+        Tensor {
             shape: vec![data.len(), 1],
             data: data.to_vec()
         }
     }
-  
+
+    pub fn ort(is_bra: bool, dim: usize, index: usize, length: T) -> Tensor<T> {
+        if is_bra {
+            Self::bra_ort(dim, index, length)
+        } else {
+            Self::ket_ort(dim, index, length)
+        }
+    }
+
+    pub fn bra_ort(dim: usize, index: usize, length: T) -> Tensor<T> {
+        let mut result = Tensor::<T>::zeros(vec![1, dim]);
+        result.set_v(index, length);
+        result
+    }
+
+    pub fn ket_ort(dim: usize, index: usize, length: T) -> Tensor<T> {
+        let mut result = Tensor::<T>::zeros(vec![dim, 1]);
+        result.set_v(index, length);
+        result
+    }
+}
+
+impl<T> Tensor<T> where T: Float {    
     pub fn get_v(&self, index: usize) -> T {
         assert_vector!(self);
         assert!(index < *self.shape.iter().max().unwrap());
@@ -28,26 +54,6 @@ impl<T> Tensor<T> where T: Float {
         assert_vector!(self);
         assert!(index < *self.shape.iter().max().unwrap());
         self.data[index] = value
-    }
-
-    pub fn ort(is_bra: bool, dim: usize, index: usize, length: T) -> Self {
-        if is_bra {
-            Self::bra_ort(dim, index, length)
-        } else {
-            Self::ket_ort(dim, index, length)
-        }
-    }
-
-    pub fn bra_ort(dim: usize, index: usize, length: T) -> Self {
-        let mut result = Tensor::<T>::zeros(vec![1, dim]);
-        result.set_v(index, length);
-        result
-    }
-
-    pub fn ket_ort(dim: usize, index: usize, length: T) -> Self {
-        let mut result = Tensor::<T>::zeros(vec![dim, 1]);
-        result.set_v(index, length);
-        result
     }
 
     pub fn is_vector(&self) -> bool {
@@ -86,32 +92,32 @@ impl<T> Tensor<T> where T: Float {
 
     pub fn to_bra(&self) -> Self{
         assert_ket!(self);
-        Tensor::bra(self.data.to_vec())
+        Vector::bra(self.data.to_vec())
     }
 
     pub fn to_ket(&self) -> Self {
         assert_bra!(self);
-        Tensor::ket(self.data.to_vec())
+        Vector::ket(self.data.to_vec())
     }
 
     pub fn prepend_one(&self) -> Self {
         let mut data = self.data.to_vec();
         data.insert(0, T::one());
         if self.is_bra() {
-            Tensor::bra(data)
+            Vector::bra(data)
         } else {
-            Tensor::ket(data)
+            Vector::ket(data)
         }
     }
 }
 
 #[cfg(test)]
 mod tests {
-    use super::Tensor;
+    use super::{Tensor, Vector};
 
     #[test]
     fn bra() {
-        let vector = Tensor::bra(vec![1.0, 2.0]);
+        let vector = Vector::bra(vec![1.0, 2.0]);
         assert_eq!(vector.shape, vec![1, 2]);
         assert_eq!(vector.data, vec![1.0, 2.0]);
         assert!(vector.is_bra());
@@ -120,7 +126,7 @@ mod tests {
 
     #[test]
     fn ket() {
-        let vector = Tensor::ket(vec![1.0, 2.0]);
+        let vector = Vector::ket(vec![1.0, 2.0]);
         assert_eq!(vector.shape, vec![2, 1]);
         assert_eq!(vector.data, vec![1.0, 2.0]);
         assert!(!vector.is_bra());
@@ -129,7 +135,7 @@ mod tests {
 
     #[test]
     fn set_get_v() {
-        let mut vector = Tensor::bra(vec![1.0, 2.0, 3.0]);
+        let mut vector = Vector::bra(vec![1.0, 2.0, 3.0]);
         vector.set_v(1, 4.0);
         let value = vector.get_v(1);
         assert_eq!(value, 4.0);
@@ -137,7 +143,7 @@ mod tests {
 
     #[test]
     fn ort() {
-        let vector = Tensor::ort(true, 3, 1, 2.0);
+        let vector = Vector::ort(true, 3, 1, 2.0);
         assert!(vector.is_bra());
         assert_eq!(vector.shape, vec![1, 3]);
         assert_eq!(vector.data, vec![0.0, 2.0, 0.0]);
@@ -165,16 +171,16 @@ mod tests {
 
     #[test]
     fn dim() {
-        let bra = Tensor::bra(vec![1.0, 2.0, 3.0]);
+        let bra = Vector::bra(vec![1.0, 2.0, 3.0]);
         assert_eq!(bra.dim(), 3);
 
-        let ket = Tensor::ket(vec![1.0, 2.0, 3.0]);
+        let ket = Vector::ket(vec![1.0, 2.0, 3.0]);
         assert_eq!(ket.dim(), 3);
     }
 
     #[test]
     fn length() {
-        let tensor = Tensor::bra(vec![3.0, 4.0]);
+        let tensor = Vector::bra(vec![3.0, 4.0]);
         let length = tensor.length();
         assert_eq!(length, 5.0);
     }
@@ -188,14 +194,14 @@ mod tests {
 
     #[test]
     fn to_bra() {
-        let tensor = Tensor::ket(vec![3.0, 4.0]);
+        let tensor = Vector::ket(vec![3.0, 4.0]);
         let recieved = tensor.to_bra();
         assert!(recieved.is_bra());
     }
 
     #[test]
     fn to_ket() {
-        let tensor = Tensor::bra(vec![3.0, 4.0]);
+        let tensor = Vector::bra(vec![3.0, 4.0]);
         let recieved = tensor.to_ket();
         assert!(recieved.is_ket());
     }

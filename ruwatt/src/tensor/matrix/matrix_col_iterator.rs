@@ -1,15 +1,13 @@
 use num::Float;
-
 use crate::assert_matrix;
+use super::super::Tensor;
 
-use super::Tensor;
-
-pub struct TensorColIterator<T> where T: Float {
+pub struct MatrixColIterator<T> where T: Float {
     tensor: Tensor<T>,
     index: usize
 }
 
-impl<T> Iterator for TensorColIterator<T> where T: Float {
+impl<T> Iterator for MatrixColIterator<T> where T: Float {
     type Item = Tensor<T>;
 
     fn next(&mut self) -> Option<Self::Item> {
@@ -25,9 +23,9 @@ impl<T> Iterator for TensorColIterator<T> where T: Float {
 }
 
 impl<T> Tensor<T> where T: Float {
-    pub fn cols(self) -> TensorColIterator<T> {
+    pub fn cols(self) -> MatrixColIterator<T> {
         assert_matrix!(self);
-        TensorColIterator {
+        MatrixColIterator {
             tensor: self,
             index: 0,
         }
@@ -36,19 +34,17 @@ impl<T> Tensor<T> where T: Float {
 
 #[cfg(test)]
 mod tests {
-    use crate::tensor::matrix::Matrix;
-
-    use super::Tensor;
+    use crate::tensor::{matrix::Matrix, Vector};
 
     #[test]
     fn rows() {
         let matrix = Matrix::<f32>::ident(2);
         for (index, item) in matrix.clone().cols().enumerate() {
             if index == 0 {
-                assert_eq!(item, Tensor::ket(vec![1.0, 0.0]));
+                assert_eq!(item, Vector::ket(vec![1.0, 0.0]));
             }
             if index == 1 {
-                assert_eq!(item, Tensor::ket(vec![0.0, 1.0]));
+                assert_eq!(item, Vector::ket(vec![0.0, 1.0]));
             }
         }
         let count = matrix.rows().count();

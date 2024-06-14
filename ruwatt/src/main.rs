@@ -3,7 +3,7 @@ mod optimization;
 mod learning;
 
 use learning::{CostFunction, LinearRegression};
-use tensor::{matrix::Matrix, Tensor};
+use tensor::{ Matrix, Tensor };
 use optimization::GradientDescent;
 
 /*
