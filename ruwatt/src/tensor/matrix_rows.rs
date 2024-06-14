@@ -36,11 +36,13 @@ impl<T> Tensor<T> where T: Float {
 
 #[cfg(test)]
 mod tests {
-    use super::Tensor;
+    //use crate::tensor::Matrix;
+
+    use super::{Tensor, super::Matrix};
 
     #[test]
     fn rows() {
-        let matrix = Tensor::<f32>::identity(2);
+        let matrix = Matrix::<f32>::ident(2);
         for (index, item) in matrix.clone().rows().enumerate() {
             if index == 0 {
                 assert_eq!(item, Tensor::bra(vec![1.0, 0.0]));

@@ -17,3 +17,4 @@ pub use constructors::*;
 pub use operators::*;
 pub use macros::*;
 pub use functions::*;
+pub use matrix::Matrix;

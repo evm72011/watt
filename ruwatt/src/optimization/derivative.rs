@@ -49,6 +49,8 @@ pub fn hessian<T>(f: &dyn Fn(&Tensor<T>) -> T, point: &Tensor<T>, delta: T) -> T
 mod tests {
     use num::abs;
 
+    use crate::tensor::Matrix;
+
     use super::{Tensor, hessian, gradient, derivative};
 
     fn f(x: &Tensor) -> f32 {
@@ -74,7 +76,7 @@ mod tests {
     fn test_hessian() {
         let vector = Tensor::ket(vec![0.0, 0.0]);
         let recieved = hessian(&f, &vector, 0.0001);
-        let expected = Tensor::matrix(vec![
+        let expected = Matrix::new(vec![
             vec![2.0, 0.0],
             vec![0.0, 2.0],
         ]);

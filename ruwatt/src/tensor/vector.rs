@@ -18,10 +18,10 @@ impl<T> Tensor<T> where T: Float {
         }
     }
   
-    pub fn get_v(&self, index: usize) -> &T {
+    pub fn get_v(&self, index: usize) -> T {
         assert_vector!(self);
         assert!(index < *self.shape.iter().max().unwrap());
-        self.data.get(index).unwrap()
+        self.data[index]
     }
 
     pub fn set_v(&mut self, index: usize, value: T) {
@@ -132,7 +132,7 @@ mod tests {
         let mut vector = Tensor::bra(vec![1.0, 2.0, 3.0]);
         vector.set_v(1, 4.0);
         let value = vector.get_v(1);
-        assert_eq!(*value, 4.0);
+        assert_eq!(value, 4.0);
     }
 
     #[test]

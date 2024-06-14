@@ -2,8 +2,8 @@ mod tensor;
 mod optimization;
 mod learning;
 
-use learning::{LinearRegression, CostFunction};
-use tensor::Tensor;
+use learning::{CostFunction, LinearRegression};
+use tensor::{matrix::Matrix, Tensor};
 use optimization::GradientDescent;
 
 /*
@@ -25,7 +25,7 @@ fn grad_f(vector: &Tensor<f64>) -> Tensor<f64> {
 
 fn main() {
     let mut model = LinearRegression {
-        cost_function: CostFunction::LeastSquares,
+        cost_function: CostFunction::Abs,
         optimizator: GradientDescent {
             step_count: 1000,
             step_size: 3.0,
@@ -33,14 +33,14 @@ fn main() {
         },
         ..Default::default()
     };
-    let x_train = Tensor::matrix(vec![
+    let x_train = Matrix::new(vec![
         vec![0.0, 0.0],
         vec![1.0, 1.0],
         vec![2.0, 2.0],
         vec![3.0, 4.0],
         vec![0.5, 0.5],
     ]);
-    let y_train = Tensor::matrix(vec![
+    let y_train = Matrix::new(vec![
         vec![ 1.0,  2.0,  3.0],    
         vec![12.0, 15.0, 18.0],   
         vec![23.0, 28.0, 33.0],  
@@ -50,14 +50,14 @@ fn main() {
     model.fit(x_train, y_train);
     println!("coef: {:?}", model.coef);
 
-    let x_test = Tensor::matrix(vec![
+    let x_test = Matrix::new(vec![
         vec![7.0, 5.0],
         vec![5.0, 7.0]
     ]);
 
     println!("x_test: {:?}", x_test);
-    let y_test = model.predict(x_test);
-    println!("y_test: {:?}", y_test);
+    let y_model = model.predict(x_test);
+    println!("y_model: {:?}", y_model);
 
     /*    
     let mut optimizator = GradientDescent::<f64> {

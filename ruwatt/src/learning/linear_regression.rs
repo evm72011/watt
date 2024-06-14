@@ -74,7 +74,7 @@ impl<'a, T> LinearRegression<'a, T> where T: Float + Send + Sync + Sum + 'static
                             .zip(y.clone().rows())
                             .map(|(x_test, y_test)| {
                                 let x_modified = x_test.prepend_one().to_ket();
-                                let value = dot(&w, &x_modified).to_scalar() - *y_test.get_v(index);
+                                let value = dot(&w, &x_modified).to_scalar() - y_test.get_v(index);
                                 if cost_function == CostFunction::Abs { 
                                     T::abs(value)
                                 } else {
@@ -91,6 +91,8 @@ impl<'a, T> LinearRegression<'a, T> where T: Float + Send + Sync + Sum + 'static
 #[cfg(test)]
 mod tests {
     use rand::prelude::*;
+    use crate::tensor::Matrix;
+
     use super::{ LinearRegression, Tensor, CostFunction, GradientDescent};
 
     fn generate_x(count: usize, x_min: f32, x_max: f32) -> Vec<Vec<f32>>{
@@ -120,10 +122,10 @@ mod tests {
         let x_test = generate_x(test_size, 0.0, 10.0);
         let y_test = calc_y(&x_test);
 
-        let x_train = Tensor::matrix(x_train);
-        let y_train = Tensor::matrix(y_train);
-        let x_test = Tensor::matrix(x_test);
-        let y_test = Tensor::matrix(y_test);
+        let x_train = Matrix::new(x_train);
+        let y_train = Matrix::new(y_train);
+        let x_test = Matrix::new(x_test);
+        let y_test = Matrix::new(y_test);
         (x_train, y_train, x_test, y_test)
     }
 

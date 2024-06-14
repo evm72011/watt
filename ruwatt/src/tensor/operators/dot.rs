@@ -51,7 +51,7 @@ pub fn dot<T>(a: &Tensor<T>, b: &Tensor<T>) -> Tensor<T> where T: Float {
 
 #[cfg(test)]
 mod tests {
-    use super::{Tensor, dot};
+    use super::{Tensor, dot, super::super::Matrix};
 
     #[test]
     #[should_panic(expected = "Incompatible shapes to dot: [1, 2] vs [1, 2]")]
@@ -72,17 +72,17 @@ mod tests {
 
     #[test]
     fn dot_matrix_matrix() {
-        let a = Tensor::matrix(vec![
+        let a = Matrix::new(vec![
             vec![ 1.0, 2.0, 3.0 ], 
             vec![ 4.0, 5.0, 6.0 ]
         ]);
-        let b = Tensor::matrix(vec![
+        let b = Matrix::new(vec![
             vec![ 1.0, 2.0 ], 
             vec![ 3.0, 4.0 ],
             vec![ 5.0, 6.0 ],
         ]);
         let recieved = dot(&a, &b);
-        let expected = Tensor::matrix(vec![
+        let expected = Matrix::new(vec![
             vec![ 22.0, 28.0 ],
             vec![ 49.0, 64.0 ]
         ]);

@@ -2,7 +2,7 @@ use num::Float;
 use std::marker::PhantomData;
 
 pub struct IndexTools<T> where T: Float {
-    _marker: PhantomData<T>,
+    _marker: PhantomData<T>
 }
 
 impl<T> IndexTools<T> where T: Float {
