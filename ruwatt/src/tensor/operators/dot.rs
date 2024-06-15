@@ -41,32 +41,14 @@ fn dot_matrix<T>(a: &Tensor<T>, b: &Tensor<T>) -> Tensor<T> where T: Float + Sum
         for col_index in 0..col_count {
             let col = IndexTools::<T>::get_col(col_index, &b.shape, &b.data);
             let value = row.iter().zip(col.iter()).map(|(&a, &b)| a*b).sum();
-            data[row_index * row_count + col_index] = value;
+            let index = row_index * col_count + col_index;
+            if index >= data.len() {
+                println!("{:?} * {:?}", a.shape, b.shape);
+            }
+            data[index] = value;
         }
     }
     Tensor { shape, data }
-}
-
-pub fn _dot<T>(a: &Tensor<T>, b: &Tensor<T>) -> Tensor<T> where T: Float {
-    if a.is_scalar() || b.is_scalar() || a.shape.len() > 2 || a.shape.len() > 2 {
-        unimplemented!("This method is not yet implemented");
-    }
-
-    assert_eq!(a.shape[1], b.shape[0], "Incompatible shapes to dot: {:?} vs {:?}", a.shape, b.shape);
-    let rows = a.row_count();
-    let cols = b.col_count();
-    let summs = a.shape[1];
-    let mut result = Tensor::zeros(vec![rows, cols]);
-    for row in 0..rows {
-        for col in 0..cols {
-            let mut value = T::zero();
-            for i in 0..summs  {
-                value = value + a.get(vec![row, i]) * b.get(vec![i, col]);
-            }
-            result.set(vec![row, col], value);
-        }
-    } 
-    result
 }
 
 #[cfg(test)]
@@ -123,6 +105,19 @@ mod tests {
             vec![ 22.0, 28.0 ],
             vec![ 49.0, 64.0 ]
         ]);
+        assert_eq!(expected, recieved)
+    }
+
+    #[test]
+    fn dot_matrix_vector() {
+        let a = Matrix::new(vec![
+            vec![ 1.0, 2.0, 3.0 ], 
+            vec![ 4.0, 5.0, 6.0 ],
+            vec![ 7.0, 8.0, 9.0 ]
+        ]);
+        let b = Vector::ket(vec![ 1.0, 2.0, 3.0]);
+        let recieved = dot(&a, &b);
+        let expected = Vector::ket(vec![ 14.0, 32.0, 50.0]);
         assert_eq!(expected, recieved)
     }
 }
