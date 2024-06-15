@@ -1,10 +1,9 @@
 use num::Float;
-use crate::tensor::Vector;
-
-use super::gradient;
-use super::super::Tensor;
 use std::cmp::Ordering;
 use std::time::Instant;
+use crate::tensor::{ Tensor, Vector };
+use super::gradient;
+
 
 #[derive(Clone)]
 pub struct OptimizationResult<T> where T: Float {

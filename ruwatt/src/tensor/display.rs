@@ -36,12 +36,12 @@ fn print_tensor(f: &mut fmt::Formatter) -> fmt::Result {
 impl<T> fmt::Display for Tensor<T> where T: Float + fmt::Display {
   fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
       writeln!(f)?;
-      if self.shape.len() == 1 {
-        return print_vector(self, f);
+      if self.is_vector() {
+        print_vector(self, f)
+      } else if self.is_matrix() {
+        print_matrix(self, f)
+      } else {
+        print_tensor(f)
       }
-      if self.shape.len() == 2 {
-        return print_matrix(self, f);
-      }
-      print_tensor(f)
   }
 }

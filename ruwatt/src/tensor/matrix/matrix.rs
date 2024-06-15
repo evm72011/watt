@@ -111,7 +111,7 @@ impl<T> Tensor<T> where T: Float {
 
 #[cfg(test)]
 mod tests {
-    use super::{ Tensor, Matrix, Vector };
+    use super::super::super::{ Tensor, Matrix, Vector, TensorType };
 
     fn matrix123() -> Tensor {
         Matrix::new(vec![
@@ -119,6 +119,12 @@ mod tests {
             vec![4.0, 5.0, 6.0],
             vec![7.0, 8.0, 9.0]
         ])
+    }
+
+    #[test]
+    fn get_type_matrix() {
+        let matrix = Matrix::<f32>::ident(2);
+        assert_eq!(matrix.get_type(), TensorType::Matrix);
     }
 
     #[test]

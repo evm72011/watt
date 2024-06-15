@@ -1,9 +1,9 @@
 use num::Float;
 use std::marker::PhantomData;
-use crate::{assert_vector, assert_ket, assert_bra};
+use crate::{assert_bra, assert_ket, assert_vector };
 use super::Tensor;
 
-pub struct Vector<T = f32> {
+pub struct Vector<T=f32> {
     _marker: PhantomData<T>
 }
 
@@ -113,7 +113,19 @@ impl<T> Tensor<T> where T: Float {
 
 #[cfg(test)]
 mod tests {
-    use super::{Tensor, Vector};
+    use super::super::{Tensor, Vector, TensorType, VectorType};
+
+    #[test]
+    fn get_type_vector_bra() {
+        let tensor = Vector::bra(vec![1.0, 2.0, 3.0]);
+        assert_eq!(tensor.get_type(), TensorType::Vector(VectorType::Bra));
+    }
+
+    #[test]
+    fn get_type_vector_ket() {
+        let tensor = Vector::ket(vec![1.0, 2.0, 3.0]);
+        assert_eq!(tensor.get_type(), TensorType::Vector(VectorType::Ket));
+    }
 
     #[test]
     fn bra() {

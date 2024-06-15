@@ -4,12 +4,43 @@ use crate::assert_shape;
 use super::IndexTools;
 
 #[derive(Debug, Clone)]
-pub struct Tensor<T = f32> where T: Float {
+pub struct Tensor<T=f32> where T: Float {
     pub shape: Vec<usize>,
     pub data: Vec<T>
 }
 
+#[derive(Debug, PartialEq)]
+pub enum VectorType {
+    Bra,
+    Ket
+}
+
+#[derive(Debug, PartialEq)]
+pub enum TensorType<T> where T: Float {
+    Empty,
+    Scalar(T),
+    Vector(VectorType),
+    Matrix,
+    General
+}
+
 impl<T> Tensor<T> where T: Float {
+    pub fn get_type(&self) -> TensorType<T> {
+        if self.data.len() == 0 && self.shape.len() == 0 {
+            TensorType::<T>::Empty
+        } else if self.shape.iter().all(|&value| value == 1) {
+            TensorType::Scalar(self.data[0])
+        } else if self.shape.len() == 2 && self.row_count() == 1 {
+            TensorType::Vector(VectorType::Bra)
+        } else if self.shape.len() == 2 && self.col_count() == 1 {
+            TensorType::Vector(VectorType::Ket)
+        } else if self.shape.len() == 2 {
+            TensorType::Matrix
+        } else {
+            TensorType::General
+        }
+    }
+
     pub fn is_small(&self, delta: T) -> bool {
         self.data.iter().any(|x| T::abs(*x) < delta)
     }
