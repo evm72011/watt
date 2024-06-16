@@ -1,6 +1,11 @@
 use num::Float;
 use std::marker::PhantomData;
 
+#[derive(Debug, PartialEq)]
+pub enum IndexError {
+    IndexOutOfBounds
+}
+
 pub struct IndexTools<T> where T: Float {
     _marker: PhantomData<T>
 }
@@ -45,22 +50,30 @@ impl<T> IndexTools<T> where T: Float {
         shape[1]
     }
 
-    pub fn get_row(index: usize, shape: &Vec<usize>, data: &Vec<T>) -> Vec<T> {
+    pub fn get_row(index: usize, shape: &Vec<usize>, data: &Vec<T>) -> Result<Vec<T>, IndexError> {
         let row_count = Self::get_row_count(shape);
         let col_count = Self::get_col_count(shape);
-        assert!(index < row_count, "Row index out of range {} vs {:?}", index, shape);
-        let start = col_count * index;
-        let end = col_count * (index + 1);
-        data[start..end].to_vec()
+        if index < row_count {
+            let start = col_count * index;
+            let end = col_count * (index + 1);
+            Ok(data[start..end].to_vec())        
+        } else {
+            Err(IndexError::IndexOutOfBounds)
+        }
     }
 
-    pub fn get_col(index: usize, shape: &Vec<usize>, data: &Vec<T>) -> Vec<T> {
+    pub fn get_col(index: usize, shape: &Vec<usize>, data: &Vec<T>) -> Result<Vec<T>, IndexError> {
         let row_count = Self::get_row_count(shape);
         let col_count = Self::get_col_count(shape);
-        assert!(index < col_count, "Col index out of range {} vs {:?}", index, shape);
-        (0..row_count)
-            .map(|row| data[col_count * row + index])
-            .collect()
+        if index < col_count {
+            let result = (0..row_count)
+                .map(|row| data[col_count * row + index])
+                .collect();
+            Ok(result)             
+        } else {
+            Err(IndexError::IndexOutOfBounds)
+        }
+
     }
 }
 
@@ -92,13 +105,13 @@ mod tests {
     fn get_row() {
         let (data, shape) = matrix1234();        
         let recieved = IndexTools::get_row(1, &shape, &data);
-        assert_eq!(recieved, vec![3.0, 4.0]);
+        assert_eq!(recieved, Ok(vec![3.0, 4.0]));
     }
 
     #[test]
     fn get_col() {
         let (data, shape) = matrix1234();        
         let recieved = IndexTools::get_col(1, &shape, &data);
-        assert_eq!(recieved, vec![2.0, 4.0]);
+        assert_eq!(recieved, Ok(vec![2.0, 4.0]));
     }
 }

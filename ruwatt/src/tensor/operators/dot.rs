@@ -37,9 +37,9 @@ fn dot_matrix<T>(a: &Tensor<T>, b: &Tensor<T>) -> Tensor<T> where T: Float + Sum
     let mut data = vec![T::zero(); row_count * col_count];
 
     for row_index in 0..row_count {
-        let row = IndexTools::<T>::get_row(row_index, &a.shape, &a.data);
+        let row = IndexTools::<T>::get_row(row_index, &a.shape, &a.data).unwrap();
         for col_index in 0..col_count {
-            let col = IndexTools::<T>::get_col(col_index, &b.shape, &b.data);
+            let col = IndexTools::<T>::get_col(col_index, &b.shape, &b.data).unwrap();
             let value = row.iter().zip(col.iter()).map(|(&a, &b)| a*b).sum();
             let index = row_index * col_count + col_index;
             if index >= data.len() {

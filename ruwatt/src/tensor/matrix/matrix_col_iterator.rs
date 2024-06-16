@@ -13,7 +13,7 @@ impl<T> Iterator for MatrixColIterator<T> where T: Float {
     fn next(&mut self) -> Option<Self::Item> {
         let col_count = self.tensor.col_count();
         if self.index < col_count {
-            let vector = self.tensor.col(self.index);
+            let vector = self.tensor.col(self.index).ok()?;
             self.index += 1;
             Some(vector)
         } else {

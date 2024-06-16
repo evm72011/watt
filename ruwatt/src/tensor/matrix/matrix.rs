@@ -1,6 +1,6 @@
 use num::Float;
 use std::marker::PhantomData;
-use crate::{assert_bra, assert_ket, assert_matrix};
+use crate::{assert_bra, assert_ket, assert_matrix, tensor::index_tools::IndexError};
 use super::super::{Tensor, IndexTools, Vector};
 
 pub struct Matrix<T = f32> {
@@ -68,16 +68,16 @@ impl<T> Tensor<T> where T: Float {
         IndexTools::<T>::get_col_count(&self.shape)
     }
 
-    pub fn row(&self, index: usize) -> Self {
+    pub fn row(&self, index: usize) -> Result<Self, IndexError> {
         assert_matrix!(self);
-        let data = IndexTools::<T>::get_row(index, &self.shape, &self.data);
-        Vector::<T>::bra(data)
+        let data = IndexTools::<T>::get_row(index, &self.shape, &self.data)?;
+        Ok(Vector::<T>::bra(data))
     }
 
-    pub fn col(&self, index: usize) -> Self {
+    pub fn col(&self, index: usize) -> Result<Self, IndexError> {
         assert_matrix!(self);
-        let data = IndexTools::<T>::get_col(index, &self.shape, &self.data);
-        Vector::<T>::ket(data)
+        let data = IndexTools::<T>::get_col(index, &self.shape, &self.data)?;
+        Ok(Vector::<T>::ket(data))
     }
 
     pub fn append_row(&mut self, row: Tensor<T>) {
@@ -165,7 +165,7 @@ mod tests {
     #[test]
     fn row() {
         let matrix = matrix123();
-        let expected = Vector::bra(vec![4.0, 5.0, 6.0]);
+        let expected = Ok(Vector::bra(vec![4.0, 5.0, 6.0]));
         let recieved = matrix.row(1);
         assert_eq!(expected, recieved);
     }
@@ -173,7 +173,7 @@ mod tests {
     #[test]
     fn col() {
         let matrix = matrix123();
-        let expected = Vector::ket(vec![2.0, 5.0, 8.0]);
+        let expected = Ok(Vector::ket(vec![2.0, 5.0, 8.0]));
         let recieved = matrix.col(1);
         assert_eq!(expected, recieved);
     }

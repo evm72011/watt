@@ -1,6 +1,6 @@
 use num::Float;
 use std::marker::PhantomData;
-use super::Tensor;
+use super::{Tensor, TensorType};
 use crate::assert_scalar;
 
 pub struct Scalar<T=f32> {
@@ -19,7 +19,8 @@ impl<T> Scalar<T> where T: Float {
 impl<T> Tensor<T> where T: Float {    
 
   pub fn is_scalar(&self) -> bool {
-    self.shape.iter().all(|&value| value == 1)
+    matches!(self.get_type(), TensorType::Scalar(_))
+    //self.shape.iter().all(|&value| value == 1)
   }
 
   pub fn to_scalar(&self) -> T {

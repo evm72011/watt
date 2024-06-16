@@ -13,7 +13,7 @@ impl<T> Iterator for MatrixRowIterator<T> where T: Float {
     fn next(&mut self) -> Option<Self::Item> {
         let row_count = self.tensor.row_count();
         if self.index < row_count {
-            let vector = self.tensor.row(self.index);
+            let vector = self.tensor.row(self.index).ok()?;
             self.index += 1;
             Some(vector)
         } else {
