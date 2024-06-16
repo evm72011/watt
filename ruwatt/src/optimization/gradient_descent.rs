@@ -97,23 +97,20 @@ impl<'a, T> GradientDescent<'a, T> where T: Float {
                 None => gradient(self.func, &arg, self.derivative_delta)
             };
             let delta = T::from(0.0001).unwrap();
-            match &self.small_gradient_behaviour {
-                SmallGradientBehaviour::Displace => {
-                    if grad.is_small(delta) {
+            if grad.is_small(delta) {
+                match &self.small_gradient_behaviour {
+                    SmallGradientBehaviour::Displace => {
                         arg = Tensor::random(arg.shape.to_vec());
                         self.logs.push(format!("Step {}: Small gradient. Change point.", step));
                         continue;                        
                     }
-                }
-                SmallGradientBehaviour::Interrupt => {
-                    if grad.is_small(delta) {
+                    SmallGradientBehaviour::Interrupt => {
                         self.logs.push(format!("Step {}: Small gradient. Interrupted.", step));
                         break;
                     }
+                    _other => {}
                 }
-                _other => {}
             }
-
             grad.set_length(size);
             grad = self.apply_momentum_acceleration(grad, step); 
             arg = arg - grad;

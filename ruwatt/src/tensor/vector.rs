@@ -57,7 +57,7 @@ impl<T> Tensor<T> where T: Float {
     }
 
     pub fn is_vector(&self) -> bool {
-        self.shape.len() == 2 && (self.shape[0] == 1 || self.shape[1] == 1)
+        self.is_bra() || self.is_ket()
     }
 
     pub fn is_bra(&self) -> bool {
@@ -67,7 +67,6 @@ impl<T> Tensor<T> where T: Float {
     pub fn is_ket(&self) -> bool {
         self.shape.len() == 2 && self.shape[1] == 1
     }
-
     
     pub fn dim(&self) -> usize {
         assert_vector!(self);
