@@ -1,7 +1,7 @@
 use num::Float;
 use std::iter::Sum;
-use super::super::Tensor;
-use crate::{ assert_ket, assert_square_matrix, tensor::{dot::dot, Matrix} };
+use crate::{ assert_ket, assert_square_matrix };
+use crate::tensor::{ dot::dot, Matrix, Tensor };
 
 // x_(k+1) = (I-A)*x_k + b
 #[allow(dead_code)]

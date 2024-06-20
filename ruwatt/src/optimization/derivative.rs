@@ -1,6 +1,6 @@
 use num::Float;
-use super::super::Tensor;
-use crate::{assert_vector, tensor::Vector};
+use crate::assert_vector;
+use crate::tensor::{ Vector,Tensor };
 
 fn derivative<T>(f: &dyn Fn(&Tensor<T>) -> T, index: usize, point: &Tensor<T>, delta: T) -> T where T: Float {
     let dw = Vector::ort(point.is_bra(), point.dim(), index, delta);
@@ -48,8 +48,8 @@ pub fn hessian<T>(f: &dyn Fn(&Tensor<T>) -> T, point: &Tensor<T>, delta: T) -> T
 #[cfg(test)]
 mod tests {
     use num::abs;
-    use super::super::super::Matrix;
-    use super::{Tensor, Vector, hessian, gradient, derivative};
+    use crate::tensor::*;
+    use super::{ derivative, gradient, hessian };
 
     fn f(x: &Tensor) -> f32 {
         x.get_v(0).powi(2) + x.get_v(1).powi(2)
