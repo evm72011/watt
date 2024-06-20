@@ -1,3 +1,4 @@
+use num::abs;
 use ruwatt::tensor::{ Tensor, Vector };
 use ruwatt::optimization::GradientDescent;
 
@@ -17,16 +18,18 @@ fn grad_f(vector: &Tensor<f64>) -> Tensor<f64> {
 }
 
 #[test]
-fn it_adds_two() -> Result<(), Box<dyn std::error::Error>> {
-    let mut optimizator = GradientDescent::<f64> {
+fn it_adds_two() {
+    let mut optimizator = GradientDescent {
         func: &f,
         grad_func: Some(&grad_f),
         start_point: Vector::ket(vec![3.0, 3.0]),
         ..Default::default()
     };
     optimizator.run();
-    let result = optimizator.result.unwrap();
     
-    assert_eq!(4, 2+2);
-    Ok(())
+    let recieved = optimizator.result.unwrap();
+    let expected_arg = Vector::ket(vec![0.0, 0.0]);
+    let expected_value = 2.0;
+    assert!(recieved.arg.is_near(&expected_arg, 0.001));
+    assert!(abs(recieved.value -expected_value) < 0.001);
 }
