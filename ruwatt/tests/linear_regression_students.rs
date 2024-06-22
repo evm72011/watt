@@ -5,9 +5,9 @@ use ruwatt::learning::{ LinearRegression, CostFunction, mse };
 
 #[test]
 fn linear_regression_students_debt() -> Result<(), Box<dyn Error>> {
-    let file_name = "./data/student_debt.csv";
+    let folder = "./data/student_debt/";
     let mut y_data = Tensor::<f32>::empty();
-    y_data.read_from_file(file_name, vec![0])?;
+    y_data.read_from_file(format!("{}{}", folder, "data.csv"), vec![0])?;
 
     let mut data: Tensor<f32> = Tensor {
         shape: y_data.shape.clone(),
@@ -39,7 +39,7 @@ fn linear_regression_students_debt() -> Result<(), Box<dyn Error>> {
 
     x_train.append_col(y_train);
     x_test.append_col(y_predict);
-    x_train.save_to_file("./data/student_debt_train.csv")?;
-    x_test.save_to_file("./data/student_debt_test.csv")?;
+    x_train.save_to_file(format!("{}{}", folder, "train.csv"))?;
+    x_test.save_to_file(format!("{}{}", folder, "test.csv"))?;
     Ok(())
 }

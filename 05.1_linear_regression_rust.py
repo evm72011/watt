@@ -2,14 +2,18 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns; sns.set_theme()
 
-colnames=['period', 'debt'] 
-df = pd.read_csv('ruwatt\data\student_debt_test.csv', names=colnames, header=None)
-y_test = df['debt']
-x_test = df['period']
+PERIOD = 'period'
+DEBT = 'debt'
 
-df = pd.read_csv('ruwatt\data\student_debt_train.csv', names=colnames, header=None)
-y_train = df['debt']
-x_train = df['period']
+colnames=[PERIOD, DEBT] 
+folder = 'ruwatt/data/student_debt'
+df = pd.read_csv(f'{folder}/test.csv', names=colnames, header=None)
+y_test = df[DEBT]
+x_test = df[PERIOD]
+
+df = pd.read_csv(f'{folder}/train.csv', names=colnames, header=None)
+y_train = df[DEBT]
+x_train = df[PERIOD]
 
 plt.figure(figsize=(10, 6))
 plt.scatter(x_train, y_train, color='blue', label='Train')
