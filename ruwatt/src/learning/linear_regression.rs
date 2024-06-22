@@ -32,7 +32,7 @@ impl<'a, T> Default for LinearRegression<'a, T> where T: Float + Sum {
 
 impl<'a, T> LinearRegression<'a, T> where T: Float + Send + Sync + Sum + 'static {
 
-    pub fn fit(&mut self, x: Tensor<T>, y: Tensor<T>) {
+    pub fn fit(&mut self, x: &Tensor<T>, y: &Tensor<T>) {
         assert_matrix!(x);
         assert_matrix!(y);
         assert_eq!(x.row_count(), y.row_count(), "Count of x train not correspond to y");
@@ -53,7 +53,7 @@ impl<'a, T> LinearRegression<'a, T> where T: Float + Send + Sync + Sum + 'static
         self.trained = true;
     }
 
-    pub fn predict(&mut self, x: Tensor<T>) -> Tensor<T> {
+    pub fn predict(&mut self, x: &Tensor<T>) -> Tensor<T> {
         assert!(self.trained, "Model is not trained");
         assert_eq!(self.feature_count, x.col_count(), "Feature count must be {}", self.feature_count);
         let mut result = Tensor::empty();
@@ -149,8 +149,8 @@ mod tests {
             },
             ..Default::default()
         };
-        model.fit(x_train, y_train);
-        let y_predict = model.predict(x_test);
+        model.fit(&x_train, &y_train);
+        let y_predict = model.predict(&x_test);
 
         y_predict.rows()
             .zip(y_test.rows())

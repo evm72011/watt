@@ -2,12 +2,12 @@ use num::Float;
 use crate::assert_matrix;
 use super::super::Tensor;
 
-pub struct MatrixColIterator<T> where T: Float {
-    tensor: Tensor<T>,
+pub struct MatrixColIterator<'a, T> where T: Float + 'a {
+    tensor: &'a Tensor<T>,
     index: usize
 }
 
-impl<T> Iterator for MatrixColIterator<T> where T: Float {
+impl<'a, T> Iterator for MatrixColIterator<'a, T> where T: Float {
     type Item = Tensor<T>;
 
     fn next(&mut self) -> Option<Self::Item> {
@@ -23,7 +23,7 @@ impl<T> Iterator for MatrixColIterator<T> where T: Float {
 }
 
 impl<T> Tensor<T> where T: Float {
-    pub fn cols(self) -> MatrixColIterator<T> {
+    pub fn cols(&self) -> MatrixColIterator<T> {
         assert_matrix!(self);
         MatrixColIterator {
             tensor: self,
