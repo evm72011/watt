@@ -18,7 +18,7 @@ fn read_save_to_file() -> Result<(), Box<dyn Error>>{
     let file_exists = Path::new(&file_name).exists();
     assert!(file_exists);
 
-    matrix.read_from_file(file_name, vec![1])?;
+    matrix.read_from_file(file_name, Some(vec![1]), None)?;
     let expected = Matrix::new(vec![
         vec![ 1.0, 3.0 ], 
         vec![ 4.0, 6.0 ],

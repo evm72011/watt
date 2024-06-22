@@ -7,7 +7,7 @@ use ruwatt::learning::{ LinearRegression, CostFunction, mse };
 fn linear_regression_students_debt() -> Result<(), Box<dyn Error>> {
     let folder = "./data/student_debt/";
     let mut y_data = Tensor::<f32>::empty();
-    y_data.read_from_file(format!("{}{}", folder, "data.csv"), vec![0])?;
+    y_data.read_from_file(format!("{}{}", folder, "data.csv"), Some(vec![0]), None)?;
 
     let mut data: Tensor<f32> = Tensor {
         shape: y_data.shape.clone(),

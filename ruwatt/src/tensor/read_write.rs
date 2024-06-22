@@ -28,7 +28,7 @@ where
     T: Float + FromStr, 
     <T as FromStr>::Err: 'static + Error + Send + Sync 
 { 
-    pub fn read_from_file(&mut self, file_name: String, skip_cols: Vec<usize>) -> Result<(), Box<dyn Error>> {
+    pub fn read_from_file(&mut self, file_name: String, skip_cols: Option<Vec<usize>>, skip_rows: Option<Vec<usize>>) -> Result<(), Box<dyn Error>> {
         let contents = fs::read_to_string(file_name)?;
         self.data = Vec::new();
         let lines: Vec<&str> = contents.lines().collect();
@@ -37,21 +37,21 @@ where
             return Err(Box::new(io::Error::new(io::ErrorKind::InvalidData, "No rows found in the file")));
         }
 
+        let skip_cols = skip_cols.unwrap_or_default();
         let col_count = lines[0].split(',').count() - skip_cols.len();
         if col_count == 0 {
             return Err(Box::new(io::Error::new(io::ErrorKind::InvalidData, "No columns found in the file")));
         }
 
-        for line in lines {
-            let mut row: Vec<T> = Vec::new();
-            for (idx, item) in line.split(',').enumerate() {
-                if !skip_cols.contains(&idx) {
-                    let parsed_value = item.trim().parse::<T>()?;
-                    row.push(parsed_value);
-                }
-            }
-            self.data.extend(row);
-        }
+        let skip_rows = skip_rows.unwrap_or_default();
+        self.data = lines.iter().enumerate()
+            .filter(|(row_idx, _)| !skip_rows.contains(&row_idx))
+            .flat_map(|(_, &line)| 
+                line.split(',').enumerate()
+                    .filter(|(col_idx, _)| !skip_cols.contains(&col_idx))
+                    .map(|(_, value)| value.trim().parse::<T>().expect("Parsing error"))
+            )
+            .collect::<Vec<T>>();
         self.shape = vec![row_count, col_count];
         Ok(())
     }
