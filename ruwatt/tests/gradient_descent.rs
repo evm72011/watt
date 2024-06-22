@@ -18,7 +18,7 @@ fn grad_f(vector: &Tensor<f64>) -> Tensor<f64> {
 }
 
 #[test]
-fn it_adds_two() {
+fn gradient_descent_analytic() {
     let mut optimizator = GradientDescent {
         func: &f,
         grad_func: Some(&grad_f),

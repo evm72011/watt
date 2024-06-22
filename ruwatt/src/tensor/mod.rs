@@ -6,6 +6,7 @@ pub mod scalar;
 pub mod vector;
 pub mod matrix;
 pub mod macros;
+pub mod read_write;
 
 mod index_tools;
 

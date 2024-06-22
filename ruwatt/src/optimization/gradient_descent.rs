@@ -73,7 +73,7 @@ impl<'a, T> Default for GradientDescent<'a, T> where T: Float {
             step_size: T::one(), 
             decrement_step: true,
             analyze_progress: true,
-            small_gradient_behaviour: SmallGradientBehaviour::Interrupt,
+            small_gradient_behaviour: SmallGradientBehaviour::Ignore,
             derivative_delta: T::from(0.0001).unwrap(),
             progress: OptimizationProgress::new(),
             result: None,

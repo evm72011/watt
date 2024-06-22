@@ -1,6 +1,6 @@
-mod tensor;
-mod optimization;
-mod learning;
+pub mod tensor;
+pub mod optimization;
+pub mod learning;
 
 use learning::{CostFunction, LinearRegression};
 use tensor::{ Matrix, Tensor };
