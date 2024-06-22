@@ -2,11 +2,15 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns; sns.set_theme()
 
+'''
+Run the Rust integration test linear_regression_students
+'''
+
 PERIOD = 'period'
 DEBT = 'debt'
 
 colnames=[PERIOD, DEBT] 
-folder = 'ruwatt/data/student_debt'
+folder = 'ruwatt/data/results/student_debt'
 df = pd.read_csv(f'{folder}/test.csv', names=colnames, header=None)
 y_test = df[DEBT]
 x_test = df[PERIOD]
