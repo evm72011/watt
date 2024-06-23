@@ -7,7 +7,7 @@ import matplotlib.pyplot as plt
 import seaborn as sns; sns.set_theme()
 
 colnames=['period', 'debt'] 
-df = pd.read_csv('data/05.1_student_debt_data.csv', names=colnames, header=None)
+df = pd.read_csv('ruwatt/data/student_debt.csv', names=colnames, header=None)
 x = np.array(df.index).reshape(-1, 1)
 y = df['debt']
 period = df['period']
