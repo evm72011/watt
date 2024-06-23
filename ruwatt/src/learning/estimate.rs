@@ -1,5 +1,4 @@
 use num::Float;
-use num::traits::FromPrimitive;
 use std::iter::Sum;
 use crate::tensor::{Tensor, Vector};
 use crate::{assert_matrix, assert_shape};
