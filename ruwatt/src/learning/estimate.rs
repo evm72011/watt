@@ -39,6 +39,39 @@ pub fn mad<T>(y_predict: &Tensor<T>, y_test: &Tensor<T>) -> Tensor<T> where T : 
     }
 }
 
+/*
+pub fn r_score<T>(y_predict: &Tensor<T>, y_test: &Tensor<T>) -> Tensor<T> where T : Float + Sum {
+    assert_shape!(y_predict, y_test);
+    assert_matrix!(y_predict);
+    let row_count = y_predict.row_count();
+    if row_count == 0 {
+        Tensor::empty()
+    } else {
+        let means = y_test.cols()
+            .map(|col| col.data.iter().sum() / col.data.len());
+
+        let ssrs: Vec<T> = y_predict.cols().zip(y_test.cols())
+            .map(|(col_model, col_test)| {
+                let difference = col_model - col_test;
+                let summ: T = difference.data.iter().map(|&value| value.powi(2)).sum();
+                summ / T::from(row_count).unwrap()
+            })
+            .collect();
+
+        let ssrt: Vec<T> = y_test.cols().zip(means)
+            .map(|(col_test, mean)| {
+                let difference = col_test - mean;
+                let summ: T = difference.data.iter().map(|&value| value.powi(2)).sum();
+                summ / T::from(row_count).unwrap()
+            })
+            .collect();
+
+        //let data = 
+        Vector::ket(data)
+    }
+}
+*/
+
 #[cfg(test)]
 mod tests {
     use super::{mse, mad };
