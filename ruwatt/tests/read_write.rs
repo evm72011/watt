@@ -5,7 +5,7 @@ use ruwatt::tensor::Matrix;
 
 #[test]
 fn read_save_to_file() -> Result<(), Box<dyn Error>>{
-    let file_name = String::from("./data/matrix.csv");
+    let file_name = "./data/results/matrix.csv";
     let _ = fs::remove_file(&file_name);
     
     let mut matrix = Matrix::new(vec![
@@ -14,7 +14,7 @@ fn read_save_to_file() -> Result<(), Box<dyn Error>>{
         vec![ 7.0, 8.0, 9.0 ]
     ]);
 
-    matrix.save_to_file(file_name.clone())?;
+    matrix.save_to_file(file_name)?;
     let file_exists = Path::new(&file_name).exists();
     assert!(file_exists);
 

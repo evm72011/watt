@@ -10,7 +10,7 @@ impl<T> Tensor<T>
 where 
     T: Float + Display 
 {  
-    pub fn save_to_file(&self, file_name: String) -> Result<(), Box<dyn Error>> {
+    pub fn save_to_file(&self, file_name: &str) -> Result<(), Box<dyn Error>> {
         assert_matrix!(self);
         let mut file = File::create(file_name)?;
         for i in 0..self.row_count() {
@@ -28,7 +28,7 @@ where
     T: Float + FromStr, 
     <T as FromStr>::Err: 'static + Error + Send + Sync 
 { 
-    pub fn read_from_file(&mut self, file_name: String, skip_cols: Option<Vec<usize>>, skip_rows: Option<Vec<usize>>) -> Result<(), Box<dyn Error>> {
+    pub fn read_from_file(&mut self, file_name: &str, skip_cols: Option<Vec<usize>>, skip_rows: Option<Vec<usize>>) -> Result<(), Box<dyn Error>> {
         let contents = fs::read_to_string(file_name)?;
         self.data = Vec::new();
         let lines: Vec<&str> = contents.lines().collect();
