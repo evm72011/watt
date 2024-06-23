@@ -39,15 +39,9 @@ mod tests {
     #[test]
     fn rows() {
         let matrix = Matrix::<f32>::ident(2);
-        for (index, item) in matrix.clone().cols().enumerate() {
-            if index == 0 {
-                assert_eq!(item, Vector::ket(vec![1.0, 0.0]));
-            }
-            if index == 1 {
-                assert_eq!(item, Vector::ket(vec![0.0, 1.0]));
-            }
-        }
-        let count = matrix.rows().count();
-        assert_eq!(count, 2);
+        let mut iterator = matrix.cols();
+        assert_eq!(iterator.next(), Some(Vector::ket(vec![1.0, 0.0])));
+        assert_eq!(iterator.next(), Some(Vector::ket(vec![0.0, 1.0])));
+        assert_eq!(iterator.next(), None);
     }
 }
