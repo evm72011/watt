@@ -4,21 +4,18 @@ use ruwatt::optimization::GradientDescent;
 use ruwatt::learning::{ LinearRegression, CostFunction, mse };
 
 #[test]
-fn linear_regression_students_debt() -> Result<(), Box<dyn Error>> {
-    let mut y_data = Tensor::<f32>::empty();
-    y_data.read_from_file("./data/student_debt.csv", Some(vec![0]), None)?;
-
-    let mut data: Tensor<f32> = Tensor {
-        shape: y_data.shape.clone(),
-        data: (0..y_data.row_count()).map(|x| x as f32).collect()
-    };
-    data.append_col(y_data);
+fn linear_regression_kleiber() -> Result<(), Box<dyn Error>> {
+    let mut data = Tensor::<f32>::empty();
+    data.read_from_file("./data/kleibers_law.csv", Some(vec![0]), None)?;
+    data.apply(|x:f32| x.ln());
+    let data = data.tr();
+    assert_eq!(data.shape, vec![1497, 2]);
 
     let (train_data, test_data) = data.split(0.66);
     let mut x_train = train_data.col(0)?;  
     let y_train = train_data.col(1)?;  
     let mut x_test = test_data.col(0)?;  
-    let y_test = test_data.col(1)?;  
+    let y_test = test_data.col(1)?;
 
     let mut model = LinearRegression {
         cost_function: CostFunction::LeastSquares,
@@ -36,13 +33,12 @@ fn linear_regression_students_debt() -> Result<(), Box<dyn Error>> {
 
     x_train.append_col(y_train);
     x_test.append_col(y_predict);
-    let folder = "./data/results/student_debt/";
+    let folder = "./data/results/kleibers_law/";
 
     let train_file_name = &format!("{}{}", folder, "train.csv")[..];
     x_train.save_to_file(train_file_name)?;
     
     let test_file_name = &format!("{}{}", folder, "test.csv")[..];
     x_test.save_to_file(test_file_name)?;
-    
     Ok(())
 }

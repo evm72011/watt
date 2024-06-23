@@ -30,11 +30,17 @@ impl<T> Tensor<T> where T: Float {
         let data = (0..size).map(|_| T::from(rng.gen::<f32>()).unwrap()).collect();
         Self { shape, data }
     } 
+
+    pub fn range(start: T, shape: Vec<usize>) -> Self {
+        let size = shape.iter().product();
+        let data = (0..size).map(|x| T::from(x).unwrap() + start).collect();
+        Self { shape, data }
+    } 
 }
 
 #[cfg(test)]
 mod tests {
-    use super::Tensor; 
+    use crate::tensor::{ Tensor, Vector };
 
     #[test]
     fn new() {
@@ -47,11 +53,17 @@ mod tests {
         let tensor = Tensor::<f32>::zeros(vec![2]);
         assert_eq!(tensor.data, vec![0.0, 0.0]);
     }
-
     
     #[test]
     fn ones() {
         let tensor = Tensor::<f32>::ones(vec![2]);
         assert_eq!(tensor.data, vec![1.0, 1.0]);
+    }
+
+    #[test]
+    fn range() {
+        let tensor = Tensor::range(1.0, vec![3, 1]);
+        let expected = Vector::ket(vec![1.0, 2.0, 3.0]);
+        assert_eq!(tensor, expected);
     }
 }

@@ -66,11 +66,16 @@ impl<T> Tensor<T> where T: Float {
         self.shape = tensor.shape;
         self.data = tensor.data;
     }
+
+    pub fn apply(&mut self, f: impl Fn(T) -> T) {
+        self.data = self.data.iter().map(|&x| f(x)).collect()
+    }
 }
 
 #[cfg(test)]
 mod tests {
-    use super::Tensor;
+    use super::super::{Tensor, Vector};
+
 
     #[test]
     fn is_small() {
@@ -105,5 +110,13 @@ mod tests {
         matrix.set(vec![1, 1], 5.0);
         let value = matrix.get(vec![1, 1]);
         assert_eq!(value, 5.0);
+    }
+
+    #[test]
+    fn apply() {
+        let mut vector = Vector::bra(vec![1.0, 2.0]);
+        vector.apply(|x: f32| x.powi(2));
+        let expected = Vector::bra(vec![1.0, 4.0]);
+        assert_eq!(vector, expected);
     }
 }
