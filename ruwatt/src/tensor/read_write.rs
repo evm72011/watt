@@ -32,7 +32,8 @@ where
         let contents = fs::read_to_string(file_name)?;
         self.data = Vec::new();
         let lines: Vec<&str> = contents.lines().collect();
-        let row_count = lines.len();
+        let skip_rows = skip_rows.unwrap_or_default();
+        let row_count = lines.len() - skip_rows.len();
         if row_count == 0 {
             return Err(Box::new(io::Error::new(io::ErrorKind::InvalidData, "No rows found in the file")));
         }
@@ -43,7 +44,6 @@ where
             return Err(Box::new(io::Error::new(io::ErrorKind::InvalidData, "No columns found in the file")));
         }
 
-        let skip_rows = skip_rows.unwrap_or_default();
         self.data = lines.iter().enumerate()
             .filter(|(row_idx, _)| !skip_rows.contains(&row_idx))
             .flat_map(|(_, &line)| 
