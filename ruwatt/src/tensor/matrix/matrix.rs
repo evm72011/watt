@@ -1,5 +1,5 @@
 use num::Float;
-use std::marker::PhantomData;
+use std::{marker::PhantomData, result};
 use crate::{assert_bra, assert_ket, assert_matrix, tensor::index_tools::IndexError};
 use super::super::{Tensor, IndexTools, Vector};
 
@@ -23,6 +23,30 @@ impl<T> Matrix<T> where T: Float {
             shape: vec![rows, cols],
             data: data.into_iter().flatten().collect()
         }
+    }
+
+    pub fn concat_h(a: Tensor<T>, b: Tensor<T>) -> Tensor<T> {
+        assert_eq!(
+            a.row_count(), 
+            b.row_count(), 
+            "Incompatible shape {:?} vs {:?}", a.shape, b.shape
+        );
+        let mut result = Tensor::<T>::empty();
+        result.assign(a);
+        b.cols().for_each(|col| result.append_col(col));
+        result
+    }
+
+    pub fn concat_v(a: Tensor<T>, b: Tensor<T>) -> Tensor<T> {
+        assert_eq!(
+            a.col_count(), 
+            b.col_count(), 
+            "Incompatible shape {:?} vs {:?}", a.shape, b.shape
+        );
+        let mut result = Tensor::<T>::empty();
+        result.assign(a);
+        b.rows().for_each(|row| result.append_row(row));
+        result
     }
 }
 
@@ -195,7 +219,7 @@ mod tests {
         assert_eq!(matrix, expected);
     }
 
-        #[test]
+    #[test]
     fn append_col() {
         let mut matrix = matrix123();
         let col = Vector::ket(vec![10.0, 11.0, 12.0]);
@@ -207,5 +231,32 @@ mod tests {
             vec![7.0, 8.0, 9.0, 12.0]
         ]);
         assert_eq!(matrix, expected);
+    }
+
+    #[test]
+    fn concat_h() {
+        let a = Vector::ket(vec![1.0, 2.0, 3.0]);
+        let b = Vector::ket(vec![4.0, 5.0, 6.0]);
+        let recieved = Matrix::concat_h(a, b);
+
+        let expected = Matrix::new(vec![
+            vec![1.0, 4.0], 
+            vec![2.0, 5.0],
+            vec![3.0, 6.0]
+        ]);
+        assert_eq!(recieved, expected);
+    }
+
+    #[test]
+    fn concat_v() {
+        let a = Vector::bra(vec![1.0, 2.0, 3.0]);
+        let b = Vector::bra(vec![4.0, 5.0, 6.0]);
+        let recieved = Matrix::concat_v(a, b);
+
+        let expected = Matrix::new(vec![
+            vec![1.0, 2.0, 3.0], 
+            vec![4.0, 5.0, 6.0]
+        ]);
+        assert_eq!(recieved, expected);
     }
 }
