@@ -1,5 +1,5 @@
 use num::Float;
-use std::{marker::PhantomData, result};
+use std::marker::PhantomData;
 use crate::{assert_bra, assert_ket, assert_matrix, tensor::index_tools::IndexError};
 use super::super::{Tensor, IndexTools, Vector};
 
@@ -102,6 +102,14 @@ impl<T> Tensor<T> where T: Float {
         assert_matrix!(self);
         let data = IndexTools::<T>::get_col(index, &self.shape, &self.data)?;
         Ok(Vector::<T>::ket(data))
+    }
+
+    pub fn get_cols(&self, indices: Vec<usize>) -> Result<Self, IndexError> {
+        let mut result = Tensor::<T>::empty();
+        self.cols().enumerate()
+            .filter(|(index, _)| indices.contains(index))
+            .for_each(|(_, col)| result.append_col(col));
+        Ok(result)
     }
 
     pub fn append_row(&mut self, row: Tensor<T>) {
@@ -258,5 +266,17 @@ mod tests {
             vec![4.0, 5.0, 6.0]
         ]);
         assert_eq!(recieved, expected);
+    }
+
+    #[test]
+    fn get_cols() {
+        let matrix = matrix123();
+        let recieved = matrix.get_cols(vec![0, 2]);
+        let expected = Ok(Matrix::new(vec![
+            vec![1.0, 3.0],
+            vec![4.0, 6.0],
+            vec![7.0, 9.0],
+        ]));
+        assert_eq!(expected, recieved);
     }
 }
