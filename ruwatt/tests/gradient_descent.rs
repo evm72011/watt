@@ -33,3 +33,25 @@ fn gradient_descent_analytic() {
     assert!(recieved.arg.is_near(&expected_arg, 0.001));
     assert!(abs(recieved.value -expected_value) < 0.001);
 }
+
+fn f8(vector: &Tensor<f64>) -> f64 {
+    (0..8)
+        .map(|index| vector.get_v(index).powi(2))
+        .sum()
+}
+
+#[test]
+fn gradient_descent_f8() {
+    let mut optimizator = GradientDescent {
+        func: &f8,
+        start_point: Vector::ket(vec![2.0; 8]),
+        ..Default::default()
+    };
+    optimizator.run();
+    
+    let recieved = optimizator.result.unwrap();
+    let expected_arg = Vector::ket(vec![0.0; 8]);
+    let expected_value = 2.0;
+    assert!(recieved.arg.is_near(&expected_arg, 0.001));
+    assert!(abs(recieved.value -expected_value) < 0.001);
+}
