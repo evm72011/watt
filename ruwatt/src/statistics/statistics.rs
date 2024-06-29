@@ -20,7 +20,6 @@ impl<T> Statistics<T> where T: Float + Sum {
     }
 
     pub fn std_dev(matrix: &Tensor<T>) -> Tensor<T> {
-        assert_matrix!(matrix);
         let means = Self::mean(&matrix);
         let row_count = T::from(matrix.row_count()).unwrap();
         let data = matrix.cols()
@@ -34,6 +33,18 @@ impl<T> Statistics<T> where T: Float + Sum {
             .collect();
         Vector::bra(data)
     }
+
+    /*
+    pub fn normalize(matrix: &Tensor<T>) -> Tensor<T> {
+        let means = Self::mean(&matrix);
+        let std_devs = Self::std_dev(&matrix);
+        let data = matrix.cols().enumerate()
+            .map(|(index, col)| {
+                let mean = means.get_v(index);
+                let std_dev = std_devs.get_v(index);
+                let data = col.data.iter().map(|&value| (value - mean) / std_dev).collect()
+            })
+    }*/
 }
 
 #[cfg(test)]
