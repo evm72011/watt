@@ -1,3 +1,4 @@
+mod arithmetic; 
 pub mod div;
 pub mod add;
 pub mod sub;
