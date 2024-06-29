@@ -93,6 +93,7 @@ mod tests {
     use rand::prelude::*;
     use crate::tensor::{ Matrix, Tensor };
     use super::{ LinearRegression, CostFunction, GradientDescent};
+    use crate::assert_near;
 
     fn generate_x(count: usize, x_min: f32, x_max: f32) -> Vec<Vec<f32>>{
         let mut rng = rand::thread_rng();
@@ -155,7 +156,7 @@ mod tests {
         y_predict.rows()
             .zip(y_test.rows())
             .for_each(|(predict, test)| {
-                assert!(predict.is_near(&test, 2.0), "{:?} vs {:?}", predict.data, test.data);
+                assert_near!(predict, test, 2.0);
         });
     }
 }

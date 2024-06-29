@@ -6,13 +6,20 @@ from sklearn.metrics import mean_squared_error, r2_score
 import matplotlib.pyplot as plt
 import seaborn as sns; sns.set_theme()
 
+def normalize(x):
+    mean = np.mean(x, axis=0)
+    std_dev = np.std(x, axis=0)
+    return (x - mean) / std_dev
+
 folder = 'ruwatt/data'
 file_name = f'{folder}/auto.csv'
 
 df = pd.read_csv(file_name)
 x, y = df.iloc[:, 1:-1], df.iloc[:, 0]
 x_train, x_test, y_train, y_test = train_test_split(x, y, test_size=0.33, random_state=42)
-print(y)
+
+x_train = normalize(x_train)
+x_test = normalize(x_test)
 
 model = LinearRegression()
 model.fit(x_train, y_train)

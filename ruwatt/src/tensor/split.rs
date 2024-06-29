@@ -4,11 +4,11 @@ use crate::tensor::Tensor;
 use crate::assert_matrix;
 
 impl<T> Tensor<T> where T: Float {
-    pub fn split(&self, left_percent: f32) -> (Self, Self) {
+    pub fn split(&self, left_size: f32) -> (Self, Self) {
         assert_matrix!(self);
         let mut indices: Vec<usize> = (0..self.row_count()).collect();
         indices.shuffle(&mut rand::thread_rng());
-        let midpoint = (self.row_count().to_f32().unwrap() * left_percent).round() as usize;
+        let midpoint = (self.row_count().to_f32().unwrap() * left_size).round() as usize;
         let (indices1, _) = indices.split_at(midpoint);
         let mut tensor1 = Tensor::<T>::empty();
         let mut tensor2 = Tensor::<T>::empty();

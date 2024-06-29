@@ -155,6 +155,7 @@ impl<'a, T> GradientDescent<'a, T> where T: Float {
 
 #[cfg(test)]
 mod tests {
+    use crate::assert_near;
     use crate::tensor::Vector;
     use super::{Tensor, GradientDescent};
 
@@ -180,8 +181,7 @@ mod tests {
         let result = optimizator.result.unwrap();
         let arg_expected = Vector::ket(vec![0.0, 0.0]);
         assert!(f32::abs(result.value - 2.0) < 0.001);
-        assert!(result.arg.is_ket());
-        assert!(result.arg.is_near(&arg_expected, 0.001))
+        assert_near!(result.arg, arg_expected, 0.001)
     }
 
     #[test]
@@ -195,7 +195,6 @@ mod tests {
         let result = optimizator.result.unwrap();
         let arg_expected = Vector::ket(vec![0.0, 0.0]);
         assert!(f32::abs(result.value - 2.0) < 0.001);
-        assert!(result.arg.is_ket());
-        assert!(result.arg.is_near(&arg_expected, 0.001))
+        assert_near!(result.arg, arg_expected, 0.001)
     }
 }

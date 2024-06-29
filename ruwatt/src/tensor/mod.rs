@@ -1,3 +1,6 @@
+#[macro_use]
+pub mod macros;
+
 pub mod tensor;
 pub mod constructors;
 pub mod operators;
@@ -5,7 +8,6 @@ pub mod display;
 pub mod scalar;
 pub mod vector;
 pub mod matrix;
-pub mod macros;
 pub mod read_write;
 pub mod split;
 

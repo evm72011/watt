@@ -1,4 +1,5 @@
 use num::abs;
+use ruwatt::{assert_near, assert_shape};
 use ruwatt::tensor::{ Tensor, Vector };
 use ruwatt::optimization::GradientDescent;
 
@@ -30,7 +31,7 @@ fn gradient_descent_analytic() {
     let recieved = optimizator.result.unwrap();
     let expected_arg = Vector::ket(vec![0.0, 0.0]);
     let expected_value = 2.0;
-    assert!(recieved.arg.is_near(&expected_arg, 0.001));
+    assert_near!(recieved.arg, expected_arg, 0.001);
     assert!(abs(recieved.value -expected_value) < 0.001);
 }
 
@@ -52,6 +53,6 @@ fn gradient_descent_f8() {
     let recieved = optimizator.result.unwrap();
     let expected_arg = Vector::ket(vec![0.0; 8]);
     let expected_value = 2.0;
-    assert!(recieved.arg.is_near(&expected_arg, 0.001));
+    assert_near!(recieved.arg, expected_arg, 0.001);
     assert!(abs(recieved.value - expected_value) < 0.001);
 }

@@ -48,6 +48,7 @@ pub fn hessian<T>(f: &dyn Fn(&Tensor<T>) -> T, point: &Tensor<T>, delta: T) -> T
 #[cfg(test)]
 mod tests {
     use num::abs;
+    use crate::assert_near;
     use crate::tensor::*;
     use super::{ derivative, gradient, hessian };
 
@@ -67,7 +68,7 @@ mod tests {
         let vector = Vector::ket(vec![1.0, 1.0]);
         let recieved = gradient(&f, &vector, 0.0001);
         let expected = Vector::ket(vec![2.0, 2.0]);
-        assert!(expected.is_near(&recieved, 0.001))
+        assert_near!(expected, recieved, 0.001)
     }
 
     #[test]
@@ -78,6 +79,6 @@ mod tests {
             vec![2.0, 0.0],
             vec![0.0, 2.0],
         ]);
-        assert!(expected.is_near(&recieved, 0.001)) 
+        assert_near!(expected, recieved, 0.001)
     }
 }

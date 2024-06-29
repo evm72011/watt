@@ -72,8 +72,23 @@ macro_rules! assert_shape {
             "Shapes do not match: {:?} vs {:?}",
             $tensor1.shape,
             $tensor2.shape
-        );
+        )
     };
+}
+
+#[macro_export]
+macro_rules! assert_near {
+    ($tensor1:expr, $tensor2:expr, $delta:expr) => {{
+        let t1 = &$tensor1;
+        let t2 = &$tensor2;
+        assert_shape!(t1, t2);
+        assert!(
+            t1.data.iter().zip(t2.data.iter()).all(|(&a, &b)| -$delta < (a - b) && (a - b) < $delta),
+            "Tensors are not near: {:?} vs {:?}",
+            t1.data,
+            t2.data
+        );
+    }};
 }
 
 #[macro_export]
