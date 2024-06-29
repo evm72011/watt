@@ -1,5 +1,7 @@
 mod arithmetic; 
-pub mod div;
+
+pub mod div_tensor_number;
+pub mod div_tensor_tensor;
 pub mod add;
 pub mod sub;
 pub mod mul_tensor_number;
