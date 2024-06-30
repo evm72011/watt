@@ -34,32 +34,30 @@ impl<T> Statistics<T> where T: Float + Sum {
         Vector::bra(data)
     }
 
-    /*
     pub fn normalize(matrix: &Tensor<T>) -> Tensor<T> {
         let means = Self::mean(&matrix);
         let std_devs = Self::std_dev(&matrix);
-        let data = matrix.cols().enumerate()
-            .map(|(index, col)| {
-                let mean = means.get_v(index);
-                let std_dev = std_devs.get_v(index);
-                let data = col.data.iter().map(|&value| (value - mean) / std_dev).collect()
-            })
-    }*/
+        (matrix - means) / std_devs
+    }
 }
 
 #[cfg(test)]
 mod tests {
     use super::Statistics;
-    use crate::tensor::{Matrix, Vector};
+    use crate::tensor::{Matrix, Tensor, Vector};
     use crate::assert_near;
 
-    #[test]
-    fn mean() {
-        let matrix = Matrix::new(vec![
+    fn matrix123456() -> Tensor<f32> {
+        Matrix::new(vec![
             vec![ 1.0, 2.0 ],
             vec![ 3.0, 4.0 ],
             vec![ 5.0, 6.0 ]
-        ]);
+        ])
+    }
+
+    #[test]
+    fn mean() {
+        let matrix = matrix123456();
         let recieved = Statistics::mean(&matrix);
         let expected = Vector::bra(vec![3.0, 4.0]);
         assert_eq!(recieved, expected);
@@ -67,13 +65,21 @@ mod tests {
 
     #[test]
     fn std_dev() {
-        let matrix = Matrix::new(vec![
-            vec![ 1.0, 2.0 ], 
-            vec![ 3.0, 4.0 ],
-            vec![ 5.0, 6.0 ]
-        ]);
+        let matrix = matrix123456();
         let recieved = Statistics::std_dev(&matrix);
         let expected = Vector::bra(vec![1.63, 1.63]);
+        assert_near!(recieved, expected, 0.01);
+    }
+
+    #[test]
+    fn normalize() {
+        let matrix = matrix123456();
+        let recieved = Statistics::normalize(&matrix);
+        let expected = Matrix::new(vec![
+            vec![ -1.22, -1.22 ],
+            vec![  0.00,  0.00 ],
+            vec![  1.22,  1.22 ]
+        ]);
         assert_near!(recieved, expected, 0.01);
     }
 }
