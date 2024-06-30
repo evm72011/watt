@@ -1,13 +1,11 @@
 use std::ops;
 use num::Float;
-
 use super::super::Tensor;
 use super::arithmetic::arithmetic;
 
 fn mul_tensor_tensor<T: Float>(a: &Tensor<T>, b: &Tensor<T>) -> Tensor<T> {
     return arithmetic(a, b, &|&x, &y| x * y);
 }
-
 
 impl<T> ops::Mul<&Tensor<T>> for &Tensor<T> where T: Float {
   type Output = Tensor<T>;
@@ -46,10 +44,7 @@ mod tests {
     use super::super::super::{Vector, Scalar, Matrix, Tensor};
 
     fn matrix1234() -> Tensor<f32> {
-        Matrix::new(vec![
-            vec![1.0, 2.0],
-            vec![3.0, 4.0]
-        ])
+        Matrix::square(vec![1.0, 2.0, 3.0, 4.0])
     }
 
     #[test]
@@ -77,12 +72,34 @@ mod tests {
     }
 
     #[test]
+    fn bra_mul_matrix() {
+        let a = Vector::bra(vec![ 1.0, 2.0 ]);
+        let b = matrix1234();
+        let expected =Matrix::new(vec![
+            vec![1.0, 4.0],
+            vec![3.0, 8.0]
+        ]);
+        assert_eq!(expected, a * b)
+    }
+
+    #[test]
     fn ket_mul_matrix() {
         let a = Vector::ket(vec![ 1.0, 2.0 ]);
         let b = matrix1234();
         let expected =Matrix::new(vec![
             vec![1.0, 2.0],
             vec![6.0, 8.0]
+        ]);
+        assert_eq!(expected, a * b)
+    }
+
+    #[test]
+    fn matrix_mul_bra() {
+        let a = matrix1234();
+        let b = Vector::bra(vec![ 1.0, 2.0 ]);
+        let expected =Matrix::new(vec![
+            vec![1.0, 4.0],
+            vec![3.0, 8.0]
         ]);
         assert_eq!(expected, a * b)
     }
@@ -95,28 +112,6 @@ mod tests {
         let expected =Matrix::new(vec![
             vec![1.0, 2.0],
             vec![6.0, 8.0]
-        ]);
-        assert_eq!(expected, a * b)
-    }
-
-    #[test]
-    fn bra_mul_matrix() {
-        let a = Vector::bra(vec![ 1.0, 2.0 ]);
-        let b = matrix1234();
-        let expected =Matrix::new(vec![
-            vec![1.0, 4.0],
-            vec![3.0, 8.0]
-        ]);
-        assert_eq!(expected, a * b)
-    }
-
-    #[test]
-    fn matrix_mul_bra() {
-        let a = matrix1234();
-        let b = Vector::bra(vec![ 1.0, 2.0 ]);
-        let expected =Matrix::new(vec![
-            vec![1.0, 4.0],
-            vec![3.0, 8.0]
         ]);
         assert_eq!(expected, a * b)
     }

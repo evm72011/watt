@@ -25,6 +25,15 @@ impl<T> Matrix<T> where T: Float {
         }
     }
 
+    pub fn square(data: Vec<T>) -> Tensor<T> {
+        let size = (data.len() as f32).sqrt();
+        assert_eq!(size.round(), size);
+        Tensor {
+            shape: vec![size as usize, size as usize],
+            data
+        }
+    }
+
     pub fn concat_h(a: Tensor<T>, b: Tensor<T>) -> Tensor<T> {
         assert_eq!(
             a.row_count(), 
@@ -146,11 +155,8 @@ mod tests {
     use super::super::super::{ Tensor, Matrix, Vector, TensorType };
 
     fn matrix123() -> Tensor {
-        Matrix::new(vec![
-            vec![1.0, 2.0, 3.0],
-            vec![4.0, 5.0, 6.0],
-            vec![7.0, 8.0, 9.0]
-        ])
+        let data = (1..=9).map(|x| x as f32).collect();
+        return Matrix::square(data);
     }
 
     #[test]
@@ -164,6 +170,13 @@ mod tests {
         let matrix = Matrix::<f32>::ident(2);
         assert_eq!(matrix.shape, vec![2, 2]);
         assert_eq!(matrix.data, vec![1.0, 0.0, 0.0, 1.0]);
+    }
+
+    #[test]
+    fn square() {
+        let matrix = Matrix::square(vec![1.0, 2.0, 3.0, 4.0]);
+        assert_eq!(matrix.shape, vec![2, 2]);
+        assert_eq!(matrix.data, vec![1.0, 2.0, 3.0, 4.0]);
     }
 
     #[test]
