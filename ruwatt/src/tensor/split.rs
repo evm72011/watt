@@ -2,12 +2,14 @@ use rand::seq::SliceRandom;
 use num::{Float, ToPrimitive};
 use crate::tensor::Tensor;
 use crate::assert_matrix;
+use rand::{rngs::StdRng, SeedableRng};
 
 impl<T> Tensor<T> where T: Float {
-    pub fn split(&self, left_size: f32) -> (Self, Self) {
+    pub fn split(&self, left_size: f32, seed: u64) -> (Self, Self) {
         assert_matrix!(self);
         let mut indices: Vec<usize> = (0..self.row_count()).collect();
-        indices.shuffle(&mut rand::thread_rng());
+        let mut rng = StdRng::seed_from_u64(seed);
+        indices.shuffle(&mut rng);
         let midpoint = (self.row_count().to_f32().unwrap() * left_size).round() as usize;
         let (indices1, _) = indices.split_at(midpoint);
         let mut tensor1 = Tensor::<T>::empty();
@@ -34,7 +36,7 @@ mod tests {
             vec![ 4.0, 5.0, 6.0 ],
             vec![ 7.0, 8.0, 9.0 ]
         ]);
-        let (matrix1, matrix2) = matrix.split(0.33);
+        let (matrix1, matrix2) = matrix.split(0.33, 1);
         assert_eq!(matrix1.shape, vec![1, 3]);
         assert_eq!(matrix2.shape, vec![2, 3]);
     }

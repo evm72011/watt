@@ -14,7 +14,7 @@ fn linear_regression_students_debt() -> Result<(), Box<dyn Error>> {
     };
     data.append_col(y_data);
 
-    let (train_data, test_data) = data.split(0.66);
+    let (train_data, test_data) = data.split(0.66, 1);
     let x_train = train_data.col(0)?;  
     let y_train = train_data.col(1)?;  
     let x_test = test_data.col(0)?;  
