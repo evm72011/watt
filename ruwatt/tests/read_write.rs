@@ -14,11 +14,11 @@ fn read_save_to_file() -> Result<(), Box<dyn Error>>{
         vec![ 7.0, 8.0, 9.0 ]
     ]);
 
-    matrix.save_to_file(file_name)?;
+    matrix.save_csv(file_name)?;
     let file_exists = Path::new(&file_name).exists();
     assert!(file_exists);
 
-    matrix.read_from_file(file_name, Some(vec![1]), None)?;
+    matrix.read_csv(file_name, Some(vec![1]), None)?;
     let expected = Matrix::new(vec![
         vec![ 1.0, 3.0 ], 
         vec![ 4.0, 6.0 ],

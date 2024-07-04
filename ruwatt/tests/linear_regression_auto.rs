@@ -8,7 +8,7 @@ use ruwatt::learning::{ LinearRegression, CostFunction, mse, r2_score };
 //#[ignore]
 fn linear_regression_auto() -> Result<(), Box<dyn Error>> {
     let mut data = Tensor::<f32>::empty();
-    data.read_from_file("./data/auto.csv", Some(vec![8]), Some(vec![0]))?;
+    data.read_csv("./data/auto.csv", Some(vec![8]), Some(vec![0]))?;
     assert_eq!(data.shape, vec![392, 8]);
 
     data = Statistics::normalize(&data);

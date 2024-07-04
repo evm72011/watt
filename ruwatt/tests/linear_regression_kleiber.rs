@@ -6,7 +6,7 @@ use ruwatt::learning::{ LinearRegression, CostFunction, mse, r2_score };
 #[test]
 fn linear_regression_kleiber() -> Result<(), Box<dyn Error>> {
     let mut data = Tensor::<f32>::empty();
-    data.read_from_file("./data/kleibers_law.csv", Some(vec![0]), None)?;
+    data.read_csv("./data/kleibers_law.csv", Some(vec![0]), None)?;
     data.apply(|x:f32| x.ln());
     let data = data.tr();
     assert_eq!(data.shape, vec![1497, 2]);
@@ -40,10 +40,10 @@ fn linear_regression_kleiber() -> Result<(), Box<dyn Error>> {
     let folder = "./data/results/kleibers_law/";
     fs::create_dir_all(folder)?;
 
-    let train_file_name = &format!("{}{}", folder, "train.csv")[..];
-    train.save_to_file(train_file_name)?;
+    let train_file_name = format!("{}{}", folder, "train.csv");
+    train.save_csv(&train_file_name)?;
     
-    let test_file_name = &format!("{}{}", folder, "test.csv")[..];
-    predict.save_to_file(test_file_name)?;
+    let test_file_name = format!("{}{}", folder, "test.csv");
+    predict.save_csv(&test_file_name)?;
     Ok(())
 }
