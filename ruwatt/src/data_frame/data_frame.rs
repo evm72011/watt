@@ -27,6 +27,7 @@ pub struct DataFrameReadOptions {
 
 type Foo = Result<(), Box<dyn Error>>;
 
+/*
 impl DataFrame {
     pub fn save_csv(&self, file_name: &str) -> Foo {
         //for i in 0..self.row_count() {
@@ -73,3 +74,4 @@ impl DataFrame {
         Ok(())
     }
 }
+    */

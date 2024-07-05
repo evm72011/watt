@@ -19,3 +19,4 @@ pub use matrix::Matrix;
 pub use index_tools::IndexTools;
 pub use vector::Vector;
 pub use scalar::Scalar;
+pub use dot;

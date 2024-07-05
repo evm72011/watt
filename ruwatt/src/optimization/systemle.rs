@@ -1,10 +1,9 @@
 use num::Float;
-use std::fmt::Debug;
 use std::iter::Sum;
 use crate::{ assert_ket, assert_square_matrix };
-use crate::tensor::{ dot::dot, Tensor };
+use crate::tensor::{ dot, Tensor };
 
-pub fn solve_system<T>(a: &Tensor<T>, b: &Tensor<T>) -> Tensor<T> where T: Float + Sum + Debug{
+pub fn solve_system<T>(a: &Tensor<T>, b: &Tensor<T>) -> Tensor<T> where T: Float + Sum {
     assert_square_matrix!(a);
     assert_ket!(b);
     dot(&a.inverse(), b)
