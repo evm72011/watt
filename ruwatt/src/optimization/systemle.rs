@@ -36,11 +36,28 @@ fn determinant<T>(matrix: &Tensor<T>) -> T where T: Float + Sum {
     }
 }
 
-/*
-fn inverse<T>(matrix: &Tensor<T>) -> Tensor<T> {
-    ...?
+fn inverse<T>(matrix: &Tensor<T>) -> Tensor<T> where T: Float + Sum {
+    assert_square_matrix!(matrix);
+
+    let det = determinant(matrix);
+    if det == T::zero() {
+        panic!("Matrix is singular and cannot be inverted.");
+    }
+
+    let size = matrix.row_count();
+    let mut data: Vec<T> = Vec::with_capacity(size * size);
+
+    for row_index in 0..size {
+        for col_index in 0..size {
+            let cofactor = determinant(&complement(matrix, row_index, col_index));
+            let sign = if (row_index + col_index) % 2 == 0 { T::one() } else { -T::one() };
+            data.push(sign * cofactor);
+        }
+    }
+
+    let result = Matrix::square(data).tr();
+    result / det
 }
-    */
 
 // x_(k+1) = (I-A)*x_k + b
 #[allow(dead_code)]
@@ -62,6 +79,8 @@ pub fn system_le<T>(a: &Tensor<T>, b: &Tensor<T>, step_count: usize, delta: T) -
 
 #[cfg(test)]
 mod tests {
+    use crate::optimization::systemle::inverse;
+
     use super::{complement, determinant, Matrix, Tensor};
 
     fn matrix123() -> Tensor {
@@ -80,6 +99,14 @@ mod tests {
     fn test_determinant() {
         let recieved = determinant(&matrix123());
         assert_eq!(recieved, 0.0)
+    }
+
+    #[test]
+    fn test_inverse() {
+        let matrix = Matrix::square(vec![1.0, 2.0, 3.0, 4.0]);
+        let recieved = inverse(&matrix);
+        let expected = Matrix::square(vec![-2.0, 1.0, 1.5, -0.5]);
+        assert_eq!(recieved, expected)
     }
 
     #[test]
