@@ -1,4 +1,3 @@
-use num::Float;
 use std::marker::PhantomData;
 use std::error::Error;
 use std::fmt;
@@ -16,11 +15,11 @@ impl fmt::Display for IndexError {
 }
 impl Error for IndexError {}
 
-pub struct IndexTools<T> where T: Float {
+pub struct IndexTools<T> {
     _marker: PhantomData<T>
 }
 
-impl<T> IndexTools<T> where T: Float {
+impl<T> IndexTools<T> where T: Copy {
     fn check_range(indices: &Vec<usize>, shape: &Vec<usize>) {
         assert!(
             shape.len() == indices.len() && 
