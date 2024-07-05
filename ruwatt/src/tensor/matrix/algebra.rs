@@ -80,7 +80,6 @@ mod tests {
         let recieved = matrix123().det();
         assert_eq!(recieved, 0.0)
     }
-
     
     #[test]
     fn inverse() {
