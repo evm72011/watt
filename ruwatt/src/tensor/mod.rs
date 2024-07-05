@@ -14,9 +14,7 @@ pub mod split;
 mod index_tools;
 
 pub use tensor::{ Tensor, TensorType, VectorType };
-pub use constructors::*;
 pub use operators::*;
-pub use macros::*;
 pub use matrix::Matrix;
 pub use index_tools::IndexTools;
 pub use vector::Vector;

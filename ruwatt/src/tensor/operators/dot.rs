@@ -29,7 +29,7 @@ pub fn dot<T>(a: &Tensor<T>, b: &Tensor<T>) -> Tensor<T> where T: Float + Sum {
 }
 
 fn dot_matrix<T>(a: &Tensor<T>, b: &Tensor<T>) -> Tensor<T> where T: Float + Sum {
-    assert_eq!(a.col_count(), b.row_count(), "Incompatible shapes to dot: {:?} vs {:?}", a.shape, b.shape);
+    assert_dot_able!(a, b);
 
     let row_count = a.row_count();
     let col_count = b.col_count();
