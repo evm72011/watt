@@ -81,15 +81,17 @@ impl<T> Tensor<T> where T: Float {
             .sqrt()
     }
 
-    pub fn set_length(&mut self, length: T) {
+    pub fn set_length(&self, length: T) -> Self {
         assert_vector!(self);
         let scale = length / (self.length() + T::min_positive_value());
-        for elem in &mut self.data {
-            *elem = *elem * scale;
+        let data = self.data.iter().map(|&value| value * scale).collect();
+        Tensor {
+            shape: self.shape.clone(),
+            data
         }
     }
 
-    pub fn to_bra(&self) -> Self{
+    pub fn to_bra(&self) -> Self {
         assert_ket!(self);
         Vector::bra(self.data.to_vec())
     }

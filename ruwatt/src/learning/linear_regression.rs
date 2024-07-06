@@ -91,7 +91,7 @@ impl<'a, T> LinearRegression<'a, T> where T: Float + Send + Sync + Sum + 'static
 #[cfg(test)]
 mod tests {
     use rand::prelude::*;
-    use crate::tensor::{ Matrix, Tensor };
+    use crate::{optimization::StepSize, tensor::{ Matrix, Tensor }};
     use super::{ LinearRegression, CostFunction, GradientDescent};
     use crate::assert_near;
 
@@ -145,7 +145,7 @@ mod tests {
             cost_function: CostFunction::LeastSquares,
             optimizator: GradientDescent {
                 step_count: 1000,
-                step_size: 3.0,
+                step_size: StepSize::Decrement(3.0),
                 ..Default::default()
             },
             ..Default::default()

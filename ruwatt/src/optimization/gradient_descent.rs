@@ -1,65 +1,30 @@
 use num::Float;
-use std::cmp::Ordering;
-use std::time::Instant;
-use crate::tensor::{ Tensor, Vector };
-use super::gradient;
-
-
-#[derive(Clone)]
-pub struct OptimizationResult<T> where T: Float {
-    pub value: T,
-    pub arg: Tensor<T>
-}
-
-#[derive(Clone)]
-pub struct OptimizationProgress<T> where T: Float {
-    pub data: Vec<OptimizationResult<T>>
-}
-
-impl<T> OptimizationProgress<T> where T: Float {
-    fn new() -> Self {
-        Self { 
-            data: vec![]
-        }
-    }
-
-    fn add(&mut self, result: OptimizationResult<T>) {
-        self.data.push(result);
-    }
-
-    fn init(&mut self, result: OptimizationResult<T>) {
-        self.data = vec![result];
-    }
-
-    fn get_optimal_result(&mut self) -> Option<OptimizationResult<T>> {
-        self.data.iter().min_by(|a, b| a.value.partial_cmp(&b.value).unwrap_or(Ordering::Equal)).cloned()
-    }
-}
-
-#[allow(dead_code)]
-#[derive(Clone)]
-pub enum SmallGradientBehaviour {
-    Ignore,
-    Interrupt,
-    Displace
-}
+use std::iter::Sum;
+use crate::tensor::{ dot, Tensor, Vector };
+use super::{gradient, hessian, ResultEntry, ResultLogs};
 
 #[derive(Clone)]
 pub struct GradientDescent<'a, T> where T: Float {
     pub func: &'a dyn Fn(&Tensor<T>) -> T,
     pub grad_func: Option<&'a dyn Fn(&Tensor<T>) -> Tensor<T>>,
+    pub hessian: Option<&'a dyn Fn(&Tensor<T>) -> Tensor<T>>,
     pub start_point: Tensor<T>, 
     pub step_count: i16,
     pub betta: T, 
-    pub step_size: T, 
-    pub decrement_step: bool,
+    pub step_size: StepSize<T>,
     pub analyze_progress: bool,
-    pub small_gradient_behaviour: SmallGradientBehaviour,
     pub derivative_delta: T,
-    pub progress: OptimizationProgress<T>,
-    pub result: Option<OptimizationResult<T>>,
-    pub logs: Vec<String>,
-    pub grad_prev: Tensor<T>, 
+    pub results: ResultLogs<T>,
+    pub result: Option<ResultEntry<T>>,
+    pub grad_prev: Tensor<T>
+}
+
+#[derive(Clone)]
+pub enum StepSize<T> where T: Float{
+    OriginGrad,
+    Fixed(T),
+    Decrement(T),
+    Newton
 }
 
 impl<'a, T> Default for GradientDescent<'a, T> where T: Float {
@@ -67,69 +32,64 @@ impl<'a, T> Default for GradientDescent<'a, T> where T: Float {
         Self {
             func: &|_| T::zero(),
             grad_func: None,
+            hessian: None,
             start_point: Vector::ket(vec![T::zero()]),
             step_count: 1000,
             betta: T::from(0.7).unwrap(), 
-            step_size: T::one(), 
-            decrement_step: true,
+            step_size: StepSize::Decrement(T::one()), 
             analyze_progress: true,
-            small_gradient_behaviour: SmallGradientBehaviour::Ignore,
             derivative_delta: T::from(0.0001).unwrap(),
-            progress: OptimizationProgress::new(),
+            results: ResultLogs::new(),
             result: None,
-            logs: vec![],
             grad_prev: Vector::ket(vec![T::zero()])
         }
     }
 }
 
-impl<'a, T> GradientDescent<'a, T> where T: Float {
+impl<'a, T> GradientDescent<'a, T> where T: Float + Sum {
     pub fn run(&mut self) {
-        let now = Instant::now();
         let mut arg = self.start_point.clone();
         self.save_result((self.func)(&arg), arg.clone());
-        let mut step_counter = 0;
         for step in 0..self.step_count {
-            step_counter += 1;
-            let size = self.calc_step_size(step);
-            let mut grad = match self.grad_func {
+            let grad = match self.grad_func {
                 Some(grad_func) => grad_func(&arg),
                 None => gradient(self.func, &arg, self.derivative_delta)
             };
-            let delta = T::from(0.0001).unwrap();
-            if grad.is_small(delta) {
-                match &self.small_gradient_behaviour {
-                    SmallGradientBehaviour::Displace => {
-                        arg = Tensor::random(arg.shape.to_vec());
-                        self.logs.push(format!("Step {}: Small gradient. Change point.", step));
-                        continue;                        
-                    }
-                    SmallGradientBehaviour::Interrupt => {
-                        self.logs.push(format!("Step {}: Small gradient. Interrupted.", step));
-                        break;
-                    }
-                    _other => {}
-                }
-            }
-            grad.set_length(size);
-            grad = self.apply_momentum_acceleration(grad, step); 
+            let grad = self.set_grad_length(grad, step, &arg);
             arg = arg - grad;
-    
             self.save_result((self.func)(&arg), arg.clone());
         }
-        self.result = self.progress.get_optimal_result();
-        self.logs.push(format!("Elapsed: {:.2?} and {} steps.", now.elapsed(), step_counter));
+        self.result = self.results.get_optimal_result();
+    }
+
+    fn set_grad_length(&mut self, grad: Tensor<T>, step: i16, arg: &Tensor<T>) -> Tensor<T> {
+        let gradient = match self.step_size {
+            StepSize::OriginGrad => grad,
+            StepSize::Fixed(size) => grad.set_length(size),
+            StepSize::Decrement(size) => {
+                let size = size / T::from(step + 1).unwrap();
+                grad.set_length(size)
+            },
+            StepSize::Newton => {
+                let hessian = match self.hessian {
+                    Some(hessian) => hessian(arg),
+                    None => hessian(self.func, &arg, self.derivative_delta)
+                };
+                dot(&hessian.inverse(), &grad)
+            }
+        };
+        self.apply_momentum_acceleration(gradient, step)
     }
 
     fn save_result(&mut self, value: T, arg: Tensor<T>) {
-        let result = OptimizationResult { 
+        let result = ResultEntry { 
             value, 
             arg 
         };
         if self.analyze_progress {
-            self.progress.add(result);
+            self.results.add(result);
         } else {
-            self.progress.init(result);
+            self.results.init(result);
         }
     }
 
@@ -141,15 +101,6 @@ impl<'a, T> GradientDescent<'a, T> where T: Float {
         };
         self.grad_prev = result.clone();
         result
-    }
-
-    fn calc_step_size(&self, step: i16) -> T {
-        let step_f = T::from(step + 1).unwrap();
-        if self.decrement_step { 
-            self.step_size / step_f
-        } else { 
-            self.step_size 
-        }
     }
 }
 

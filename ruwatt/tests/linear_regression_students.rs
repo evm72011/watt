@@ -23,8 +23,6 @@ fn linear_regression_students_debt() -> Result<(), Box<dyn Error>> {
     let mut model = LinearRegression {
         cost_function: CostFunction::LeastSquares,
         optimizator: GradientDescent {
-            step_count: 1000,
-            step_size: 1.0,
             ..Default::default()
         },
         ..Default::default()
