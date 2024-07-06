@@ -19,12 +19,12 @@ impl<T> Tensor<T> where T: Float + Sum {
         }
     }
 
-    pub fn inverse(&self) -> Tensor<T> where T: Float + Sum {
+    pub fn inverse(&self) -> Result<Tensor<T>, Box<&str>> where T: Float + Sum {
         assert_square_matrix!(self);
     
         let det = self.det();
         if det == T::zero() {
-            panic!("Matrix is singular and cannot be inverted.");
+            return Err(Box::new("Matrix is singular and cannot be inverted"));
         }
     
         let size = self.row_count();
@@ -39,7 +39,7 @@ impl<T> Tensor<T> where T: Float + Sum {
         }
     
         let result = Matrix::square(data).tr();
-        result / det
+        Ok(result / det)
     }
 
     fn minor(&self, row_index: usize, col_index: usize) -> Tensor<T> where T: Float {
@@ -82,10 +82,10 @@ mod tests {
     }
     
     #[test]
-    fn inverse() {
+    fn inverse()  {
         let matrix = Matrix::square(vec![1.0, 2.0, 3.0, 4.0]);
-        let recieved = matrix.inverse();
+        let recieved = matrix.inverse().unwrap();
         let expected = Matrix::square(vec![-2.0, 1.0, 1.5, -0.5]);
-        assert_eq!(recieved, expected)
+        assert_eq!(recieved, expected);
     }
 }
