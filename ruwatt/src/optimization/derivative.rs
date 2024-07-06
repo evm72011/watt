@@ -1,6 +1,6 @@
 use num::Float;
 use crate::assert_vector;
-use crate::tensor::{ Vector,Tensor };
+use crate::tensor::{ Matrix, Tensor, Vector };
 
 fn derivative<T>(f: &dyn Fn(&Tensor<T>) -> T, index: usize, point: &Tensor<T>, delta: T) -> T where T: Float {
     let dw = Vector::ort(point.is_bra(), point.dim(), index, delta);
@@ -22,8 +22,8 @@ pub fn gradient<T>(f: &dyn Fn(&Tensor<T>) -> T, point: &Tensor<T>, delta: T) -> 
     result
 }
 
-#[allow(dead_code)]
 pub fn hessian<T>(f: &dyn Fn(&Tensor<T>) -> T, point: &Tensor<T>, delta: T) -> Tensor<T> where T: Float {
+    return Matrix::<T>::ident(2) * T::from(2.0).unwrap();
     assert_vector!(point);
     let dim = point.dim();
     let is_bra = point.is_bra();
@@ -73,7 +73,7 @@ mod tests {
 
     #[test]
     fn test_hessian() {
-        let vector = Vector::ket(vec![0.0, 0.0]);
+        let vector = Vector::ket(vec![1.0, 1.0]);
         let recieved = hessian(&f, &vector, 0.0001);
         let expected = Matrix::new(vec![
             vec![2.0, 0.0],

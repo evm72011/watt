@@ -1,4 +1,5 @@
 use num::Float;
+use std::fmt::Debug;
 use std::iter::Sum;
 
 use crate::{assert_matrix, optimization::GradientDescent};
@@ -10,7 +11,7 @@ pub enum CostFunction {
     Abs,
 }
 
-pub struct LinearRegression<'a, T=f32> where T: Float + Sum {
+pub struct LinearRegression<'a, T=f32> where T: Float + Sum + Debug {
     pub trained: bool,
     pub feature_count: usize,
     pub coef: Tensor<T>,
@@ -18,7 +19,7 @@ pub struct LinearRegression<'a, T=f32> where T: Float + Sum {
     pub optimizator: GradientDescent<'a, T>
 }
 
-impl<'a, T> Default for LinearRegression<'a, T> where T: Float + Sum {
+impl<'a, T> Default for LinearRegression<'a, T> where T: Float + Sum+ Debug {
     fn default() -> Self {
         Self {
             trained: false,
@@ -30,7 +31,7 @@ impl<'a, T> Default for LinearRegression<'a, T> where T: Float + Sum {
     }
 }
 
-impl<'a, T> LinearRegression<'a, T> where T: Float + Send + Sync + Sum + 'static {
+impl<'a, T> LinearRegression<'a, T> where T: Float + Send + Sync + Sum + Debug + 'static {
 
     pub fn fit(&mut self, x: &Tensor<T>, y: &Tensor<T>) {
         assert_matrix!(x);

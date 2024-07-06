@@ -201,7 +201,7 @@ mod tests {
     #[test]
     #[should_panic(expected = "Tensor is not a vector: shape = [3, 3]")]
     fn set_length_for_vector_only() {
-        let mut tensor = Tensor::new(vec![3, 3], 1.0);
+        let tensor = Tensor::new(vec![3, 3], 1.0);
         tensor.set_length(5.0);
     }
 
