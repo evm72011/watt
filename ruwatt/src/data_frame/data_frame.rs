@@ -1,4 +1,4 @@
-use std::{error::Error, fs::File, io::{self, BufRead, BufReader}};
+use std::{collections::HashMap, error::Error, fs::File, io::{self, BufRead, BufReader}};
 
 pub enum DataType {
     Bool(bool),
@@ -22,30 +22,34 @@ pub enum DataFrameHeader {
     Auto
 }
 
-pub struct DataFrameReadOptions {
-    pub header: Option<DataFrameHeader>
+pub struct DataFrameReadOptions<'a> {
+    pub header: Option<DataFrameHeader>,
+    pub mapper: Option<HashMap<&'a str, Box<dyn Fn(String) -> DataType>>>
 }   
 
-type Foo = Result<(), Box<dyn Error>>;
+type DataFrameResult = Result<DataFrame, Box<dyn Error>>;
 
 
 impl DataFrame {
-    pub fn save_csv(&self, _file_name: &str) -> Foo {
+    pub fn save_csv(&self, _file_name: &str) -> Result<(), Box<dyn Error>> {
         //for i in 0..self.row_count() {
-
         //}
         Ok(())
     }
 
-    pub fn read_csv(file_name: &str, options: Option<DataFrameReadOptions>) -> Foo {
+    pub fn read_csv(file_name: &str, options: Option<DataFrameReadOptions>) -> DataFrameResult {
         let file = File::open(file_name)?;
         let mut reader = BufReader::new(file);
         let _headers = Self::read_header(&mut reader, &options)?;
         Self::read_body(&mut reader, true)?;
-        Ok(())
+        let result = DataFrame {
+            columns: vec![],
+            data: vec![]
+        };
+        Ok(result)
     }
 
-    fn read_header<R: BufRead>(reader: &mut R, options: &Option<DataFrameReadOptions>) -> io::Result<Option<Vec<String>>> {
+    fn read_header<R: BufRead>(reader: &mut R, options: &Option<DataFrameReadOptions>) -> Result<Option<Vec<String>>, Box<dyn Error>> {
         if let Some(opt) = options {
             if let Some(hh) = &opt.header {
                 match hh {
