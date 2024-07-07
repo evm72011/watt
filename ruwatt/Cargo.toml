@@ -8,3 +8,4 @@ edition = "2021"
 [dependencies]
 num = "0.4.3"
 rand="0.8.5"
+regex="1.10.5"

@@ -1,19 +1,17 @@
-use std::{collections::HashMap, error::Error};
+use std::error::Error;
 
-use ruwatt::data_frame::{DataFrame, DataFrameHeader, DataFrameReadOptions, DataType};
+use ruwatt::data_frame::{DataFrame, DataFrameReadOptions};
 
 
 #[test]
 fn data_frame_io() -> Result<(), Box<dyn Error>> {
-    let mut mapper = HashMap::new();
-    mapper.insert("crim", |val: String| DataType::Float(val.parse().unwrap()));
-    
 
     let options = DataFrameReadOptions {
-        header: Some(DataFrameHeader::Auto),
-        mapper: None
+        parse_header: true
     };
     let df = DataFrame::read_csv("./data/boston_housing.csv", Some(options))?;
+    println!("{:?}", df.columns);
+    println!("{:?}", df.data);
 
     df.save_csv("./data/boston_housing_.csv")?;
     Ok(())    
