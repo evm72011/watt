@@ -37,10 +37,10 @@ fn linear_regression_kleiber() -> Result<(), Box<dyn Error>> {
     let folder = "./data/results/kleibers_law/";
     fs::create_dir_all(folder)?;
 
-    let train_file_name = format!("{}{}", folder, "train.csv");
+    let train_file_name = format!("{folder}train.csv");
     train.save_csv(&train_file_name)?;
     
-    let test_file_name = format!("{}{}", folder, "test.csv");
+    let test_file_name = format!("{folder}test.csv");
     predict.save_csv(&test_file_name)?;
     Ok(())
 }

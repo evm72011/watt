@@ -1,8 +1,9 @@
-use std::{error::Error, fs::File, io::{BufRead, BufReader}};
+use std::{error::Error, fs::File, io::{self, BufRead, BufReader}};
 
 pub enum DataType {
     Bool(bool),
-    Number(f64),
+    Float(f64),
+    Int(i64),
     String(String)
 }
 
@@ -16,20 +17,20 @@ pub struct DataFrame {
     pub columns: Vec<DataColumn>
 }
 
-pub enum DataFrameHeaderOption {
+pub enum DataFrameHeader {
     Fixed(Vec<String>),
     Auto
 }
 
 pub struct DataFrameReadOptions {
-    header: Option<DataFrameHeaderOption>
+    pub header: Option<DataFrameHeader>
 }   
 
 type Foo = Result<(), Box<dyn Error>>;
 
-/*
+
 impl DataFrame {
-    pub fn save_csv(&self, file_name: &str) -> Foo {
+    pub fn save_csv(&self, _file_name: &str) -> Foo {
         //for i in 0..self.row_count() {
 
         //}
@@ -38,23 +39,24 @@ impl DataFrame {
 
     pub fn read_csv(file_name: &str, options: Option<DataFrameReadOptions>) -> Foo {
         let file = File::open(file_name)?;
-        let reader = BufReader::new(file);
-        let headers = Self::read_header(&mut reader, &options)?;
-        Self::read_body(&mut reader, headers)?;
+        let mut reader = BufReader::new(file);
+        let _headers = Self::read_header(&mut reader, &options)?;
+        Self::read_body(&mut reader, true)?;
+        Ok(())
     }
 
     fn read_header<R: BufRead>(reader: &mut R, options: &Option<DataFrameReadOptions>) -> io::Result<Option<Vec<String>>> {
         if let Some(opt) = options {
             if let Some(hh) = &opt.header {
                 match hh {
-                    DataFrameHeaderOption::Fixed(headers) => {
+                    DataFrameHeader::Fixed(headers) => {
                         println!("Headers: {:?}", headers);
                         return Ok(Some(headers.clone()));
                     }
-                    DataFrameHeaderOption::Auto => {
+                    DataFrameHeader::Auto => {
                         let mut header_line = String::new();
                         reader.read_line(&mut header_line)?;
-                        let headers: Vec<String> = header_line.trim().split(',').map(|s| s.to_string()).collect();
+                        let headers: Vec<String> = header_line.trim().split(',').map(|s| s.replace("\"", "").to_string()).collect();
                         println!("Auto headers: {:?}", headers);
                         return Ok(Some(headers));
                     }
@@ -64,8 +66,14 @@ impl DataFrame {
         Ok(None)
     }
 
-    fn read_body<R: BufRead>(reader: &mut R, headers: Option<Vec<String>>) -> io::Result<()> {
-        for line in reader.lines() {
+    fn read_body<R: BufRead>(reader: &mut R, skip_first_line: bool) -> io::Result<()> {
+        for (index, line) in reader.lines().enumerate() {
+            if (index == 10) {
+                break;
+            }
+            if skip_first_line && index == 0 {
+                continue;
+            }
             match line {
                 Ok(line) => println!("{}", line),
                 Err(e) => eprintln!("Error reading line: {}", e),
@@ -73,58 +81,5 @@ impl DataFrame {
         }
         Ok(())
     }
-
-
-
-
-
-
-
-    fn read_header<R: BufRead>(reader: &mut R, options: &Option<DataFrameReadOptions>) -> io::Result<Option<Vec<String>>> {
-    if let Some(opt) = options {
-        if let Some(hh) = &opt.header {
-            match hh {
-                DataFrameHeaderOption::Fixed(headers) => {
-                    println!("Headers: {:?}", headers);
-                    return Ok(Some(headers.clone()));
-                }
-                DataFrameHeaderOption::Auto => {
-                    let mut header_line = String::new();
-                    reader.read_line(&mut header_line)?;
-                    let headers: Vec<String> = header_line.trim().split(',').map(|s| s.to_string()).collect();
-                    println!("Auto headers: {:?}", headers);
-                    return Ok(Some(headers));
-                }
-            }
-        }
-    }
-    Ok(None)
 }
 
-// Function to read the body
-fn read_body<R: BufRead>(reader: &mut R, skip_first_line: bool) -> io::Result<()> {
-    for (index, line) in reader.lines().enumerate() {
-        if skip_first_line && index == 0 {
-            continue;
-        }
-        match line {
-            Ok(line) => println!("{}", line),
-            Err(e) => eprintln!("Error reading line: {}", e),
-        }
-    }
-    Ok(())
-}
-
-// Main function to read the CSV
-pub fn read_csv(file_name: &str, options: Option<DataFrameReadOptions>) -> io::Result<Foo> {
-    let file = File::open(file_name)?;
-    let mut reader = BufReader::new(file);
-
-    let headers = read_header(&mut reader, &options)?;
-    let skip_first_line = headers.is_some();
-    read_body(&mut reader, skip_first_line)?;
-
-    Ok(Foo)
-}
-}
-    */
