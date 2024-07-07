@@ -34,22 +34,6 @@ pub fn hessian<T>(f: &dyn Fn(&Tensor<T>) -> T, point: &Tensor<T>, delta: T) -> T
             let value = if i == j {
                 let _2 = T::from(2).unwrap();
                 let dw = Vector::ort(is_bra, size, i, delta);
-                println!("i: {i} j: {j}");
-                println!("point: {:?}", point.data);
-                println!("f(point) {:?}", f(point));
-
-                println!("dw: {:?}", dw.data);
-                println!("point + &dw {:?}", (point + &dw).data);
-                println!("f(&(point + &dw)) {:?}", f(&(point + &dw)));
-
-                println!("dw: {:?}", dw.data);
-
-                println!("&dw * _2 {:?}", (&dw * _2).data);
-                println!("point + &(&dw * _2) {:?}", (point + &(&dw * _2)).data);
-                println!("f(&(point + &(&dw * _2))) {:?}", f(&(point + &(&dw * _2))));
-
-                println!("f(&(point + &(&dw * _2))) - _2 * f(&(point + &dw)) + f(point) {:?}", f(&(point + &(&dw * _2))) - _2 * f(&(point + &dw)) + f(point));
-                println!("-------------------------------------");
                 f(&(point + &(&dw * _2))) - _2 * f(&(point + &dw)) + f(point)
             } else {
                 let dw_i = Vector::ort(is_bra, size, i, delta);

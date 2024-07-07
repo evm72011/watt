@@ -75,12 +75,6 @@ impl<'a, T> GradientDescent<'a, T> where T: Float + Sum + Debug {
                     Some(hessian) => hessian(arg),
                     None => hessian(self.func, arg, self.derivative_delta)
                 };
-                println!("arg: {:?}", arg.data);
-                println!("grad: {:?}", grad.data);
-                println!("hess: {:?}", hessian.data);
-                println!("hess.inverse: {:?}", hessian.inverse().unwrap().data);
-                println!("dot: {:?}", dot(&hessian.inverse().unwrap(), &grad).data);
-                println!("-------------------------------------------");
                 dot(&hessian.inverse().unwrap(), &grad)
             }
         };
@@ -155,7 +149,7 @@ mod tests {
         assert_near!(result.arg, arg_expected, 0.001)
     }
 
-    #[ignore]
+    //#[ignore]
     #[test]
     fn gradient_descent_newton() {
         let mut optimizator = GradientDescent {
