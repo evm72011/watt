@@ -5,7 +5,7 @@ use std::iter::Sum;
 use crate::tensor::{Tensor, Vector};
 use crate::assert_matrix;
 
-pub struct Statistics<T = f32> {
+pub struct Statistics<T = f64> {
     _marker: PhantomData<T>
 }
 
@@ -47,7 +47,7 @@ mod tests {
     use crate::tensor::{Matrix, Tensor, Vector};
     use crate::assert_near;
 
-    fn matrix123456() -> Tensor<f32> {
+    fn matrix123456() -> Tensor {
         Matrix::new(vec![
             vec![ 1.0, 2.0 ],
             vec![ 3.0, 4.0 ],

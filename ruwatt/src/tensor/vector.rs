@@ -3,7 +3,7 @@ use std::marker::PhantomData;
 use crate::{assert_bra, assert_ket, assert_vector };
 use super::Tensor;
 
-pub struct Vector<T=f32> {
+pub struct Vector<T=f64> {
     _marker: PhantomData<T>
 }
 

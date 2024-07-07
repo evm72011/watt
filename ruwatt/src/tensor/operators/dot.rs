@@ -59,8 +59,8 @@ mod tests {
     #[test]
     #[should_panic(expected = "Can't dot empty tensors. [] . [1, 2]")]
     fn empty_tensor_error() {
-        let empty = Tensor::<f32>::empty();
-        let vector = Vector::<f32>::bra(vec![1.0, 2.0]);
+        let empty = Tensor::<f64>::empty();
+        let vector = Vector::<f64>::bra(vec![1.0, 2.0]);
         dot(&empty, &vector);
     }
 

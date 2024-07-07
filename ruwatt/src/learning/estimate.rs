@@ -99,6 +99,6 @@ mod tests {
         let predict = Vector::ket(vec![2.5, 0.0, 2.0, 8.0]);
         let test = Vector::ket(vec![3.0, -0.5, 2.0, 7.0]);
         let recieved = r2_score(&predict, &test).to_scalar();
-        assert!(f32::abs(recieved - 0.9484) < 0.001)
+        assert!(f64::abs(recieved - 0.9484) < 0.001)
     }
 }

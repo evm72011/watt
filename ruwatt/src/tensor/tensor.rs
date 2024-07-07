@@ -4,7 +4,7 @@ use crate::assert_shape;
 use super::IndexTools;
 
 #[derive(Debug, Clone)]
-pub struct Tensor<T=f32> where T: Float {
+pub struct Tensor<T=f64> where T: Float {
     pub shape: Vec<usize>,
     pub data: Vec<T>
 }
@@ -85,7 +85,7 @@ mod tests {
 
     #[test]
     fn is_empty() {
-        let tensor = Tensor::<f32> { shape: vec![], data: vec![] };
+        let tensor = Tensor::<f64> { shape: vec![], data: vec![] };
         assert!(tensor.is_empty());
     }
 
@@ -115,7 +115,7 @@ mod tests {
     #[test]
     fn apply() {
         let mut vector = Vector::bra(vec![1.0, 2.0]);
-        vector.apply(|x: f32| x.powi(2));
+        vector.apply(|x: f64| x.powi(2));
         let expected = Vector::bra(vec![1.0, 4.0]);
         assert_eq!(vector, expected);
     }

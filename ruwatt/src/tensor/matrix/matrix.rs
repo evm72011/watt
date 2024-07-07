@@ -3,7 +3,7 @@ use std::marker::PhantomData;
 use crate::{assert_bra, assert_ket, assert_matrix, tensor::index_tools::IndexError};
 use super::super::{Tensor, IndexTools, Vector};
 
-pub struct Matrix<T = f32> {
+pub struct Matrix<T = f64> {
     _marker: PhantomData<T>
 }
 
@@ -26,7 +26,7 @@ impl<T> Matrix<T> where T: Float {
     }
 
     pub fn square(data: Vec<T>) -> Tensor<T> {
-        let size = (data.len() as f32).sqrt();
+        let size = (data.len() as f64).sqrt();
         assert_eq!(size.round(), size);
         Tensor {
             shape: vec![size as usize, size as usize],
@@ -155,19 +155,19 @@ mod tests {
     use super::super::super::{ Tensor, Matrix, Vector, TensorType };
 
     fn matrix123() -> Tensor {
-        let data = (1..=9).map(|x| x as f32).collect();
+        let data = (1..=9).map(|x| x as f64).collect();
         return Matrix::square(data);
     }
 
     #[test]
     fn get_type_matrix() {
-        let matrix = Matrix::<f32>::ident(2);
+        let matrix = Matrix::<f64>::ident(2);
         assert_eq!(matrix.get_type(), TensorType::Matrix);
     }
 
     #[test]
     fn identity() {
-        let matrix = Matrix::<f32>::ident(2);
+        let matrix = Matrix::<f64>::ident(2);
         assert_eq!(matrix.shape, vec![2, 2]);
         assert_eq!(matrix.data, vec![1.0, 0.0, 0.0, 1.0]);
     }
@@ -183,7 +183,7 @@ mod tests {
     fn matrix() {
         let matrix = matrix123();
         assert_eq!(matrix.shape, vec![3, 3]);
-        let data: Vec<f32> = (1..=9).map(|x| x as f32).collect();
+        let data: Vec<f64> = (1..=9).map(|x| x as f64).collect();
         assert_eq!(matrix.data, data);
     }
 

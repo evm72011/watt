@@ -38,7 +38,7 @@ mod tests {
 
     #[test]
     fn rows() {
-        let matrix = Matrix::<f32>::ident(2);
+        let matrix = Matrix::<f64>::ident(2);
         let mut iterator = matrix.rows();
         assert_eq!(iterator.next(), Some(Vector::bra(vec![1.0, 0.0])));
         assert_eq!(iterator.next(), Some(Vector::bra(vec![0.0, 1.0])));

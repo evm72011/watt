@@ -3,7 +3,9 @@ use std::fmt::Debug;
 use std::iter::Sum;
 
 use crate::{assert_matrix, optimization::GradientDescent};
-use crate::tensor::{ dot, Tensor, Vector };
+
+
+ use crate::tensor::{ dot, Tensor, Vector };
 
 #[derive(PartialEq, Clone)]
 pub enum CostFunction {
@@ -11,7 +13,7 @@ pub enum CostFunction {
     Abs,
 }
 
-pub struct LinearRegression<'a, T=f32> where T: Float + Sum + Debug {
+pub struct LinearRegression<'a, T=f64> where T: Float + Sum + Debug {
     pub trained: bool,
     pub feature_count: usize,
     pub coef: Tensor<T>,
@@ -96,7 +98,7 @@ mod tests {
     use super::{ LinearRegression, CostFunction, GradientDescent};
     use crate::assert_near;
 
-    fn generate_x(count: usize, x_min: f32, x_max: f32) -> Vec<Vec<f32>>{
+    fn generate_x(count: usize, x_min: f64, x_max: f64) -> Vec<Vec<f64>>{
         let mut rng = rand::thread_rng();
         (0..count)
             .map(|_| vec![
@@ -106,7 +108,7 @@ mod tests {
             .collect()
     }
 
-    fn calc_y(x: &Vec<Vec<f32>>) -> Vec<Vec<f32>>{
+    fn calc_y(x: &Vec<Vec<f64>>) -> Vec<Vec<f64>>{
         let mut rng = rand::thread_rng();
         x.iter()
             .map(|x_vec| vec![
@@ -117,7 +119,7 @@ mod tests {
             .collect()
     }
 
-    fn create_train_test(train_size: usize, test_size: usize) -> (Tensor<f32>, Tensor<f32>, Tensor<f32>, Tensor<f32>) {
+    fn create_train_test(train_size: usize, test_size: usize) -> (Tensor, Tensor, Tensor, Tensor) {
         let x_train = generate_x(train_size, 0.0, 10.0);
         let y_train = calc_y(&x_train);
         let x_test = generate_x(test_size, 0.0, 10.0);

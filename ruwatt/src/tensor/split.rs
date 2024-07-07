@@ -5,12 +5,12 @@ use crate::assert_matrix;
 use rand::{rngs::StdRng, SeedableRng};
 
 impl<T> Tensor<T> where T: Float {
-    pub fn split(&self, left_size: f32, seed: u64) -> (Self, Self) {
+    pub fn split(&self, left_size: f64, seed: u64) -> (Self, Self) {
         assert_matrix!(self);
         let mut indices: Vec<usize> = (0..self.row_count()).collect();
         let mut rng = StdRng::seed_from_u64(seed);
         indices.shuffle(&mut rng);
-        let midpoint = (self.row_count().to_f32().unwrap() * left_size).round() as usize;
+        let midpoint = (self.row_count().to_f64().unwrap() * left_size).round() as usize;
         let (indices1, _) = indices.split_at(midpoint);
         let mut tensor1 = Tensor::<T>::empty();
         let mut tensor2 = Tensor::<T>::empty();

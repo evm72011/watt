@@ -3,7 +3,7 @@ use std::marker::PhantomData;
 use super::{Tensor, TensorType};
 use crate::assert_scalar;
 
-pub struct Scalar<T=f32> {
+pub struct Scalar<T=f64> {
   _marker: PhantomData<T>
 }
 

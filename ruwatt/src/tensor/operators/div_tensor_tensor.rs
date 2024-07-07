@@ -44,7 +44,7 @@ impl<T> ops::Div<Tensor<T>> for Tensor<T> where T: Float {
 mod tests {
     use super::super::super::{Vector, Scalar, Matrix, Tensor};
 
-    fn matrix1248() -> Tensor<f32> {
+    fn matrix1248() -> Tensor<f64> {
         Matrix::square(vec![1.0, 2.0, 4.0, 8.0])
     }
 

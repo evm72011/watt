@@ -90,8 +90,8 @@ impl<T> IndexTools<T> where T: Copy {
 mod tests {
     use super::IndexTools;
 
-    fn matrix1234() -> (Vec<f32>, Vec<usize>){
-        let data = (1..=4).map(|x| x as f32).collect();
+    fn matrix1234() -> (Vec<f64>, Vec<usize>){
+        let data = (1..=4).map(|x| x as f64).collect();
         let shape = vec![2, 2];
         (data, shape)
     }

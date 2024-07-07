@@ -71,7 +71,7 @@ mod tests {
     use super::{Tensor, Matrix};
 
     fn matrix123() -> Tensor {
-        let data = (1..=9).map(|x| x as f32).collect();
+        let data = (1..=9).map(|x| x as f64).collect();
         return Matrix::square(data);
     }
 

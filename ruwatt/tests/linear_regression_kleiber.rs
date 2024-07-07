@@ -5,9 +5,9 @@ use ruwatt::learning::{ LinearRegression, CostFunction, mse, r2_score };
 
 #[test]
 fn linear_regression_kleiber() -> Result<(), Box<dyn Error>> {
-    let mut data = Tensor::<f32>::empty();
+    let mut data = Tensor::<f64>::empty();
     data.read_csv("./data/kleibers_law.csv", Some(vec![0]), None)?;
-    data.apply(|x:f32| x.ln());
+    data.apply(|x:f64| x.ln());
     let data = data.tr();
     assert_eq!(data.shape, vec![1497, 2]);
 

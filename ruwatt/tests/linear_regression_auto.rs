@@ -6,7 +6,7 @@ use ruwatt::learning::{ LinearRegression, CostFunction, mse, r2_score };
 
 #[test]
 fn linear_regression_auto() -> Result<(), Box<dyn Error>> {
-    let mut data = Tensor::<f32>::empty();
+    let mut data = Tensor::<f64>::empty();
     data.read_csv("./data/auto.csv", Some(vec![8]), Some(vec![0]))?;
     assert_eq!(data.shape, vec![392, 8]);
 

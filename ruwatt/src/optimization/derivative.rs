@@ -1,6 +1,8 @@
+use std::fmt::Debug;
+
 use num::Float;
 use crate::assert_vector;
-use crate::tensor::{ Matrix, Tensor, Vector };
+use crate::tensor::{ Tensor, Vector };
 
 fn derivative<T>(f: &dyn Fn(&Tensor<T>) -> T, index: usize, point: &Tensor<T>, delta: T) -> T where T: Float {
     let dw = Vector::ort(point.is_bra(), point.dim(), index, delta);
@@ -22,21 +24,36 @@ pub fn gradient<T>(f: &dyn Fn(&Tensor<T>) -> T, point: &Tensor<T>, delta: T) -> 
     result
 }
 
-pub fn hessian<T>(f: &dyn Fn(&Tensor<T>) -> T, point: &Tensor<T>, delta: T) -> Tensor<T> where T: Float {
-    return Matrix::<T>::ident(2) * T::from(2.0).unwrap();
+pub fn hessian<T>(f: &dyn Fn(&Tensor<T>) -> T, point: &Tensor<T>, delta: T) -> Tensor<T> where T: Float + Debug{
     assert_vector!(point);
-    let dim = point.dim();
+    let size = point.dim();
     let is_bra = point.is_bra();
-    let mut result = Tensor::<T>::zeros(vec![dim, dim]);
-    let f_2 = T::from(2.0).unwrap();
-    for i in 0..dim {
-        for j in 0..dim {
+    let mut result = Tensor::<T>::zeros(vec![size, size]);
+    for i in 0..size {
+        for j in 0..size {
             let value = if i == j {
-                let dw = Vector::ort(is_bra, dim, i, delta);
-                f(&(point + &(&dw * &f_2))) - f_2 * f(&(point + &dw)) + f(point)
+                let _2 = T::from(2).unwrap();
+                let dw = Vector::ort(is_bra, size, i, delta);
+                println!("i: {i} j: {j}");
+                println!("point: {:?}", point.data);
+                println!("f(point) {:?}", f(point));
+
+                println!("dw: {:?}", dw.data);
+                println!("point + &dw {:?}", (point + &dw).data);
+                println!("f(&(point + &dw)) {:?}", f(&(point + &dw)));
+
+                println!("dw: {:?}", dw.data);
+
+                println!("&dw * _2 {:?}", (&dw * _2).data);
+                println!("point + &(&dw * _2) {:?}", (point + &(&dw * _2)).data);
+                println!("f(&(point + &(&dw * _2))) {:?}", f(&(point + &(&dw * _2))));
+
+                println!("f(&(point + &(&dw * _2))) - _2 * f(&(point + &dw)) + f(point) {:?}", f(&(point + &(&dw * _2))) - _2 * f(&(point + &dw)) + f(point));
+                println!("-------------------------------------");
+                f(&(point + &(&dw * _2))) - _2 * f(&(point + &dw)) + f(point)
             } else {
-                let dw_i = Vector::ort(is_bra, dim, i, delta);
-                let dw_j = Vector::ort(is_bra, dim, j, delta);
+                let dw_i = Vector::ort(is_bra, size, i, delta);
+                let dw_j = Vector::ort(is_bra, size, j, delta);
                 f(&(point + &(&dw_i + &dw_j))) - f(&(point + &dw_i)) - f(&(point + &dw_j)) + f(point)
             };
             result.set(vec![i, j], value / (delta * delta));
@@ -49,10 +66,10 @@ pub fn hessian<T>(f: &dyn Fn(&Tensor<T>) -> T, point: &Tensor<T>, delta: T) -> T
 mod tests {
     use num::abs;
     use crate::assert_near;
-    use crate::tensor::*;
+    use crate::tensor::{Tensor, Vector, Matrix};
     use super::{ derivative, gradient, hessian };
 
-    fn f(x: &Tensor) -> f32 {
+    fn f(x: &Tensor<f64>) -> f64 {
         x.get_v(0).powi(2) + x.get_v(1).powi(2)
     }
 
@@ -73,8 +90,8 @@ mod tests {
 
     #[test]
     fn test_hessian() {
-        let vector = Vector::ket(vec![1.0, 1.0]);
-        let recieved = hessian(&f, &vector, 0.0001);
+        let point = Vector::<f64>::ket(vec![3.0, 3.0]);
+        let recieved = hessian::<f64>(&f, &point, 0.0001);
         let expected = Matrix::new(vec![
             vec![2.0, 0.0],
             vec![0.0, 2.0],

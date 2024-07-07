@@ -116,7 +116,7 @@ mod tests {
     use crate::tensor::Vector;
     use super::{Tensor, GradientDescent, StepSize};
 
-    fn f(x: &Tensor) -> f32 {
+    fn f(x: &Tensor) -> f64 {
         2.0 + x.get_v(0).powi(2) + x.get_v(1).powi(2)
     }
 
@@ -137,7 +137,7 @@ mod tests {
         optimizator.run();
         let result = optimizator.result.unwrap();
         let arg_expected = Vector::ket(vec![0.0, 0.0]);
-        assert!(f32::abs(result.value - 2.0) < 0.001);
+        assert!(f64::abs(result.value - 2.0) < 0.001);
         assert_near!(result.arg, arg_expected, 0.001)
     }
 
@@ -151,7 +151,7 @@ mod tests {
         optimizator.run();
         let result = optimizator.result.unwrap();
         let arg_expected = Vector::ket(vec![0.0, 0.0]);
-        assert!(f32::abs(result.value - 2.0) < 0.001);
+        assert!(f64::abs(result.value - 2.0) < 0.001);
         assert_near!(result.arg, arg_expected, 0.001)
     }
 
@@ -169,7 +169,7 @@ mod tests {
         let result = optimizator.result.unwrap();
         let arg_expected = Vector::ket(vec![0.0, 0.0]);
         println!("{}", result.value);
-        assert!(f32::abs(result.value - 2.0) < 0.01);
+        assert!(f64::abs(result.value - 2.0) < 0.01);
         assert_near!(result.arg, arg_expected, 0.01)
     }
 }

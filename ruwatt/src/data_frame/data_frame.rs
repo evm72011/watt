@@ -2,7 +2,7 @@ use std::{error::Error, fs::File, io::{BufRead, BufReader}};
 
 pub enum DataType {
     Bool(bool),
-    Number(f32),
+    Number(f64),
     String(String)
 }
 

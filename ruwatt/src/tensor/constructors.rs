@@ -27,7 +27,7 @@ impl<T> Tensor<T> where T: Float {
     pub fn random(shape: Vec<usize>) -> Self {
         let size = shape.iter().product();
         let mut rng = rand::thread_rng();
-        let data = (0..size).map(|_| T::from(rng.gen::<f32>()).unwrap()).collect();
+        let data = (0..size).map(|_| T::from(rng.gen::<f64>()).unwrap()).collect();
         Self { shape, data }
     } 
 
@@ -44,19 +44,19 @@ mod tests {
 
     #[test]
     fn new() {
-        let tensor = Tensor::<f32>::new(vec![2], 1.0);
+        let tensor = Tensor::new(vec![2], 1.0);
         assert_eq!(tensor.data, vec![1.0, 1.0]);
     }
 
     #[test]
     fn zeros() {
-        let tensor = Tensor::<f32>::zeros(vec![2]);
+        let tensor = Tensor::<f64>::zeros(vec![2]);
         assert_eq!(tensor.data, vec![0.0, 0.0]);
     }
     
     #[test]
     fn ones() {
-        let tensor = Tensor::<f32>::ones(vec![2]);
+        let tensor = Tensor::<f64>::ones(vec![2]);
         assert_eq!(tensor.data, vec![1.0, 1.0]);
     }
 

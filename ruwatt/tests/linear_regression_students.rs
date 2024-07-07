@@ -5,12 +5,12 @@ use ruwatt::learning::{ LinearRegression, CostFunction, mse, r2_score };
 
 #[test]
 fn linear_regression_students_debt() -> Result<(), Box<dyn Error>> {
-    let mut y_data = Tensor::<f32>::empty();
+    let mut y_data = Tensor::<f64>::empty();
     y_data.read_csv("./data/student_debt.csv", Some(vec![0]), None)?;
 
-    let mut data: Tensor<f32> = Tensor {
+    let mut data: Tensor<f64> = Tensor {
         shape: y_data.shape.clone(),
-        data: (0..y_data.row_count()).map(|x| x as f32).collect()
+        data: (0..y_data.row_count()).map(|x| x as f64).collect()
     };
     data.append_col(y_data);
 
