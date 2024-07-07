@@ -1,7 +1,7 @@
 use std::{fs, error::Error};
 use ruwatt::tensor::{Tensor, Matrix};
 use ruwatt::optimization::{GradientDescent, StepSize};
-use ruwatt::learning::{ LinearRegression, CostFunction, mse, r2_score };
+use ruwatt::learning::{ LinearRegression, CostFunction, estimate_model };
 
 #[test]
 fn linear_regression_kleiber() -> Result<(), Box<dyn Error>> {
@@ -20,18 +20,16 @@ fn linear_regression_kleiber() -> Result<(), Box<dyn Error>> {
     let mut model = LinearRegression {
         cost_function: CostFunction::LeastSquares,
         optimizator: GradientDescent {
-            step_size: StepSize::Decrement(3.0),
+            step_size: StepSize::Newton,
+            step_count: 1,
             ..Default::default()
         },
         ..Default::default()
     };
     model.fit(&x_train, &y_train);
     let y_predict = model.predict(&x_test);
-    
-    let estimation = mse(&y_predict, &y_test).to_scalar();
-    assert!(estimation < 1.0);
-    let estimation = r2_score(&y_predict, &y_test).to_scalar();
-    assert!(estimation > 0.85);
+
+    estimate_model(&y_predict, &y_test, 0.4, 0.85)?;
 
     let train = Matrix::concat_h(x_train, y_train);
     let predict = Matrix::concat_h(x_test, y_predict);

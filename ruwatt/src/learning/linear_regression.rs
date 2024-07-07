@@ -2,6 +2,7 @@ use num::Float;
 use std::fmt::Debug;
 use std::iter::Sum;
 
+use crate::optimization::StepSize;
 use crate::{assert_matrix, optimization::GradientDescent};
 
 
@@ -36,9 +37,7 @@ impl<'a, T> Default for LinearRegression<'a, T> where T: Float + Sum+ Debug {
 impl<'a, T> LinearRegression<'a, T> where T: Float + Send + Sync + Sum + Debug + 'static {
 
     pub fn fit(&mut self, x: &Tensor<T>, y: &Tensor<T>) {
-        assert_matrix!(x);
-        assert_matrix!(y);
-        assert_eq!(x.row_count(), y.row_count(), "Count of x train not correspond to y");
+        self.validate_fit(x, y);
         self.feature_count = x.col_count();
 
         let closures = self.create_closures(y.col_count());
@@ -73,8 +72,8 @@ impl<'a, T> LinearRegression<'a, T> where T: Float + Send + Sync + Sum + Debug +
                 .map(|index| {
                     let cost_function = self.cost_function.clone();
                     Box::new(move |w: &Tensor<T>, x: &Tensor<T>, y: &Tensor<T>| {
-                        x.clone().rows()
-                            .zip(y.clone().rows())
+                        x.rows()
+                            .zip(y.rows())
                             .map(|(x_test, y_test)| {
                                 let x_modified = x_test.prepend_one().to_ket();
                                 let value = dot(&w, &x_modified).to_scalar() - y_test.get_v(index);
@@ -88,6 +87,16 @@ impl<'a, T> LinearRegression<'a, T> where T: Float + Send + Sync + Sum + Debug +
                     }) as Box<dyn Fn(&Tensor<T>, &Tensor<T>, &Tensor<T>) -> T + Send + Sync>
             })
             .collect()
+    }
+
+    fn validate_fit(&self, x: &Tensor<T>, y: &Tensor<T>) {
+        assert_matrix!(x);
+        assert_matrix!(y);
+        assert_eq!(x.row_count(), y.row_count(), "Count of x train not correspond to y");
+
+        if CostFunction::Abs == self.cost_function && StepSize::Newton == self.optimizator.step_size {
+                eprintln!("Warning: Using Abs cost function with Newton step size is not recommended.");
+        } 
     }
 }
 

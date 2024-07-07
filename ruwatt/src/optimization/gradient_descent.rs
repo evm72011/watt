@@ -1,12 +1,12 @@
 use num::Float;
-use std::{fmt::Debug, iter::Sum};
+use std::{fmt::Debug, iter::Sum, time::Instant};
 use crate::tensor::{ dot, Tensor, Vector };
 use super::{gradient, hessian, ResultEntry, ResultLogs};
 
 #[derive(Clone)]
 pub struct GradientDescent<'a, T> where T: Float + Debug {
     pub func: &'a dyn Fn(&Tensor<T>) -> T,
-    pub grad_func: Option<&'a dyn Fn(&Tensor<T>) -> Tensor<T>>,
+    pub gradient: Option<&'a dyn Fn(&Tensor<T>) -> Tensor<T>>,
     pub hessian: Option<&'a dyn Fn(&Tensor<T>) -> Tensor<T>>,
     pub start_point: Tensor<T>, 
     pub step_count: i16,
@@ -19,7 +19,7 @@ pub struct GradientDescent<'a, T> where T: Float + Debug {
     pub grad_prev: Tensor<T>
 }
 
-#[derive(Clone)]
+#[derive(Clone, PartialEq)]
 pub enum StepSize<T> where T: Float {
     OriginGrad,
     Fixed(T),
@@ -31,7 +31,7 @@ impl<'a, T> Default for GradientDescent<'a, T> where T: Float + Debug {
     fn default() -> Self {
         Self {
             func: &|_| T::zero(),
-            grad_func: None,
+            gradient: None,
             hessian: None,
             start_point: Vector::ket(vec![T::zero()]),
             step_count: 1000,
@@ -48,10 +48,11 @@ impl<'a, T> Default for GradientDescent<'a, T> where T: Float + Debug {
 
 impl<'a, T> GradientDescent<'a, T> where T: Float + Sum + Debug {
     pub fn run(&mut self) {
+        let start = Instant::now();
         let mut arg = self.start_point.clone();
         self.save_result((self.func)(&arg), arg.clone());
         for step in 0..self.step_count {
-            let grad = match self.grad_func {
+            let grad = match self.gradient {
                 Some(grad_func) => grad_func(&arg),
                 None => gradient(self.func, &arg, self.derivative_delta)
             };
@@ -60,6 +61,7 @@ impl<'a, T> GradientDescent<'a, T> where T: Float + Sum + Debug {
             self.save_result((self.func)(&arg), arg.clone());
         }
         self.result = self.results.get_optimal_result();
+        println!("Gradient descent elapsed in {:?}", start.elapsed());
     }
 
     fn set_grad_length(&mut self, grad: Tensor<T>, step: i16, arg: &Tensor<T>) -> Tensor<T> {
@@ -75,7 +77,12 @@ impl<'a, T> GradientDescent<'a, T> where T: Float + Sum + Debug {
                     Some(hessian) => hessian(arg),
                     None => hessian(self.func, arg, self.derivative_delta)
                 };
-                dot(&hessian.inverse().unwrap(), &grad)
+                if grad.is_ket() {
+                    dot(&hessian.inverse().unwrap(), &grad)
+                } else {
+                    dot(&hessian.inverse().unwrap(), &grad.to_ket()).to_bra()
+                }
+                
             }
         };
         self.apply_momentum_acceleration(gradient, step)
@@ -124,7 +131,7 @@ mod tests {
     fn gradient_descent_analytic_grad() {
         let mut optimizator = GradientDescent {
             func: &f,
-            grad_func: Some(&grad_f),
+            gradient: Some(&grad_f),
             start_point: Vector::ket(vec![3.0, 3.0]),
             ..Default::default()
         };

@@ -9,7 +9,7 @@ fn f(vector: &Tensor<f64>) -> f64 {
     w0.powi(2) + w1.powi(2) + 2.0 * f64::sin(1.5 * (w0 + w1)).powi(2) + 2.0
 }
 
-fn grad_f(vector: &Tensor<f64>) -> Tensor<f64> {
+fn gradient(vector: &Tensor<f64>) -> Tensor<f64> {
     let w0 = vector.get_v(0);
     let w1 = vector.get_v(1);
     let common_teil = 3.0 * f64::sin(3.0 * (w0 + w1));
@@ -23,7 +23,7 @@ fn grad_f(vector: &Tensor<f64>) -> Tensor<f64> {
 fn gradient_descent_analytic() {
     let mut optimizator = GradientDescent {
         func: &f,
-        grad_func: Some(&grad_f),
+        gradient: Some(&gradient),
         start_point: Vector::ket(vec![3.0, 3.0]),
         ..Default::default()
     };

@@ -1,7 +1,7 @@
 use std::{fs, error::Error};
 use ruwatt::tensor::{Matrix, Tensor};
 use ruwatt::optimization::GradientDescent;
-use ruwatt::learning::{ LinearRegression, CostFunction, mse, r2_score };
+use ruwatt::learning::{ LinearRegression, CostFunction, estimate_model };
 
 #[test]
 fn linear_regression_students_debt() -> Result<(), Box<dyn Error>> {
@@ -30,10 +30,7 @@ fn linear_regression_students_debt() -> Result<(), Box<dyn Error>> {
     model.fit(&x_train, &y_train);
     let y_predict = model.predict(&x_test);
 
-    let estimation = mse(&y_predict, &y_test).to_scalar();
-    assert!(estimation < 0.01);
-    let estimation = r2_score(&y_predict, &y_test).to_scalar();
-    assert!(estimation > 0.95);
+    estimate_model(&y_predict, &y_test, 0.01, 0.95)?;
 
     let train = Matrix::concat_h(x_train, y_train);
     let predict = Matrix::concat_h(x_test, y_predict);

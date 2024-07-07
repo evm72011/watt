@@ -1,8 +1,8 @@
 use std::error::Error;
 use ruwatt::statistics::statistics::Statistics;
 use ruwatt::tensor::Tensor;
-use ruwatt::optimization::GradientDescent;
-use ruwatt::learning::{ LinearRegression, CostFunction, mse, r2_score };
+use ruwatt::optimization::{GradientDescent, StepSize};
+use ruwatt::learning::{ LinearRegression, estimate_model };
 
 #[test]
 fn linear_regression_auto() -> Result<(), Box<dyn Error>> {
@@ -18,8 +18,9 @@ fn linear_regression_auto() -> Result<(), Box<dyn Error>> {
     let y_test = test_data.col(0)?;
 
     let mut model = LinearRegression {
-        cost_function: CostFunction::LeastSquares,
         optimizator: GradientDescent {
+            step_size: StepSize::Newton,
+            step_count: 1,
             ..Default::default()
         },
         ..Default::default()
@@ -27,11 +28,5 @@ fn linear_regression_auto() -> Result<(), Box<dyn Error>> {
     model.fit(&x_train, &y_train);
     let y_predict = model.predict(&x_test);
 
-    let estimation = mse(&y_predict, &y_test).to_scalar();
-    println!("mse = {:?}", estimation);
-    assert!(estimation < 0.25);
-    let estimation = r2_score(&y_predict, &y_test).to_scalar();
-    println!("r2_score = {:?}", estimation);
-    assert!(estimation > 0.8);
-    Ok(())
+    estimate_model(&y_predict, &y_test, 0.25, 0.8)
 }

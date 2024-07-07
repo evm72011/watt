@@ -2,7 +2,7 @@ use std::fmt::Debug;
 
 use num::Float;
 use crate::assert_vector;
-use crate::tensor::{ Tensor, Vector };
+use crate::tensor::{Tensor, Vector};
 
 fn derivative<T>(f: &dyn Fn(&Tensor<T>) -> T, index: usize, point: &Tensor<T>, delta: T) -> T where T: Float {
     let dw = Vector::ort(point.is_bra(), point.dim(), index, delta);
@@ -53,7 +53,7 @@ mod tests {
     use crate::tensor::{Tensor, Vector, Matrix};
     use super::{ derivative, gradient, hessian };
 
-    fn f(x: &Tensor<f64>) -> f64 {
+    fn f(x: &Tensor) -> f64 {
         x.get_v(0).powi(2) + x.get_v(1).powi(2)
     }
 
@@ -74,7 +74,7 @@ mod tests {
 
     #[test]
     fn test_hessian() {
-        let point = Vector::<f64>::ket(vec![3.0, 3.0]);
+        let point = Vector::ket(vec![3.0, 3.0]);
         let recieved = hessian::<f64>(&f, &point, 0.0001);
         let expected = Matrix::new(vec![
             vec![2.0, 0.0],

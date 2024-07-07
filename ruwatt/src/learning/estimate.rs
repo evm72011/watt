@@ -1,4 +1,6 @@
 use num::Float;
+use std::error::Error;
+use std::fmt::Display;
 use std::iter::Sum;
 use crate::tensor::{Tensor, Vector};
 use crate::{assert_matrix, assert_shape};
@@ -39,7 +41,7 @@ pub fn mad<T>(y_predict: &Tensor<T>, y_test: &Tensor<T>) -> Tensor<T> where T : 
     }
 }
 
-pub fn r2_score<T>(y_predict: &Tensor<T>, y_test: &Tensor<T>) -> Tensor<T> where T : Float + Sum<T>{
+pub fn r2_score<T>(y_predict: &Tensor<T>, y_test: &Tensor<T>) -> Tensor<T> where T : Float + Sum{
     assert_shape!(y_predict, y_test);
     assert_matrix!(y_predict);
     let row_count = y_predict.row_count();
@@ -69,6 +71,19 @@ pub fn r2_score<T>(y_predict: &Tensor<T>, y_test: &Tensor<T>) -> Tensor<T> where
             .map(|(&res, &tot)| T::one() - res / tot)
             .collect();
     Vector::bra(data)
+}
+
+pub fn estimate_model<T>(y_predict: &Tensor<T>, y_test: &Tensor<T>, max_mse: T, min_r2: T) -> Result<(), Box<dyn Error>> 
+where 
+    T : Float + Sum + Display 
+{
+    let mse_value = mse(&y_predict, &y_test).to_scalar();
+    println!("mse = {} (max. {max_mse})", mse_value);
+    assert!(mse_value < max_mse);
+    let r2_score_value = r2_score(&y_predict, &y_test).to_scalar();
+    println!("r2_score = {} (min. {min_r2})", r2_score_value);
+    assert!(r2_score_value > min_r2);
+    Ok(())
 }
 
 #[cfg(test)]
