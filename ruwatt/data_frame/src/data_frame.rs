@@ -70,45 +70,37 @@ impl DataFrame {
                     //println!("{}", line);
                     line.trim().split(',').enumerate()
                     .for_each(|(index, value)| {
+                        let mut header_type = DataType::NA;
                         if value.starts_with('"') || value.ends_with('"') {
                             result.push(DataType::String(value[1..value.len()-1].to_string()));
-                            let header_type = DataType::String(Default::default());
-                            if DataType::NA == header_types[index] {
-                                header_types[index] = header_type;
-                            } else {
-                                assert_eq!(header_types[index], header_type);
-                            }
+                            header_type = DataType::String(Default::default());  
                         } else if bool_pattern.is_match(value) {
                             result.push(DataType::Bool(value.parse().unwrap()));
-                            let header_type = DataType::Bool(Default::default());
-                            if DataType::NA == header_types[index] {
-                                header_types[index] = header_type;
-                            } else {
-                                assert_eq!(header_types[index], header_type);
-                            }
+                            header_type = DataType::Bool(Default::default());
                         } else if float_pattern.is_match(value) {
                             result.push(DataType::Float(value.parse().unwrap()));
-                            if DataType::NA == header_types[index] {
-                                header_types[index] = DataType::Float(Default::default());
-                            } else {
-                                assert_eq!(header_types[index], DataType::Float(Default::default()));
-                            }
+                            header_type = DataType::Float(Default::default());
                         } else if value.len() == 0 {
                             result.push(DataType::NA);
                         } else {
                             result.push(DataType::String(value.to_string()));
-                            if DataType::NA == header_types[index] {
-                                header_types[index] = DataType::String(Default::default());
-                            } else {
-                                assert_eq!(header_types[index], DataType::String(Default::default()));
-                            }
+                            header_type = DataType::String(Default::default());  
                         }
+                        Self::set_header_type(&mut header_types, index, header_type);
                     })
                 },
                 Err(e) => eprintln!("Error reading line: {}", e),
             }
         }
         Ok((header_types, result))
+    }
+
+    fn set_header_type(header_types: &mut Vec<DataType>, index: usize, header_type: DataType) {
+        if DataType::NA == header_types[index] {
+            header_types[index] = header_type;
+        } else {
+            assert_eq!(header_types[index], header_type);
+        }
     }
 }
 
