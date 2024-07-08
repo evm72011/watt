@@ -10,6 +10,17 @@ pub enum DataType {
     NA
 }
 
+impl DataType {
+    pub fn default(&self) -> DataType {
+        match self {
+            DataType::Bool(_) => DataType::Bool(Default::default()),
+            DataType::Float(_) => DataType::Float(Default::default()),
+            DataType::String(_) => DataType::String(Default::default()),
+            DataType::NA => DataType::NA
+        }
+    }
+}
+
 pub struct DataFrame {
     pub data: Vec<DataType>,
     pub header_types: Vec<DataType>,
@@ -61,45 +72,44 @@ impl DataFrame {
         let mut result = vec![];
         let mut header_types = vec![DataType::NA; header_names.len()];
 
-        for (_index, line) in reader.lines().enumerate() {
-            if _index == 10 {
+        for (line_index, line) in reader.lines().enumerate() {
+            if line_index == 10 {
                 break;
             }
             match line {
                 Ok(line) => {
-                    //println!("{}", line);
-                    line.trim().split(',').enumerate()
-                    .for_each(|(index, value)| {
-                        let mut header_type = DataType::NA;
-                        if value.starts_with('"') || value.ends_with('"') {
-                            result.push(DataType::String(value[1..value.len()-1].to_string()));
-                            header_type = DataType::String(Default::default());  
+                    let mut iter = line.trim().split(',').enumerate().peekable();
+                    while let Some((index, value)) = iter.next() {
+                        let is_last = iter.peek().is_none();
+                        assert!(!(is_last && index < header_types.len() - 1), 
+                                "Not enough data in line {line_index}");
+                        let value = if value.starts_with('"') || value.ends_with('"') {
+                            DataType::String(value[1..value.len()-1].to_string())
                         } else if bool_pattern.is_match(value) {
-                            result.push(DataType::Bool(value.parse().unwrap()));
-                            header_type = DataType::Bool(Default::default());
+                            DataType::Bool(value.parse().unwrap())
                         } else if float_pattern.is_match(value) {
-                            result.push(DataType::Float(value.parse().unwrap()));
-                            header_type = DataType::Float(Default::default());
+                            DataType::Float(value.parse().unwrap())
                         } else if value.len() == 0 {
-                            result.push(DataType::NA);
+                            DataType::NA
                         } else {
-                            result.push(DataType::String(value.to_string()));
-                            header_type = DataType::String(Default::default());  
-                        }
-                        Self::set_header_type(&mut header_types, index, header_type);
-                    })
+                            DataType::String(value.to_string())
+                        };
+                        Self::set_header_type(&mut header_types, index, &value);
+                        result.push(value);
+                    }
                 },
-                Err(e) => eprintln!("Error reading line: {}", e),
+                Err(e) => eprintln!("Error reading line: {}", e)
             }
         }
         Ok((header_types, result))
     }
 
-    fn set_header_type(header_types: &mut Vec<DataType>, index: usize, header_type: DataType) {
+    fn set_header_type(header_types: &mut Vec<DataType>, index: usize, value: &DataType) {
+        let value = value.default();
         if DataType::NA == header_types[index] {
-            header_types[index] = header_type;
+            header_types[index] = value;
         } else {
-            assert_eq!(header_types[index], header_type);
+            assert_eq!(header_types[index], value);
         }
     }
 }
