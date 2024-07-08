@@ -24,6 +24,13 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "baf1de4339761588bc0619e3cbc0120ee582ebb74b53b4efbf79117bd2da40fd"
 
 [[package]]
+name = "data_frame"
+version = "0.1.0"
+dependencies = [
+ "regex",
+]
+
+[[package]]
 name = "getrandom"
 version = "0.2.15"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -32,6 +39,17 @@ dependencies = [
  "cfg-if",
  "libc",
  "wasi",
+]
+
+[[package]]
+name = "learning"
+version = "0.1.0"
+dependencies = [
+ "num",
+ "optimization",
+ "rand",
+ "statistics",
+ "tensor",
 ]
 
 [[package]]
@@ -120,6 +138,14 @@ dependencies = [
 ]
 
 [[package]]
+name = "optimization"
+version = "0.1.0"
+dependencies = [
+ "num",
+ "tensor",
+]
+
+[[package]]
 name = "ppv-lite86"
 version = "0.2.17"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -185,12 +211,27 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "7a66a03ae7c801facd77a29370b4faec201768915ac14a721ba36f20bc9c209b"
 
 [[package]]
-name = "ruwatt"
+name = "sampler"
+version = "0.1.0"
+dependencies = [
+ "data_frame",
+ "tensor",
+]
+
+[[package]]
+name = "statistics"
+version = "0.1.0"
+dependencies = [
+ "num",
+ "tensor",
+]
+
+[[package]]
+name = "tensor"
 version = "0.1.0"
 dependencies = [
  "num",
  "rand",
- "regex",
 ]
 
 [[package]]

@@ -1,0 +1,8 @@
+[package]
+name = "sampler"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+tensor = { path = "../tensor" }
+data_frame = { path = "../data_frame" }
