@@ -72,17 +72,19 @@ impl DataFrame {
                     .for_each(|(index, value)| {
                         if value.starts_with('"') || value.ends_with('"') {
                             result.push(DataType::String(value[1..value.len()-1].to_string()));
+                            let header_type = DataType::String(Default::default());
                             if DataType::NA == header_types[index] {
-                                header_types[index] = DataType::String(Default::default());
+                                header_types[index] = header_type;
                             } else {
-                                assert_eq!(header_types[index], DataType::String(Default::default()));
+                                assert_eq!(header_types[index], header_type);
                             }
                         } else if bool_pattern.is_match(value) {
                             result.push(DataType::Bool(value.parse().unwrap()));
+                            let header_type = DataType::Bool(Default::default());
                             if DataType::NA == header_types[index] {
-                                header_types[index] = DataType::Bool(Default::default());
+                                header_types[index] = header_type;
                             } else {
-                                assert_eq!(header_types[index], DataType::Bool(Default::default()));
+                                assert_eq!(header_types[index], header_type);
                             }
                         } else if float_pattern.is_match(value) {
                             result.push(DataType::Float(value.parse().unwrap()));
