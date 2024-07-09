@@ -103,13 +103,13 @@ impl<T> Tensor<T> where T: Float {
 
     pub fn row(&self, index: usize) -> Result<Self, IndexError> {
         assert_matrix!(self);
-        let data = IndexTools::<T>::get_row(index, &self.shape, &self.data)?;
+        let data = IndexTools::<T>::row(index, &self.shape, &self.data)?;
         Ok(Vector::<T>::bra(data))
     }
 
     pub fn col(&self, index: usize) -> Result<Self, IndexError> {
         assert_matrix!(self);
-        let data = IndexTools::<T>::get_col(index, &self.shape, &self.data)?;
+        let data = IndexTools::<T>::col(index, &self.shape, &self.data)?;
         Ok(Vector::<T>::ket(data))
     }
 

@@ -59,7 +59,7 @@ impl<T> IndexTools<T> where T: Copy {
         shape[1]
     }
 
-    pub fn get_row(index: usize, shape: &Vec<usize>, data: &Vec<T>) -> Result<Vec<T>, IndexError> {
+    pub fn row(index: usize, shape: &Vec<usize>, data: &Vec<T>) -> Result<Vec<T>, IndexError> {
         let row_count = Self::row_count(shape);
         let col_count = Self::col_count(shape);
         if index < row_count {
@@ -71,7 +71,7 @@ impl<T> IndexTools<T> where T: Copy {
         }
     }
 
-    pub fn get_col(index: usize, shape: &Vec<usize>, data: &Vec<T>) -> Result<Vec<T>, IndexError> {
+    pub fn col(index: usize, shape: &Vec<usize>, data: &Vec<T>) -> Result<Vec<T>, IndexError> {
         let row_count = Self::row_count(shape);
         let col_count = Self::col_count(shape);
         if index < col_count {
@@ -111,16 +111,16 @@ mod tests {
     }
 
     #[test]
-    fn get_row() {
+    fn row() {
         let (data, shape) = matrix1234();        
-        let recieved = IndexTools::get_row(1, &shape, &data);
+        let recieved = IndexTools::row(1, &shape, &data);
         assert_eq!(recieved, Ok(vec![3.0, 4.0]));
     }
 
     #[test]
-    fn get_col() {
+    fn col() {
         let (data, shape) = matrix1234();        
-        let recieved = IndexTools::get_col(1, &shape, &data);
+        let recieved = IndexTools::col(1, &shape, &data);
         assert_eq!(recieved, Ok(vec![2.0, 4.0]));
     }
 }

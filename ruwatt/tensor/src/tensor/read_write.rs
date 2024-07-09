@@ -14,7 +14,7 @@ where
         assert_matrix!(self);
         let mut file = File::create(file_name)?;
         for i in 0..self.row_count() {
-            let row = IndexTools::get_row(i, &self.shape, &self.data)?;
+            let row = IndexTools::row(i, &self.shape, &self.data)?;
             let row: Vec<String> = row.into_iter().map(|item| item.to_string()).collect();
             let line = row.join(",") + "\n";
             file.write_all(line.as_bytes())?;
