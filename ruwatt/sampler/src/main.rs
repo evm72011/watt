@@ -23,8 +23,15 @@ fn main() -> Result<(), Box<dyn Error>> {
     let row = df.row(0)?;
     println!("{:?}", row);
     println!("------------------------------------------");
+    
     let row = df.row(1)?;
     println!("{:?}", row);
+    println!("------------------------------------------");
+
+    df.drop("chas");
+    let row = df.row(0)?;
+    println!("{:?}", row);
+    println!("------------------------------------------");
 
     let tensor = df.to_tensor();
     println!("{:?}", tensor);

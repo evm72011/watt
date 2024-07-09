@@ -77,4 +77,21 @@ impl<T> DataFrame<T> where T: Float + Default {
                 .for_each(|index| self.data[index] = mapper(&self.data[index]));
         }
     }
+
+    pub fn drop(&mut self, name: &str) {
+        let col_index = self.get_header_index(name);
+        let row_count = self.row_count();
+        let col_count = self.col_count();
+
+        let indices: Vec<usize> = (0..row_count)
+            .map(|row| col_count * row + col_index)
+            .collect();
+
+        self.data = self.data.iter().enumerate()
+            .filter(|(index, _)| !indices.contains(index))
+            .map(|(_, value)| value.clone())
+            .collect();
+
+        self.headers.remove(col_index);
+    }
 }
