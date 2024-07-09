@@ -48,7 +48,7 @@ impl<T> DataFrame<T> where T: Float + Default {
         Err(IndexError::IndexOutOfBounds)
     }
 
-    pub fn to_tensor(&self) -> Tensor<T> {
+    pub fn to_tensor(&self, _ignored_names: Option<Vec<&str>>) -> Tensor<T> {
         let all_numbers = self.headers.iter().all(|header| matches!(header.data_type, FrameData::Number(_)));
         assert!(all_numbers, "Must contain numbers only");
         Tensor::<T>::empty()

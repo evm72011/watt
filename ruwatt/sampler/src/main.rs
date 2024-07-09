@@ -33,7 +33,7 @@ fn main() -> Result<(), Box<dyn Error>> {
     println!("{:?}", row);
     println!("------------------------------------------");
 
-    let tensor = df.to_tensor();
+    let tensor = df.to_tensor(None);
     println!("{:?}", tensor);
     df.save_csv("./data/boston_housing_.csv")?;
     Ok(())   
