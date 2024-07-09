@@ -1,13 +1,13 @@
-use tensor::IndexError;
-
+use num::Float;
+use tensor::{IndexError, Tensor};
 use super::{FrameData, FrameHeader};
 #[derive(Debug)]
-pub struct DataFrame {
-    pub data: Vec<FrameData>,
+pub struct DataFrame<T=f64> where T: Float {
+    pub data: Vec<FrameData<T>>,
     pub headers: Vec<FrameHeader>
 }
 
-impl DataFrame {
+impl<T> DataFrame<T> where T: Float {
     pub fn new() -> Self {
         DataFrame {
             data: vec![],
@@ -23,7 +23,7 @@ impl DataFrame {
         self.data.len() / self.headers.len()
     }
 
-    pub fn row(&self, index: usize) -> Result<Vec<FrameData>, IndexError> {
+    pub fn row(&self, index: usize) -> Result<Vec<FrameData<T>>, IndexError> {
         let row_count = self.row_count();
         let col_count = self.col_count();
         if index < row_count {
@@ -34,7 +34,7 @@ impl DataFrame {
         Err(IndexError::IndexOutOfBounds)
     }
 
-    pub fn col(&self, index: usize) -> Result<Vec<FrameData>, IndexError> {
+    pub fn col(&self, index: usize) -> Result<Vec<FrameData<T>>, IndexError> {
         let row_count = self.row_count();
         let col_count = self.col_count();
         if index < col_count {
@@ -44,6 +44,10 @@ impl DataFrame {
             return Ok(result);             
         }
         Err(IndexError::IndexOutOfBounds)
+    }
+
+    pub fn to_tensor(&self) -> Tensor<T> {
+        Tensor::<T>::empty()
     }
 }
 
