@@ -11,9 +11,7 @@ fn main() -> Result<(), Box<dyn Error>> {
         parse_header: true
     };
     let df = DataFrame::from_csv("./data/boston_housing_.csv", Some(options))?;
-    println!("{:?}", df.header_names);
-    println!("-----------------------------------------------");
-    println!("{:?}", df.header_types);
+    println!("{:?}", df.headers);
     println!("-----------------------------------------------");
     println!("{:?}", df.data);
 

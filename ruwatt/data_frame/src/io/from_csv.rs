@@ -1,7 +1,9 @@
 use std::{error::Error, fs::File};
 use std::io::{BufRead, BufReader, Error as IOError, ErrorKind};
 use regex::Regex;
-use super::super::{DataFrame, DataType};
+use crate::FrameHeader;
+
+use super::super::{DataFrame, FrameData};
 
 pub struct DataFrameReadOptions {
     pub parse_header: bool
@@ -22,10 +24,13 @@ impl DataFrame {
             if opt.parse_header {
                 let mut header_line = String::new();
                 reader.read_line(&mut header_line)?;
-                self.header_names = header_line.trim().split(',')
-                    .map(|value| value.replace("\"", "").to_string())
+
+                self.headers = header_line.trim().split(',')
+                    .map(|value| {
+                        let name = value.replace("\"", "").to_string();
+                        FrameHeader::new(name)
+                    })
                     .collect();
-                self.header_types = vec![DataType::NA; self.header_names.len()];
                 return Ok(());
             }
         }
@@ -50,15 +55,15 @@ impl DataFrame {
                         self.validate_line(is_last, cell_index, line_index);
 
                         let value = if value.starts_with('"') || value.ends_with('"') {
-                            DataType::String(value[1..value.len()-1].to_string())
+                            FrameData::String(value[1..value.len()-1].to_string())
                         } else if bool_pattern.is_match(value) {
-                            DataType::Bool(value.parse().unwrap())
+                            FrameData::Bool(value.parse().unwrap())
                         } else if float_pattern.is_match(value) {
-                            DataType::Float(value.parse().unwrap())
+                            FrameData::Float(value.parse().unwrap())
                         } else if value.len() == 0 {
-                            DataType::NA
+                            FrameData::NA
                         } else {
-                            DataType::String(value.to_string())
+                            FrameData::String(value.to_string())
                         };
                         self.set_header_type(cell_index, &value);
                         self.data.push(value);
@@ -71,16 +76,17 @@ impl DataFrame {
     }
 
     fn init_anonym_header(&mut self, col_count: usize) {
-        self.header_types = vec![DataType::NA; col_count];
-        self.header_names = (0..col_count).map(|i| format!("{i}")).collect();
+        self.headers = (0..col_count)
+            .map(|i| FrameHeader::new(format!("{i}")))
+            .collect();
     }
 
-    fn set_header_type(&mut self, index: usize, value: &DataType) {
+    fn set_header_type(&mut self, index: usize, value: &FrameData) {
         let value = value.default();
-        if DataType::NA == self.header_types[index] {
-            self.header_types[index] = value;
+        if FrameData::NA == self.headers[index].data_type {
+            self.headers[index].data_type = value;
         } else {
-            assert_eq!(self.header_types[index], value);
+            assert_eq!(self.headers[index].data_type, value);
         }
     }
 
