@@ -10,9 +10,11 @@ fn main() -> Result<(), Box<dyn Error>> {
     let options = DataFrameReadOptions {
         parse_header: true
     };
-    let df = DataFrame::from_csv("./data/boston_housing.csv", Some(options))?;
+    let df = DataFrame::from_csv("./data/boston_housing_.csv", Some(options))?;
     let row = df.row(0)?;
+    let col = df.col(0)?;
     println!("{:?}", row);
+    println!("{:?}", col);
 
     df.save_csv("./data/boston_housing_.csv")?;
     Ok(())   

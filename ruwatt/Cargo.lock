@@ -28,6 +28,7 @@ name = "data_frame"
 version = "0.1.0"
 dependencies = [
  "regex",
+ "tensor",
 ]
 
 [[package]]

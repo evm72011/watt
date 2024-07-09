@@ -1,4 +1,4 @@
-use std::error::Error;
+use tensor::IndexError;
 
 use super::{FrameData, FrameHeader};
 #[derive(Debug)]
@@ -23,7 +23,7 @@ impl DataFrame {
         self.data.len() / self.headers.len()
     }
 
-    pub fn row(&self, index: usize) -> Result<Vec<FrameData>, Box<dyn Error>> {
+    pub fn row(&self, index: usize) -> Result<Vec<FrameData>, IndexError> {
         let row_count = self.row_count();
         let col_count = self.col_count();
         if index < row_count {
@@ -31,11 +31,19 @@ impl DataFrame {
             let end = col_count * (index + 1);
             return Ok(self.data[start..end].to_vec());
         }
-        Err(Box::new(std::io::Error::new(std::io::ErrorKind::InvalidInput, "Index out of bounds")))
+        Err(IndexError::IndexOutOfBounds)
     }
 
-    pub fn col(&self, _index: usize) -> Vec<FrameData> {
-        vec![]
+    pub fn col(&self, index: usize) -> Result<Vec<FrameData>, IndexError> {
+        let row_count = self.row_count();
+        let col_count = self.col_count();
+        if index < col_count {
+            let result = (0..row_count)
+                .map(|row| self.data[col_count * row + index].clone())
+                .collect();
+            return Ok(result);             
+        }
+        Err(IndexError::IndexOutOfBounds)
     }
 }
 
