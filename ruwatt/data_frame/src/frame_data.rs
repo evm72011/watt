@@ -7,8 +7,8 @@ pub enum FrameData<T=f64> where T: Float {
     NA
 }
 
-impl<T> FrameData<T> where T: Float {
-    pub fn default(&self) -> FrameData {
+impl<T> FrameData<T> where T: Float + Default {
+    pub fn default(&self) -> FrameData<T> {
         match self {
             FrameData::Number(_) => FrameData::Number(Default::default()),
             FrameData::String(_) => FrameData::String(Default::default()),

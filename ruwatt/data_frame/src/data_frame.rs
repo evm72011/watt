@@ -6,10 +6,10 @@ use super::{FrameData, FrameHeader};
 #[derive(Debug)]
 pub struct DataFrame<T=f64> where T: Float {
     pub data: Vec<FrameData<T>>,
-    pub headers: Vec<FrameHeader>
+    pub headers: Vec<FrameHeader<T>>
 }
 
-impl<T> DataFrame<T> where T: Float {
+impl<T> DataFrame<T> where T: Float + Default {
     pub fn new() -> Self {
         DataFrame {
             data: vec![],
@@ -54,7 +54,24 @@ impl<T> DataFrame<T> where T: Float {
         Tensor::<T>::empty()
     }
 
-    pub fn apply(&mut self, map: HashMap<String, Box<&dyn Fn(FrameData<T>) -> FrameData<T>>>) {
+    pub fn apply(&mut self, map: HashMap<&str, Box<dyn Fn(&FrameData<T>) -> FrameData<T>>>) {
+        for (key, mapper) in map.into_iter() {
+            let name = String::from(key);
 
+            let col_index = self.headers.iter()
+                .position(|item| item.name == name)
+                .unwrap_or_else(|| panic!("Column {} not found", name));
+            let header = &mut self.headers[col_index];
+            
+            if FrameData::NA != mapper(&header.data_type) {
+                header.data_type = mapper(&header.data_type).default();
+            }
+            let row_count = self.row_count();
+            let col_count = self.col_count();
+            for row in 0..row_count {
+                let index = col_count * row + col_index;
+                self.data[index] = mapper(&self.data[index]);
+            }
+        }
     }
 }

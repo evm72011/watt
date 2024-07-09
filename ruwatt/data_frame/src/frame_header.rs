@@ -1,16 +1,17 @@
+use num::Float;
 use super::FrameData;
 
 #[derive(Debug)]
-pub struct FrameHeader {
-  pub data_type: FrameData,
+pub struct FrameHeader<T> where T: Float {
+  pub data_type: FrameData<T>,
   pub name: String
 }
 
-impl FrameHeader {
+impl<T> FrameHeader<T> where T: Float {
     pub fn new(name: String) -> Self {
-        FrameHeader {
+        FrameHeader::<T> {
             name,
-            data_type: FrameData::NA
+            data_type: FrameData::<T>::NA
         }
     }
 }
