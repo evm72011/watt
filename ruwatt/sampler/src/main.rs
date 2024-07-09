@@ -10,7 +10,7 @@ fn main() -> Result<(), Box<dyn Error>> {
     let options = DataFrameReadOptions {
         parse_header: true
     };
-    let df = DataFrame::from_csv("./data/boston_housing.csv", Some(options))?;
+    let df = DataFrame::from_csv("./data/boston_housing_.csv", Some(options))?;
     println!("{:?}", df.header_names);
     println!("-----------------------------------------------");
     println!("{:?}", df.header_types);

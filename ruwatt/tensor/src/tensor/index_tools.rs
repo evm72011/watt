@@ -51,17 +51,17 @@ impl<T> IndexTools<T> where T: Copy {
         data[index] = value;
     }
 
-    pub fn get_row_count(shape: &Vec<usize>) -> usize {
+    pub fn row_count(shape: &Vec<usize>) -> usize {
         shape[0]
     }
 
-    pub fn get_col_count(shape: &Vec<usize>) -> usize {
+    pub fn col_count(shape: &Vec<usize>) -> usize {
         shape[1]
     }
 
     pub fn get_row(index: usize, shape: &Vec<usize>, data: &Vec<T>) -> Result<Vec<T>, IndexError> {
-        let row_count = Self::get_row_count(shape);
-        let col_count = Self::get_col_count(shape);
+        let row_count = Self::row_count(shape);
+        let col_count = Self::col_count(shape);
         if index < row_count {
             let start = col_count * index;
             let end = col_count * (index + 1);
@@ -72,8 +72,8 @@ impl<T> IndexTools<T> where T: Copy {
     }
 
     pub fn get_col(index: usize, shape: &Vec<usize>, data: &Vec<T>) -> Result<Vec<T>, IndexError> {
-        let row_count = Self::get_row_count(shape);
-        let col_count = Self::get_col_count(shape);
+        let row_count = Self::row_count(shape);
+        let col_count = Self::col_count(shape);
         if index < col_count {
             let result = (0..row_count)
                 .map(|row| data[col_count * row + index])

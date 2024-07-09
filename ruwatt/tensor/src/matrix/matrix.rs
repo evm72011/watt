@@ -93,12 +93,12 @@ impl<T> Tensor<T> where T: Float {
 
     pub fn row_count(&self) -> usize {
         assert_matrix!(self);
-        IndexTools::<T>::get_row_count(&self.shape)
+        IndexTools::<T>::row_count(&self.shape)
     }
 
     pub fn col_count(&self) -> usize {
         assert_matrix!(self);
-        IndexTools::<T>::get_col_count(&self.shape)
+        IndexTools::<T>::col_count(&self.shape)
     }
 
     pub fn row(&self, index: usize) -> Result<Self, IndexError> {
