@@ -1,3 +1,5 @@
+use std::collections::HashMap;
+
 use num::Float;
 use tensor::{IndexError, Tensor};
 use super::{FrameData, FrameHeader};
@@ -47,7 +49,12 @@ impl<T> DataFrame<T> where T: Float {
     }
 
     pub fn to_tensor(&self) -> Tensor<T> {
+        let all_numbers = self.headers.iter().all(|header| matches!(header.data_type, FrameData::Number(_)));
+        assert!(all_numbers, "Must contain numbers only");
         Tensor::<T>::empty()
     }
-}
 
+    pub fn apply(&mut self, map: HashMap<String, Box<&dyn Fn(FrameData<T>) -> FrameData<T>>>) {
+
+    }
+}
