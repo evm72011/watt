@@ -54,24 +54,27 @@ impl<T> DataFrame<T> where T: Float + Default {
         Tensor::<T>::empty()
     }
 
-    pub fn apply(&mut self, map: HashMap<&str, Box<dyn Fn(&FrameData<T>) -> FrameData<T>>>) {
-        for (key, mapper) in map.into_iter() {
-            let name = String::from(key);
+    fn get_header_index(&self, name: &str) -> usize {
+        let name = String::from(name);
+        self.headers.iter()
+            .position(|item| item.name == name)
+            .unwrap_or_else(|| panic!("Column {} not found", name))
+    }
 
-            let col_index = self.headers.iter()
-                .position(|item| item.name == name)
-                .unwrap_or_else(|| panic!("Column {} not found", name));
+    pub fn apply(&mut self, map: HashMap<&str, Box<dyn Fn(&FrameData<T>) -> FrameData<T>>>) {
+        for (name, mapper) in map.into_iter() {
+            let col_index = self.get_header_index(name);
             let header = &mut self.headers[col_index];
             
             if FrameData::NA != mapper(&header.data_type) {
                 header.data_type = mapper(&header.data_type).default();
             }
+
             let row_count = self.row_count();
             let col_count = self.col_count();
-            for row in 0..row_count {
-                let index = col_count * row + col_index;
-                self.data[index] = mapper(&self.data[index]);
-            }
+            (0..row_count)
+                .map(|row| col_count * row + col_index)
+                .for_each(|index| self.data[index] = mapper(&self.data[index]));
         }
     }
 }
