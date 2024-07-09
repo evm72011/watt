@@ -39,7 +39,6 @@ impl DataFrame {
 
     fn parse_body<R: BufRead>(&mut self, reader: &mut R) -> Result<(), Box<dyn Error>> {
         let float_pattern = Regex::new(r"[-+]?[0-9]*\.?[0-9]+([eE][-+]?[0-9]+)?$")?;
-        let bool_pattern = Regex::new(r"(?i)^\s*(true|false)\s*$")?;
 
         for (line_index, line) in reader.lines().enumerate() {
             match line {
@@ -56,10 +55,8 @@ impl DataFrame {
 
                         let value = if value.starts_with('"') || value.ends_with('"') {
                             FrameData::String(value[1..value.len()-1].to_string())
-                        } else if bool_pattern.is_match(value) {
-                            FrameData::Bool(value.parse().unwrap())
                         } else if float_pattern.is_match(value) {
-                            FrameData::Float(value.parse().unwrap())
+                            FrameData::Number(value.parse().unwrap())
                         } else if value.len() == 0 {
                             FrameData::NA
                         } else {
