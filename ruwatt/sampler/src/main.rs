@@ -8,7 +8,7 @@ fn main() -> Result<(), Box<dyn Error>> {
     println!("{:?}", tensor);
 
     let options = DataFrameReadOptions {
-        parse_header: true
+        parse_header: false
     };
     let df = DataFrame::from_csv("./data/boston_housing_.csv", Some(options))?;
     println!("{:?}", df.headers);

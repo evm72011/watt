@@ -1,4 +1,3 @@
-use std::error::Error;
 use super::{FrameData, FrameHeader};
 
 #[derive(Debug)]
@@ -23,11 +22,12 @@ impl DataFrame {
         self.data.len() / self.headers.len()
     }
 
-    pub fn save_csv(&self, _file_name: &str) -> Result<(), Box<dyn Error>> {
-        //for i in 0..self.row_count() {
-        //}
-        Ok(())
+    pub fn row(&self, _index: usize) -> Vec<FrameData> {
+        vec![]
     }
 
+    pub fn col(&self, _index: usize) -> Vec<FrameData> {
+        vec![]
+    }
 }
 

@@ -1,9 +1,7 @@
 use std::{error::Error, fs::File};
 use std::io::{BufRead, BufReader, Error as IOError, ErrorKind};
 use regex::Regex;
-use crate::FrameHeader;
-
-use super::super::{DataFrame, FrameData};
+use super::super::{DataFrame, FrameData, FrameHeader};
 
 pub struct DataFrameReadOptions {
     pub parse_header: bool
@@ -31,14 +29,14 @@ impl DataFrame {
                         FrameHeader::new(name)
                     })
                     .collect();
-                return Ok(());
             }
+            return Ok(());
         }
         Err(Box::new(IOError::new(ErrorKind::InvalidInput, "Header parsing error")))
     }
 
     fn parse_body<R: BufRead>(&mut self, reader: &mut R) -> Result<(), Box<dyn Error>> {
-        let float_pattern = Regex::new(r"[-+]?[0-9]*\.?[0-9]+([eE][-+]?[0-9]+)?$")?;
+        let number_pattern = Regex::new(r"[-+]?[0-9]*\.?[0-9]+([eE][-+]?[0-9]+)?$")?;
 
         for (line_index, line) in reader.lines().enumerate() {
             match line {
@@ -46,7 +44,7 @@ impl DataFrame {
                     let mut iter = line.trim().split(',').enumerate().peekable();
                     while let Some((cell_index, value)) = iter.next() {
                         if self.col_count() == 0 {
-                            let col_count = iter.clone().count();
+                            let col_count = iter.clone().count() + 1;
                             self.init_anonym_header(col_count);
                         }
 
@@ -55,7 +53,7 @@ impl DataFrame {
 
                         let value = if value.starts_with('"') || value.ends_with('"') {
                             FrameData::String(value[1..value.len()-1].to_string())
-                        } else if float_pattern.is_match(value) {
+                        } else if number_pattern.is_match(value) {
                             FrameData::Number(value.parse().unwrap())
                         } else if value.len() == 0 {
                             FrameData::NA
@@ -92,7 +90,7 @@ impl DataFrame {
             panic!("Not enough data in line {line_index}");
         }
 
-        if !is_last && cell_index >= self.col_count() - 1 {
+        if !is_last && cell_index > self.col_count() - 1 {
             panic!("Too much data in line {line_index}");
         }
     }
