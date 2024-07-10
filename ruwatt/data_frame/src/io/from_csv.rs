@@ -47,7 +47,7 @@ impl<T> DataFrame<T> where T: Float + Debug + Default {
                     while let Some((cell_index, value)) = iter.next() {
                         if self.col_count() == 0 {
                             let col_count = iter.clone().count() + 1;
-                            self.init_anonym_header(col_count);
+                            self.headers = FrameHeader::<T>::gen_anonym_headers(col_count);
                         }
 
                         let is_last = iter.peek().is_none();

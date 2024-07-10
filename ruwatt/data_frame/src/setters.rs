@@ -43,11 +43,11 @@ impl<T> DataFrame<T> where T: Float + Default + Debug {
             assert_eq!(self.headers[index].data_type, value);
         }
     }
-
-    
+    /*
     pub fn init_anonym_header(&mut self, col_count: usize) {
         self.headers = (0..col_count)
             .map(|i| FrameHeader::new(format!("{i}")))
             .collect();
     }
+    */
 }
