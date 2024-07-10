@@ -1,17 +1,19 @@
+use std::fmt::Debug;
 use std::{error::Error, fs::File};
 use std::io::{BufRead, BufReader, Error as IOError, ErrorKind};
+use num::Float;
 use regex::Regex;
-use super::super::{DataFrame, FrameData, FrameHeader};
+use super::super::{DataFrame, FrameDataCell, FrameHeader};
 
 pub struct DataFrameReadOptions {
     pub parse_header: bool
 } 
 
-impl DataFrame {
-    pub fn from_csv(file_name: &str, options: Option<DataFrameReadOptions>) -> Result<DataFrame, Box<dyn Error>> {
+impl<T> DataFrame<T> where T: Float + Debug + Default {
+    pub fn from_csv(file_name: &str, options: Option<DataFrameReadOptions>) -> Result<DataFrame<T>, Box<dyn Error>> {
         let file = File::open(file_name)?;
         let mut reader = BufReader::new(file);
-        let mut result = DataFrame::new();
+        let mut result = DataFrame::<T>::new();
         result.parse_header(&mut reader, &options)?;
         result.parse_body(&mut reader)?;
         Ok(result)
@@ -52,13 +54,14 @@ impl DataFrame {
                         self.validate_line(is_last, cell_index, line_index);
 
                         let value = if value.starts_with('"') || value.ends_with('"') {
-                            FrameData::String(value[1..value.len()-1].to_string())
+                            FrameDataCell::<T>::String(value[1..value.len()-1].to_string())
                         } else if number_pattern.is_match(value) {
-                            FrameData::Number(value.parse().unwrap())
+                            let value: f64 = value.parse().unwrap();
+                            FrameDataCell::<T>::Number(T::from(value).unwrap())
                         } else if value.len() == 0 {
-                            FrameData::NA
+                            FrameDataCell::<T>::NA
                         } else {
-                            FrameData::String(value.to_string())
+                            FrameDataCell::String(value.to_string())
                         };
                         self.set_header_type(cell_index, &value);
                         self.data.push(value);
@@ -74,15 +77,6 @@ impl DataFrame {
         self.headers = (0..col_count)
             .map(|i| FrameHeader::new(format!("{i}")))
             .collect();
-    }
-
-    fn set_header_type(&mut self, index: usize, value: &FrameData) {
-        let value = value.default();
-        if FrameData::NA == self.headers[index].data_type {
-            self.headers[index].data_type = value;
-        } else {
-            assert_eq!(self.headers[index].data_type, value);
-        }
     }
 
     fn validate_line(&self, is_last: bool, cell_index: usize, line_index: usize) {
