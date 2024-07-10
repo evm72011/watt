@@ -1,5 +1,6 @@
-use std::{collections::HashMap, fmt::Debug};
+use std::{collections::{HashMap, HashSet}, fmt::Debug};
 use num::Float;
+use tensor::Tensor;
 use super::{DataFrame, FrameDataCell, FrameHeader};
 
 impl<T> DataFrame<T> where T: Float + Default + Debug {
@@ -43,11 +44,35 @@ impl<T> DataFrame<T> where T: Float + Default + Debug {
             assert_eq!(self.headers[index].data_type, value);
         }
     }
-    /*
-    pub fn init_anonym_header(&mut self, col_count: usize) {
-        self.headers = (0..col_count)
-            .map(|i| FrameHeader::new(format!("{i}")))
-            .collect();
+
+    pub fn rename(&mut self, map: HashMap<&str, &str>) {
+        for (name, new_name) in map.into_iter() {
+            let col_index = self.get_header_index(name);
+            let header = &mut self.headers[col_index];
+            header.name = String::from(new_name);
+        }
     }
-    */
+
+    pub fn append_rows(&mut self, df: DataFrame<T>) {
+        assert_eq!(self.col_count(), df.col_count());
+        self.data.extend(df.data);
+    }
+    
+    pub fn append_cols(&mut self, df: DataFrame<T>) {
+        assert_eq!(self.row_count(), df.row_count());
+
+        let names1: HashSet<_> = self.headers.iter().map(|h| h.name.clone()).collect();
+        let names2: HashSet<_> = df.headers.iter().map(|h| h.name.clone()).collect();
+        let intersection: Vec<_> = names1.intersection(&names2).collect();
+        assert!(intersection.is_empty(), "DataFrames must have unique names");
+
+        let (row_count, col_count) = self.get_shape();
+        for row in 0..row_count {
+            for col in 0..df.col_count() {
+                let value = df.data[row * df.col_count() + col].clone();
+                self.data.insert(col_count * (row + 1) + row, value);   //Not checkec
+            }
+        }
+        self.headers.extend(df.headers);
+    }
 }

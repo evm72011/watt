@@ -35,6 +35,11 @@ fn main() -> Result<(), Box<dyn Error>> {
 
     let tensor = df.to_tensor(None);
     println!("{:?}", tensor);
-    df.save_csv("./data/boston_housing_.csv")?;
+
+    let mut map = HashMap::new();
+    map.insert("medv", "medved");
+    df.rename(map);
+    
+    df.save_csv("./data/results/boston_housing_2.csv", false)?;
     Ok(())   
 }
