@@ -1,7 +1,6 @@
 use std::{collections::{HashMap, HashSet}, fmt::Debug};
 use num::Float;
-use tensor::Tensor;
-use super::{DataFrame, FrameDataCell, FrameHeader};
+use super::{DataFrame, FrameDataCell};
 
 impl<T> DataFrame<T> where T: Float + Default + Debug {
     pub fn apply(&mut self, map: HashMap<&str, Box<dyn Fn(&FrameDataCell<T>) -> FrameDataCell<T>>>) {
