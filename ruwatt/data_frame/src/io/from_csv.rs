@@ -73,12 +73,6 @@ impl<T> DataFrame<T> where T: Float + Debug + Default {
         Ok(())
     }
 
-    fn init_anonym_header(&mut self, col_count: usize) {
-        self.headers = (0..col_count)
-            .map(|i| FrameHeader::new(format!("{i}")))
-            .collect();
-    }
-
     fn validate_line(&self, is_last: bool, cell_index: usize, line_index: usize) {
         if is_last && cell_index < self.col_count() - 1 {
             panic!("Not enough data in line {line_index}");

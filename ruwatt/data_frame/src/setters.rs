@@ -1,6 +1,6 @@
 use std::{collections::HashMap, fmt::Debug};
 use num::Float;
-use super::{DataFrame, FrameDataCell};
+use super::{DataFrame, FrameDataCell, FrameHeader};
 
 impl<T> DataFrame<T> where T: Float + Default + Debug {
     pub fn apply(&mut self, map: HashMap<&str, Box<dyn Fn(&FrameDataCell<T>) -> FrameDataCell<T>>>) {
@@ -9,7 +9,7 @@ impl<T> DataFrame<T> where T: Float + Default + Debug {
             let header = &mut self.headers[col_index];
             
             if FrameDataCell::NA != mapper(&header.data_type) {
-                header.data_type = mapper(&header.data_type).default(); // + Default
+                header.data_type = mapper(&header.data_type).default();
             }
 
             let (row_count, col_count) = self.get_shape();
@@ -42,5 +42,12 @@ impl<T> DataFrame<T> where T: Float + Default + Debug {
         } else {
             assert_eq!(self.headers[index].data_type, value);
         }
+    }
+
+    
+    pub fn init_anonym_header(&mut self, col_count: usize) {
+        self.headers = (0..col_count)
+            .map(|i| FrameHeader::new(format!("{i}")))
+            .collect();
     }
 }
