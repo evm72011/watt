@@ -1,6 +1,7 @@
 use super::{DataFrame, FrameHeader, FrameDataCell};
 
-pub fn df_1234() -> DataFrame {
+#[allow(dead_code)]
+pub fn df_2x3() -> DataFrame {
     DataFrame::<f64> {
         headers: vec![
             FrameHeader {
@@ -13,8 +14,9 @@ pub fn df_1234() -> DataFrame {
             }
         ],
         data: vec![
-            vec![FrameDataCell::Number(1.0), FrameDataCell::Number(2.0)],
-            vec![FrameDataCell::Number(3.0), FrameDataCell::Number(4.0)],
+            FrameDataCell::numbers(&[1.0, 2.0]),
+            FrameDataCell::numbers(&[3.0, 4.0]),
+            FrameDataCell::numbers(&[5.0, 6.0]),
         ]
     }
 }

@@ -51,7 +51,7 @@ impl<T> DataFrame<T> where T: Float + Debug + Default {
                         let is_last = iter.peek().is_none();
                         self.validate_line(is_last, cell_index, line_index);
 
-                        let value = FrameDataCell::<T>::from(value);
+                        let value: FrameDataCell::<T> = value.parse().unwrap();
                         self.set_header_type(cell_index, &value);
                         line_data.push(value);
                     }

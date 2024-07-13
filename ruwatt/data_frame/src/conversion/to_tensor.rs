@@ -19,11 +19,14 @@ impl<T> DataFrame<T> where T: Float + Default + Debug {
             .for_each(|header| assert_eq!(header.data_type, FrameDataCell::Number(Default::default())));
 
         let data: Vec<T> = self.rows()
-            .map(|row| 
-                row.iter().enumerate()
+            .map(|row| {
+                let res = row.iter().enumerate()
                     .filter(|(index, _)| col_indices.contains(index))
                     .map(|(_, value)| value.clone())
-                    .collect::<Vec<FrameDataCell<T>>>())
+                    .collect::<Vec<FrameDataCell<T>>>();
+                println!("res = {:?}", res);
+                res
+            })
             .enumerate()
             .flat_map(|(row_index, row)| 
                 row.iter().enumerate().map(|(col_index, value)| 
@@ -46,12 +49,12 @@ impl<T> DataFrame<T> where T: Float + Default + Debug {
 #[cfg(test)]
 mod tests {
     use tensor::Matrix;
-    use crate::mock::df_1234;
+    use crate::mock::df_2x3;
 
     #[test]
     fn to_tensor() {
         let expected = Matrix::square(vec![1.0, 2.0, 3.0, 4.0]);
-        let df = df_1234();
+        let df = df_2x3();
         let recieved = df.to_tensor(None);
         assert_eq!(expected, recieved);
     }
