@@ -19,14 +19,11 @@ impl<T> DataFrame<T> where T: Float + Default + Debug {
             .for_each(|header| assert_eq!(header.data_type, FrameDataCell::Number(Default::default())));
 
         let data: Vec<T> = self.rows()
-            .map(|row| {
-                let res = row.iter().enumerate()
-                    .filter(|(index, _)| col_indices.contains(index))
-                    .map(|(_, value)| value.clone())
-                    .collect::<Vec<FrameDataCell<T>>>();
-                println!("res = {:?}", res);
-                res
-            })
+            .map(|row| row.iter().enumerate()
+                .filter(|(index, _)| col_indices.contains(index))
+                .map(|(_, value)| value.clone())
+                .collect::<Vec<FrameDataCell<T>>>()
+            )
             .enumerate()
             .flat_map(|(row_index, row)| 
                 row.iter().enumerate().map(|(col_index, value)| 

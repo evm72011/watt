@@ -32,7 +32,7 @@ impl<T> DataFrame<T> where T: Float {
         }
     }
 
-    pub  fn get_header_index(&self, name: &str) -> usize {
+    pub  fn get_col_index(&self, name: &str) -> usize {
         let name = String::from(name);
         self.headers.iter()
             .position(|header| header.name == name)
@@ -79,7 +79,6 @@ mod tests {
     #[test]
     fn get_header_index() {
         let df = df_2x3();
-        
-        assert_eq!(df.get_header_index("0"), 0)
+        assert_eq!(df.get_col_index("0"), 0)
     }
 }

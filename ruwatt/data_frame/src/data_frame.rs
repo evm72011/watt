@@ -1,7 +1,7 @@
 use num::Float;
 use super::{FrameDataCell, FrameHeader};
-#[derive(Debug)]
 
+#[derive(Debug)]
 pub struct DataFrame<T=f64> where T: Float {
     pub data: Vec<Vec<FrameDataCell<T>>>,
     pub headers: Vec<FrameHeader<T>>
