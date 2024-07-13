@@ -7,6 +7,12 @@ pub struct FrameHeader<T> where T: Float {
   pub name: String
 }
 
+impl<T> PartialEq for FrameHeader<T> where T: Float {
+    fn eq(&self, other: &Self) -> bool {
+        self.name == other.name && self.data_type == other.data_type
+    }
+}
+
 impl<T> FrameHeader<T> where T: Float {
     pub fn new(name: String) -> Self {
         FrameHeader::<T> {

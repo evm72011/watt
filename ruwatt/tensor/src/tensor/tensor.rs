@@ -24,6 +24,12 @@ pub enum TensorType<T> where T: Float {
     General
 }
 
+impl<T> PartialEq for Tensor<T> where T: Float {
+    fn eq(&self, other: &Self) -> bool {
+        self.shape == other.shape && self.data == other.data
+    }
+  }
+
 impl<T> Tensor<T> where T: Float {
     pub fn get_type(&self) -> TensorType<T> {
         if self.data.len() == 0 && self.shape.len() == 0 {

@@ -42,3 +42,17 @@ impl<T> DataFrame<T> where T: Float + Default + Debug {
         }
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use tensor::Matrix;
+    use crate::mock::df_1234;
+
+    #[test]
+    fn to_tensor() {
+        let expected = Matrix::square(vec![1.0, 2.0, 3.0, 4.0]);
+        let df = df_1234();
+        let recieved = df.to_tensor(None);
+        assert_eq!(expected, recieved);
+    }
+}

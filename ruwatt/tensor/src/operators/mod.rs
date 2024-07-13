@@ -8,7 +8,6 @@ pub mod sub_tensor_number;
 pub mod sub_tensor_tensor;
 pub mod mul_tensor_number;
 pub mod mul_tensor_tensor;
-pub mod eq;
 pub mod dot;
 
 pub use dot::dot;
