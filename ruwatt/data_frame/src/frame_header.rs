@@ -1,7 +1,7 @@
 use num::Float;
 use super::FrameDataCell;
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct FrameHeader<T> where T: Float {
   pub data_type: FrameDataCell<T>,
   pub name: String

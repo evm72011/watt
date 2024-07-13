@@ -2,7 +2,7 @@ use std::{collections::{HashMap, HashSet}, fmt::Debug};
 use num::Float;
 use super::{DataFrame, FrameDataCell};
 
-impl<T> DataFrame<T> where T: Float + Default + Debug {
+impl<T> DataFrame<T> where T: Float + Default + Debug + Copy {
     pub fn apply(&mut self, map: HashMap<&str, Box<dyn Fn(&FrameDataCell<T>) -> FrameDataCell<T>>>) {
         for (name, mapper) in map.into_iter() {
             let col_index = self.get_header_index(name);
@@ -12,26 +12,14 @@ impl<T> DataFrame<T> where T: Float + Default + Debug {
                 header.data_type = mapper(&header.data_type).default();
             }
 
-            let (row_count, col_count) = self.get_shape();
-            (0..row_count)
-                .map(|row| col_count * row + col_index)
-                .for_each(|index| self.data[index] = mapper(&self.data[index]));
+            self.data.iter_mut()
+                .for_each(|row| row[col_index] = mapper(&row[col_index]));
         }
     }
 
     pub fn drop(&mut self, name: &str) {
         let col_index = self.get_header_index(name);
-        let (row_count, col_count) = self.get_shape();
-
-        let indices: Vec<usize> = (0..row_count)
-            .map(|row| col_count * row + col_index)
-            .collect();
-
-        self.data = self.data.iter().enumerate()
-            .filter(|(index, _)| !indices.contains(index))
-            .map(|(_, value)| value.clone())
-            .collect();
-
+        self.data.remove(col_index);
         self.headers.remove(col_index);
     }
 
@@ -54,10 +42,10 @@ impl<T> DataFrame<T> where T: Float + Default + Debug {
 
     pub fn append_rows(&mut self, df: DataFrame<T>) {
         assert_eq!(self.col_count(), df.col_count());
-        self.data.extend(df.data);
+        self.data.extend(df.data);//
     }
     
-    pub fn append_cols(&mut self, df: DataFrame<T>) {
+    pub fn append_cols(&mut self, df: &DataFrame<T>) {
         assert_eq!(self.row_count(), df.row_count());
 
         let names1: HashSet<_> = self.headers.iter().map(|h| h.name.clone()).collect();
@@ -65,13 +53,8 @@ impl<T> DataFrame<T> where T: Float + Default + Debug {
         let intersection: Vec<_> = names1.intersection(&names2).collect();
         assert!(intersection.is_empty(), "DataFrames must have unique names");
 
-        let (row_count, col_count) = self.get_shape();
-        for row in 0..row_count {
-            for col in 0..df.col_count() {
-                let value = df.data[row * df.col_count() + col].clone();
-                self.data.insert(col_count * (row + 1) + row, value);   //Not checkec
-            }
-        }
-        self.headers.extend(df.headers);
+        self.data.iter_mut().enumerate()
+            .for_each(|(index, row)| row.extend(df.data[index].clone()));
+        self.headers.extend(df.headers.clone());
     }
 }

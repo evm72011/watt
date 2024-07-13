@@ -5,6 +5,7 @@ mod frame_header;
 mod getters;
 mod setters;
 mod conversion;
+mod iterators;
 
 pub use data_frame::*;
 pub use frame_data_cell::*;

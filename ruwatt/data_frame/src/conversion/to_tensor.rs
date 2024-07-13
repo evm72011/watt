@@ -1,40 +1,44 @@
+use std::{collections::HashSet, fmt::Debug};
 use num::Float;
 use tensor::Tensor;
 
 use super::super::{DataFrame, FrameDataCell};
 
-impl<T> DataFrame<T> where T: Float {
+impl<T> DataFrame<T> where T: Float + Default + Debug {
     pub fn to_tensor(&self, ignored_names: Option<Vec<&str>>) -> Tensor<T> {
-        let ignored_names: Vec<String> = ignored_names.unwrap_or(vec![]).iter()
-            .map(|&name| String::from(name))
-            .collect();
+        let ignored_names: HashSet<String> = ignored_names.unwrap_or(vec![]).iter()
+            .map(|&name| String::from(name)).collect();
 
-        let headers_are_numbers = self.headers.iter()
-            .filter(|&header| !ignored_names.contains(&header.name))
-            .all(|header| matches!(header.data_type, FrameDataCell::Number(_)));
-        assert!(headers_are_numbers, "Must contain numbers only");
-
-        let ignored_column_indices: Vec<usize> = self.headers.iter().enumerate()
-            .filter(|(_, header)| ignored_names.contains(&header.name))
+        let col_indices: Vec<usize> = self.headers.iter().enumerate()
+            .filter(|(_, header)| !ignored_names.contains(&header.name))
             .map(|(index, _)| index)
             .collect();
 
-        let (row_count, col_count) = self.get_shape();
-        let data: Vec<T> = self.data.iter().enumerate()
-            .filter(|(index, _)| !ignored_column_indices.contains(&(index % col_count)))
-            .map(|(index, value)| {
-                if let FrameDataCell::Number(valuee) = value {
-                    *valuee
-                } else {
-                    let row_index = index / col_count;
-                    let col_index = index % row_index;
-                    panic!("Not a number! row: {row_index}, col: {col_index}")
-                }
-            })
+        self.headers.iter()
+            .filter(|header| !ignored_names.contains(&header.name))
+            .for_each(|header| assert_eq!(header.data_type, FrameDataCell::Number(Default::default())));
+
+        let data: Vec<T> = self.rows()
+            .map(|row| 
+                row.iter().enumerate()
+                    .filter(|(index, _)| col_indices.contains(index))
+                    .map(|(_, value)| value.clone())
+                    .collect::<Vec<FrameDataCell<T>>>())
+            .enumerate()
+            .flat_map(|(row_index, row)| 
+                row.iter().enumerate().map(|(col_index, value)| 
+                    if let FrameDataCell::Number(value) = value {
+                        *value
+                    } else {
+                        panic!("Not a number! row: {row_index}, col: {col_index}")
+                    }
+                ).collect::<Vec<T>>()
+            )
             .collect();
+
         Tensor {
             data,
-            shape: vec![row_count, col_count - ignored_column_indices.len()]
+            shape: vec![self.row_count(), col_indices.len()]
         }
     }
 }

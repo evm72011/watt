@@ -2,7 +2,6 @@ use std::fmt::Debug;
 use std::{error::Error, fs::File};
 use std::io::{BufRead, BufReader, Error as IOError, ErrorKind};
 use num::Float;
-use regex::Regex;
 use super::super::{DataFrame, FrameDataCell, FrameHeader};
 
 pub struct DataFrameReadOptions {
@@ -38,34 +37,25 @@ impl<T> DataFrame<T> where T: Float + Debug + Default {
     }
 
     fn parse_body<R: BufRead>(&mut self, reader: &mut R) -> Result<(), Box<dyn Error>> {
-        let number_pattern = Regex::new(r"[-+]?[0-9]*\.?[0-9]+([eE][-+]?[0-9]+)?$")?;
-
         for (line_index, line) in reader.lines().enumerate() {
             match line {
                 Ok(line) => {
                     let mut iter = line.trim().split(',').enumerate().peekable();
+                    let col_count = iter.clone().count() + 1;
+                    let mut line_data = Vec::with_capacity(col_count);
                     while let Some((cell_index, value)) = iter.next() {
                         if self.col_count() == 0 {
-                            let col_count = iter.clone().count() + 1;
                             self.headers = FrameHeader::<T>::gen_anonym_headers(col_count);
                         }
 
                         let is_last = iter.peek().is_none();
                         self.validate_line(is_last, cell_index, line_index);
 
-                        let value = if value.starts_with('"') || value.ends_with('"') {
-                            FrameDataCell::<T>::String(value[1..value.len()-1].to_string())
-                        } else if number_pattern.is_match(value) {
-                            let value: f64 = value.parse().unwrap();
-                            FrameDataCell::<T>::Number(T::from(value).unwrap())
-                        } else if value.len() == 0 {
-                            FrameDataCell::<T>::NA
-                        } else {
-                            FrameDataCell::String(value.to_string())
-                        };
+                        let value = FrameDataCell::<T>::from(value);
                         self.set_header_type(cell_index, &value);
-                        self.data.push(value);
+                        line_data.push(value);
                     }
+                    self.data.push(line_data);
                 },
                 Err(e) => eprintln!("Error reading line: {}", e)
             }

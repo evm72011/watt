@@ -19,27 +19,23 @@ impl<T> DataFrame<T> where T: Float {
     }
 
     pub fn row_count(&self) -> usize {
-        self.data.len() / self.headers.len()
+        self.data.len()
     }
 
     pub fn row(&self, index: usize) -> Result<Vec<FrameDataCell<T>>, IndexError> {
-        let (row_count, col_count) = self.get_shape();
-        if index < row_count {
-            let start = col_count * index;
-            let end = col_count * (index + 1);
-            return Ok(self.data[start..end].to_vec());
+        if self.row_count() < index {
+            Ok(self.data[index].clone())
+        } else {
+            Err(IndexError::IndexOutOfBounds)
         }
-        Err(IndexError::IndexOutOfBounds)
     }
 
     pub fn col(&self, index: usize) -> Result<Vec<FrameDataCell<T>>, IndexError> {
-        let (row_count, col_count) = self.get_shape();
-        if index < col_count {
-            let result = (0..row_count)
-                .map(|row| self.data[col_count * row + index].clone())
-                .collect();
-            return Ok(result);             
+        if self.row_count() < index {
+            let result = self.data.iter().map(|val| val[index].clone()).collect();
+            Ok(result)
+        } else {
+            Err(IndexError::IndexOutOfBounds)
         }
-        Err(IndexError::IndexOutOfBounds)
     }
 }
