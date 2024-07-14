@@ -1,5 +1,5 @@
 use std::{collections::HashMap, error::Error};
-use data_frame::{DataFrame, DataFrameReadOptions, FrameDataCell};
+use data_frame::{DataFrame, FrameDataCell};
 
 fn convert_chas(value: &FrameDataCell) -> FrameDataCell {
     if let FrameDataCell::String(value) = value {
@@ -11,10 +11,7 @@ fn convert_chas(value: &FrameDataCell) -> FrameDataCell {
 }
 
 fn main() -> Result<(), Box<dyn Error>> {
-    let options = DataFrameReadOptions {
-        parse_header: true
-    };
-    let mut df = DataFrame::from_csv("./data/boston_housing_.csv", Some(options))?;
+    let mut df = DataFrame::from_csv("./data/boston_housing_.csv", None)?;
 
     let mut map: HashMap<&str, Box<dyn Fn(&FrameDataCell) -> FrameDataCell>> = HashMap::new();
     map.insert("chas", Box::new(&convert_chas));

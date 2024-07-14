@@ -22,6 +22,7 @@ impl<T> DataFrame<T> where T: Float + Debug + Default{
 
 #[cfg(test)]
 mod tests {
+    use std::collections::HashMap;
     use tensor::Matrix;
     use crate::{mock::df_2x2, DataFrame};
 
@@ -29,7 +30,12 @@ mod tests {
     fn from_tensor() {
         let matrix = Matrix::square(vec![1.0, 2.0, 3.0, 4.0]);
         let recieved = DataFrame::from_tensor(&matrix);
-        let expected = df_2x2();
+        let mut expected = df_2x2();
+        let mut map = HashMap::new();
+        map.insert("foo", "0");
+        map.insert("bar", "1");
+        expected.rename(map);
+
         assert_eq!(recieved, expected)
     }
 }

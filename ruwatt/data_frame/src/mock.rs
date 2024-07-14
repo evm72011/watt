@@ -5,11 +5,11 @@ pub fn df_2x2() -> DataFrame {
     DataFrame::<f64> {
         headers: vec![
             FrameHeader {
-                name: String::from("0"),
+                name: String::from("foo"),
                 data_type: FrameDataCell::Number(Default::default())
             },
             FrameHeader {
-                name: String::from("1"),
+                name: String::from("bar"),
                 data_type: FrameDataCell::Number(Default::default())
             }
         ],
@@ -25,11 +25,11 @@ pub fn df_2x3() -> DataFrame {
     DataFrame::<f64> {
         headers: vec![
             FrameHeader {
-                name: String::from("0"),
+                name: String::from("foo"),
                 data_type: FrameDataCell::Number(Default::default())
             },
             FrameHeader {
-                name: String::from("1"),
+                name: String::from("bar"),
                 data_type: FrameDataCell::Number(Default::default())
             }
         ],

@@ -5,7 +5,6 @@ use crate::FrameDataCell;
 use super::super::DataFrame;
 
 impl DataFrame {
-
     pub fn save_csv(&self, file_name: &str, skip_header: bool) -> Result<(), Box<dyn Error>> {
         let mut file = File::create(file_name)?;
         if !skip_header {

@@ -77,8 +77,8 @@ mod tests {
     }
 
     #[test]
-    fn get_header_index() {
+    fn get_col_index() {
         let df = df_2x3();
-        assert_eq!(df.get_col_index("0"), 0)
+        assert_eq!(df.get_col_index("foo"), 0)
     }
 }

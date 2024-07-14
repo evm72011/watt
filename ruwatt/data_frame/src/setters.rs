@@ -74,7 +74,7 @@ mod tests {
         let mut df = df_2x2();
         
         let mut map: HashMap<&str, Box<dyn Fn(&FrameDataCell) -> FrameDataCell>> = HashMap::new();
-        map.insert("0", Box::new(&add_two));
+        map.insert("foo", Box::new(&add_two));
     
         df.apply(map);
 
@@ -93,7 +93,7 @@ mod tests {
     #[test]
     fn drop() {
         let mut df = df_2x2();
-        df.drop("0");
+        df.drop("foo");
 
         let recieved = df.to_tensor(None);
         let expected = Vector::ket(vec![2.0, 4.0]);
@@ -104,12 +104,12 @@ mod tests {
     fn rename() {
         let mut df = df_2x2();
         let mut map = HashMap::new();
-        map.insert("0", "00");
+        map.insert("bar", "baz");
         df.rename(map);
 
         let recieved: Vec<&str> = df.headers.iter().map(|h| h.name.as_str()).collect();
         
-        assert_eq!(recieved, vec!["00", "1"])
+        assert_eq!(recieved, vec!["foo", "baz"])
     }
 
     #[test]
@@ -133,8 +133,8 @@ mod tests {
     fn append_cols() {
         let mut df = df_2x2();
         let mut map = HashMap::new();
-        map.insert("0", "_0");
-        map.insert("1", "_1");
+        map.insert("foo", "foo_1");
+        map.insert("bar", "bar_1");
         df.rename(map);
 
         let df_2 = df_2x2();
