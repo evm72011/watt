@@ -1,5 +1,5 @@
-mod sigma;
+mod sigmoid;
 mod cros_entropy_cost;
 
-pub use sigma::*;
+pub use sigmoid::*;
 pub use cros_entropy_cost::*;
