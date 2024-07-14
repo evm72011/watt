@@ -1,16 +1,21 @@
 use std::{fs, error::Error};
-use tensor::{Tensor, Matrix};
+use data_frame::{DataFrame, DataFrameReadOptions};
+use tensor::Matrix;
 use optimization::{GradientDescent, StepSize};
 use learning::{ LinearRegression, CostFunction };
 use statistics::estimate_model;
 
 #[test]
 fn linear_regression_kleiber() -> Result<(), Box<dyn Error>> {
-    let mut data = Tensor::<f64>::empty();
-    data.read_csv("../data/kleibers_law.csv", Some(vec![0]), None)?;
+    let options = DataFrameReadOptions {
+        parse_header: false
+    };
+    let df = DataFrame::<f64>::from_csv("../data/kleibers_law.csv", Some(options))?;
+
+    let mut data = df.to_tensor(None);
     data.apply(|x:f64| x.ln());
     let data = data.tr();
-    assert_eq!(data.shape, vec![1497, 2]);
+    assert_eq!(data.shape, vec![1498, 2]);
 
     let (train_data, test_data) = data.split(0.66, 1);
     let x_train = train_data.col(0)?;  
@@ -38,10 +43,15 @@ fn linear_regression_kleiber() -> Result<(), Box<dyn Error>> {
     let folder = "../data/results/kleibers_law/";
     fs::create_dir_all(folder)?;
 
-    let train_file_name = format!("{folder}train.csv");
-    train.save_csv(&train_file_name)?;
+    let df = DataFrame::from_tensor(&train);
+    let file_name = format!("{folder}train.csv");
+    df.save_csv(&file_name, true)?;
+
+    //train.save_csv(&train_file_name)?;
     
-    let test_file_name = format!("{folder}test.csv");
-    predict.save_csv(&test_file_name)?;
+    let df = DataFrame::from_tensor(&predict);
+    let file_name = format!("{folder}test.csv");
+    df.save_csv(&file_name, true)?;
+    //predict.save_csv(&test_file_name)?;
     Ok(())
 }

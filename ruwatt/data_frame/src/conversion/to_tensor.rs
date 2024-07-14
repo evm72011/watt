@@ -14,9 +14,13 @@ impl<T> DataFrame<T> where T: Float + Default + Debug {
             .map(|(index, _)| index)
             .collect();
 
-        self.headers.iter()
-            .filter(|header| !ignored_names.contains(&header.name))
-            .for_each(|header| assert_eq!(header.data_type, FrameDataCell::Number(Default::default())));
+        self.headers.iter().enumerate()
+            .filter(|(_, header)| !ignored_names.contains(&header.name))
+            .for_each(|(index, header)| assert_eq!(
+                header.data_type, 
+                FrameDataCell::Number(Default::default()), 
+                "Is not a Number Cell: {index}" 
+            ));
 
         let data: Vec<T> = self.rows()
             .map(|row| row.iter().enumerate()

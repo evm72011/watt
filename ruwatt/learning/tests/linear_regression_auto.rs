@@ -1,13 +1,14 @@
 use std::error::Error;
 use statistics::{estimate_model, Statistics};
-use tensor::Tensor;
 use optimization::{GradientDescent, StepSize};
 use learning::LinearRegression;
+use data_frame::DataFrame;
 
 #[test]
 fn linear_regression_auto() -> Result<(), Box<dyn Error>> {
-    let mut data = Tensor::<f64>::empty();
-    data.read_csv("../data/auto.csv", Some(vec![8]), Some(vec![0]))?;
+    let mut df = DataFrame::<f64>::from_csv("../data/auto.csv", None)?;
+    df.drop("name");
+    let mut data = df.to_tensor(None);
     assert_eq!(data.shape, vec![392, 8]);
 
     data = Statistics::normalize(&data);

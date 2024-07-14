@@ -9,3 +9,4 @@ rand="0.8.5"
 tensor = { path = "../tensor" }
 optimization = { path = "../optimization" }
 statistics = { path = "../statistics" }
+data_frame = { path = "../data_frame" }

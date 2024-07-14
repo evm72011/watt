@@ -32,10 +32,8 @@ impl<T> DataFrame<T> where T: Float + Debug + Default {
                     FrameHeader::new(name)
                 })
                 .collect();
-            Ok(())
-        } else {
-            Err(Box::new(DataFrameIOError::HeaderParsingError))
-        }
+        }            
+        Ok(())
     }
 
     fn parse_body<R: BufRead>(&mut self, reader: &mut R) -> Result<(), Box<dyn Error>> {
@@ -43,7 +41,7 @@ impl<T> DataFrame<T> where T: Float + Debug + Default {
             match line {
                 Ok(line) => {
                     let mut iter = line.trim().split(',').enumerate().peekable();
-                    let col_count = iter.clone().count() + 1;
+                    let col_count = iter.clone().count();
                     let mut line_data = Vec::with_capacity(col_count);
                     while let Some((cell_index, value)) = iter.next() {
                         if self.headers.len() == 0 {

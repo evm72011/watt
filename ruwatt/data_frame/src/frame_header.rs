@@ -23,7 +23,7 @@ impl<T> FrameHeader<T> where T: Float {
 
     pub fn gen_anonym_headers(col_count: usize) -> Vec<FrameHeader<T>>{
         (0..col_count)
-            .map(|i| FrameHeader::new(format!("{i}")))
+            .map(|i| FrameHeader::new(format!("{}", i)))
             .collect()
     }
 }

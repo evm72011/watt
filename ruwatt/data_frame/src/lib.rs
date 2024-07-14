@@ -8,7 +8,8 @@ mod conversion;
 mod iterators;
 mod mock;
 
-pub use data_frame::*;
+pub use data_frame::DataFrame;
 pub use frame_data_cell::*;
 pub use io::*;
 pub use frame_header::*;
+pub use mock::*;
