@@ -1,4 +1,5 @@
 use std::{fs, error::Error};
+use data_frame::{DataFrame, DataFrameReadOptions};
 use tensor::{Matrix, Tensor};
 use optimization::GradientDescent;
 use learning::{ LinearRegression, CostFunction };
@@ -6,8 +7,12 @@ use statistics::estimate_model;
 
 #[test]
 fn linear_regression_students_debt() -> Result<(), Box<dyn Error>> {
-    let mut y_data = Tensor::<f64>::empty();
-    y_data.read_csv("../data/student_debt.csv", Some(vec![0]), None)?;
+    let options = DataFrameReadOptions {
+        parse_header: false
+    };
+    let mut df = DataFrame::<f64>::from_csv("../data/student_debt.csv", Some(options))?;
+    df.drop("0");
+    let y_data = df.to_tensor(None);
 
     let mut data: Tensor<f64> = Tensor {
         shape: y_data.shape.clone(),
@@ -39,11 +44,13 @@ fn linear_regression_students_debt() -> Result<(), Box<dyn Error>> {
     let folder = "../data/results/student_debt/";
     fs::create_dir_all(folder)?;
 
-    let train_file_name = format!("{}{}", folder, "train.csv");
-    train.save_csv(&train_file_name)?;
+    let df = DataFrame::from_tensor(&train);
+    let file_name = format!("{}{}", folder, "train.csv");
+    df.save_csv(&file_name, true)?;
     
-    let test_file_name = format!("{}{}", folder, "test.csv");
-    predict.save_csv(&test_file_name)?;
+    let df = DataFrame::from_tensor(&predict);
+    let file_name = format!("{}{}", folder, "test.csv");
+    df.save_csv(&file_name, true)?;
     
     Ok(())
 }

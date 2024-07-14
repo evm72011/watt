@@ -47,11 +47,9 @@ fn linear_regression_kleiber() -> Result<(), Box<dyn Error>> {
     let file_name = format!("{folder}train.csv");
     df.save_csv(&file_name, true)?;
 
-    //train.save_csv(&train_file_name)?;
-    
     let df = DataFrame::from_tensor(&predict);
     let file_name = format!("{folder}test.csv");
     df.save_csv(&file_name, true)?;
-    //predict.save_csv(&test_file_name)?;
+
     Ok(())
 }

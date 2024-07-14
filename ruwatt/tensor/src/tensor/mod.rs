@@ -1,7 +1,6 @@
 pub mod tensor;
 pub mod constructors;
 pub mod display;
-pub mod read_write;
 pub mod split;
 pub mod index_error;
 
