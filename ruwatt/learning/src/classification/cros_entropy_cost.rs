@@ -21,3 +21,11 @@ pub fn cros_entropy_cost<T>(x: &Tensor<T>, w: &Tensor<T>, y: &Tensor<T>) -> T wh
         .sum();
     - ( T::one() / T::from(y.data.len()).unwrap() ) * summ
 }
+
+pub fn grad_cros_entropy_cost<T>() -> T where T: Float {
+    T::one() // TODO
+}
+
+pub fn hessian_cros_entropy_cost<T>() -> T where T: Float {
+    T::one() // TODO
+}
