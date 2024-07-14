@@ -2,9 +2,9 @@ use num::Float;
 use std::iter::Sum;
 use tensor::{assert_ket, dot, Tensor};
 
-use crate::sigma;
+use super::sigma;
 
-pub fn log_error<T>(x: &Tensor<T>, w: &Tensor<T>, y: T) -> T where T: Float + Sum {
+fn log_error<T>(x: &Tensor<T>, w: &Tensor<T>, y: T) -> T where T: Float + Sum {
     let predict = sigma(dot(&x.tr(), w).to_scalar());
     let _1 = T::one();
     -y * T::ln(predict) - (_1 - y) * T::ln(_1 - predict)

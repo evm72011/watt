@@ -1,5 +1,5 @@
 mod sigma;
-mod log_error;
+mod cros_entropy_cost;
 
 pub use sigma::*;
-pub use log_error::*;
+pub use cros_entropy_cost::*;
