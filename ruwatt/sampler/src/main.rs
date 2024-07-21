@@ -6,7 +6,7 @@ fn convert_species(value: &FrameDataCell) -> Result<FrameDataCell, ApplyError> {
         let value = match value.as_str() {
             "setosa" => 0.0,
             "versicolor" => 1.0,
-            _ => panic!("Must be only setosa or versicolor, but {value} found")
+            _ => 2.0
         };
         Ok(FrameDataCell::Number(value))
     } else {
@@ -17,7 +17,6 @@ fn convert_species(value: &FrameDataCell) -> Result<FrameDataCell, ApplyError> {
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     let df = DataFrame::<f64>::from_csv("./data/iris.csv", None)?;
-
     let mut df = df.filter(|row| {
         if let FrameDataCell::String(ref value) = row[4] {
             value != "virginica"
@@ -25,11 +24,10 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
             false
         }
     });
-    println!("{:?}", df);
 
     let mut map: HashMap<&str, ApplyClosure::<f64>> = HashMap::new();
     map.insert("species", Box::new(&convert_species));
-    df.apply(map);
+    df.apply(map)?;
 
 
     let data = df.to_tensor(None);
@@ -39,8 +37,10 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let x_test = test_data.get_cols((0..=3).collect())?;  
     let y_test = test_data.col(4)?;
 
-    assert_eq!(x_train.shape, vec![1,1]);
-    
+    assert_eq!(x_train.shape, vec![66, 4]);
+    assert_eq!(y_train.shape, vec![66, 1]);
+    assert_eq!(x_test.shape, vec![34, 4]);
+    assert_eq!(y_test.shape, vec![34, 1]);
 
     /*
     let mut map: HashMap<&str, Box<dyn Fn(&FrameDataCell) -> FrameDataCell>> = HashMap::new();
