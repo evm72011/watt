@@ -3,6 +3,10 @@ use super::{DataFrame, FrameDataCell};
 use tensor::IndexError;
 
 impl<T> DataFrame<T> where T: Float {
+    pub fn shape(&self) -> (usize, usize) {
+        (self.row_count(), self.col_count())
+    }
+
     pub fn col_count(&self) -> usize {
         if self.data.len() == 0 { 
             0 
@@ -32,12 +36,44 @@ impl<T> DataFrame<T> where T: Float {
         }
     }
 
-    pub  fn get_col_index(&self, name: &str) -> usize {
+    pub fn get_col_index(&self, name: &str) -> usize {
         let name = String::from(name);
         self.headers.iter()
             .position(|header| header.name == name)
             .unwrap_or_else(|| panic!("Column {} not found", name))
     }
+
+    pub fn filter<F>(&self, predicate: F) -> Self     
+    where
+        F: Fn(&Vec<FrameDataCell<T>>) -> bool {
+        let data = self.rows()
+            .filter(|row| predicate(row))
+            .collect();
+        Self {
+            data,
+            headers: self.headers.clone()
+        }
+    }
+
+    /*
+    pub fn get<TOut>(&self, name: &str) -> Vec<TOut> 
+    where
+        TOut: From<T> + From<String> {
+        let col_index = self.get_col_index(name);
+        let data: Vec<TOut> = self.rows()
+            .map(|row| {
+                let value = &row[col_index];
+                let value: TOut = match value  {
+                    FrameDataCell::Number(val) => TOut::from(*val),
+                    FrameDataCell::String(val) => TOut::from(val.clone()),
+                    FrameDataCell::NA => panic!("NA found")
+                };
+                value
+            })
+            .collect();
+        data
+    }
+    */
 }
 
 #[cfg(test)]
@@ -81,4 +117,13 @@ mod tests {
         let df = df_2x3();
         assert_eq!(df.get_col_index("foo"), 0)
     }
+
+    /*
+    #[test]
+    fn col_count() {
+        let df = df_2x3();
+        let recieved: Vec<f64> = df.get("foo");
+        assert_eq!(df.col_count(), 2)
+    }
+    */
 }

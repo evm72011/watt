@@ -1,8 +1,8 @@
 use super::{DataFrame, FrameHeader, FrameDataCell};
 
 #[allow(dead_code)]
-pub fn df_2x2() -> DataFrame {
-    DataFrame::<f64> {
+pub fn df_2x2() -> DataFrame::<f64> {
+    DataFrame {
         headers: vec![
             FrameHeader {
                 name: String::from("foo"),

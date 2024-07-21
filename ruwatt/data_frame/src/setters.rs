@@ -3,20 +3,6 @@ use num::Float;
 use super::{DataFrame, FrameDataCell};
 
 impl<T> DataFrame<T> where T: Float + Default + Debug + Copy {
-    pub fn apply(&mut self, map: HashMap<&str, Box<dyn Fn(&FrameDataCell<T>) -> FrameDataCell<T>>>) {
-        for (name, mapper) in map.into_iter() {
-            let col_index = self.get_col_index(name);
-            let header = &mut self.headers[col_index];
-            
-            if FrameDataCell::NA != mapper(&header.data_type) {
-                header.data_type = mapper(&header.data_type).default();
-            }
-
-            self.data.iter_mut()
-                .for_each(|row| row[col_index] = mapper(&row[col_index]));
-        }
-    }
-
     pub fn drop(&mut self, name: &str) {
         let col_index = self.get_col_index(name);
         self.headers.remove(col_index);
@@ -66,29 +52,7 @@ impl<T> DataFrame<T> where T: Float + Default + Debug + Copy {
 mod tests {
     use std::collections::HashMap;
     use tensor::{Matrix, Vector};
-
-    use crate::{mock::df_2x2, FrameDataCell};
-
-    #[test]
-    fn apply() {
-        let mut df = df_2x2();
-        
-        let mut map: HashMap<&str, Box<dyn Fn(&FrameDataCell) -> FrameDataCell>> = HashMap::new();
-        map.insert("foo", Box::new(&add_two));
-    
-        df.apply(map);
-
-        assert_eq!(df.row(0).unwrap(), FrameDataCell::numbers(&[3.0, 2.0]));
-        assert_eq!(df.row(1).unwrap(), FrameDataCell::numbers(&[5.0, 4.0]));
-
-        fn add_two(value: &FrameDataCell) -> FrameDataCell {
-            if let FrameDataCell::Number(value) = value {
-                FrameDataCell::Number(value + 2.0)
-            } else {
-                panic!("Value in cell is not a string")
-            }
-        }
-    }
+    use crate::mock::df_2x2;
 
     #[test]
     fn drop() {

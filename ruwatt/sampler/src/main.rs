@@ -1,18 +1,48 @@
-use std::{collections::HashMap, error::Error};
-use data_frame::{DataFrame, FrameDataCell};
+use std::collections::HashMap;
+use data_frame::{ApplyClosure, ApplyError, DataFrame, FrameDataCell};
 
-fn convert_chas(value: &FrameDataCell) -> FrameDataCell {
+fn convert_species(value: &FrameDataCell) -> Result<FrameDataCell, ApplyError> {
     if let FrameDataCell::String(value) = value {
-        let value = if value == "0" { 0.0 } else { 1.0 };
-        FrameDataCell::Number(value)
+        let value = match value.as_str() {
+            "setosa" => 0.0,
+            "versicolor" => 1.0,
+            _ => panic!("Must be only setosa or versicolor, but {value} found")
+        };
+        Ok(FrameDataCell::Number(value))
     } else {
-        panic!("Value in cell is not a string")
+        let msg = String::from("Value in cell is not a string");
+        Err(ApplyError(msg))
     }
 }
 
-fn main() -> Result<(), Box<dyn Error>> {
-    let mut df = DataFrame::from_csv("./data/boston_housing_.csv", None)?;
+fn main() -> Result<(), Box<dyn std::error::Error>> {
+    let df = DataFrame::<f64>::from_csv("./data/iris.csv", None)?;
 
+    let mut df = df.filter(|row| {
+        if let FrameDataCell::String(ref value) = row[4] {
+            value != "virginica"
+        } else {
+            false
+        }
+    });
+    println!("{:?}", df);
+
+    let mut map: HashMap<&str, ApplyClosure::<f64>> = HashMap::new();
+    map.insert("species", Box::new(&convert_species));
+    df.apply(map);
+
+
+    let data = df.to_tensor(None);
+    let (train_data, test_data) = data.split(0.66, 1);
+    let x_train = train_data.get_cols((0..=3).collect())?;  
+    let y_train = train_data.col(4)?;  
+    let x_test = test_data.get_cols((0..=3).collect())?;  
+    let y_test = test_data.col(4)?;
+
+    assert_eq!(x_train.shape, vec![1,1]);
+    
+
+    /*
     let mut map: HashMap<&str, Box<dyn Fn(&FrameDataCell) -> FrameDataCell>> = HashMap::new();
     map.insert("chas", Box::new(&convert_chas));
 
@@ -38,5 +68,6 @@ fn main() -> Result<(), Box<dyn Error>> {
     df.rename(map);
     
     df.save_csv("./data/results/boston_housing_2.csv", false)?;
+    */
     Ok(())   
 }
