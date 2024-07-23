@@ -1,4 +1,5 @@
 mod apply;
+mod display;
 mod data_frame;
 mod frame_data_cell;
 mod io;

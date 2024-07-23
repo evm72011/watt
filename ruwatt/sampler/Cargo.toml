@@ -6,3 +6,5 @@ edition = "2021"
 [dependencies]
 tensor = { path = "../tensor" }
 data_frame = { path = "../data_frame" }
+learning = { path = "../learning" }
+statistics = { path = "../statistics" }
