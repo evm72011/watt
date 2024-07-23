@@ -1,3 +1,5 @@
+use std::collections::HashMap;
+
 use num::Float;
 use super::{DataFrame, FrameDataCell};
 use tensor::IndexError;
@@ -55,25 +57,14 @@ impl<T> DataFrame<T> where T: Float {
         }
     }
 
-    /*
-    pub fn get<TOut>(&self, name: &str) -> Vec<TOut> 
-    where
-        TOut: From<T> + From<String> {
-        let col_index = self.get_col_index(name);
-        let data: Vec<TOut> = self.rows()
-            .map(|row| {
-                let value = &row[col_index];
-                let value: TOut = match value  {
-                    FrameDataCell::Number(val) => TOut::from(*val),
-                    FrameDataCell::String(val) => TOut::from(val.clone()),
-                    FrameDataCell::NA => panic!("NA found")
-                };
-                value
-            })
+    //TODO unit test, naming, iterator
+    pub fn row_(&self, index: usize) -> Result<HashMap<&str, FrameDataCell<T>>, IndexError> {
+        let result: HashMap<&str, FrameDataCell<T>> = self.row(index)?.iter()
+            .zip(self.headers.iter())
+            .map(|(cell, header)| (header.name.as_str(), cell.clone()))
             .collect();
-        data
+        Ok(result)
     }
-    */
 }
 
 #[cfg(test)]
