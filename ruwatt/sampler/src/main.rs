@@ -19,7 +19,7 @@ fn convert_species(value: &FrameDataCell) -> Result<FrameDataCell, ApplyError> {
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     let df = DataFrame::<f64>::from_csv("./data/iris.csv", None)?;
-    print!("{}", df);
+    //print!("{}", df);
 
     let mut df = df.filter(|row| {
         if let FrameDataCell::String(ref value) = row[4] {
@@ -32,14 +32,14 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let mut map: HashMap<&str, ApplyClosure::<f64>> = HashMap::new();
     map.insert("species", Box::new(&convert_species));
     df.apply(map)?;
-
+    print!("{}", df);
 
     let data = df.to_tensor(None);
     let (train_data, test_data) = data.split(0.66, 1);
     let x_train = train_data.get_cols((0..=3).collect())?;  
     let x_train = Statistics::normalize(&x_train);
     let y_train = train_data.col(4)?; 
-     
+
     let x_test = test_data.get_cols((0..=3).collect())?;  
     let x_test = Statistics::normalize(&x_test);
     let y_test = test_data.col(4)?;
