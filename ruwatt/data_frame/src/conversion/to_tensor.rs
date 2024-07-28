@@ -4,6 +4,11 @@ use tensor::Tensor;
 
 use super::super::{DataFrame, FrameDataCell};
 
+//enum NamePolitic {
+    //Include(Vec<&str>),
+    //Exclude(Vec<&str>)
+//}
+
 impl<T> DataFrame<T> where T: Float + Default + Debug {
     pub fn to_tensor(&self, ignored_names: Option<Vec<&str>>) -> Tensor<T> {
         let ignored_names: HashSet<String> = ignored_names.unwrap_or(vec![]).iter()

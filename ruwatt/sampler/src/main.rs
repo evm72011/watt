@@ -17,7 +17,40 @@ fn convert_species(value: &FrameDataCell) -> Result<FrameDataCell, ApplyError> {
     }
 }
 
+struct MyBox<T>(T);
+
+impl<T> MyBox<T> {
+    fn new(x: T) -> MyBox<T> {
+        MyBox(x)
+    }
+}
+use std::ops::Deref;
+
+impl<T> Deref for MyBox<T> {
+    type Target = T;
+    fn deref(&self) -> &T {
+        &self.0
+    }
+}
+
+impl<T> Drop for MyBox<T> {
+    fn drop(&mut self) {
+        println!("Отбрасывается MyBox");
+    }
+}
+
+fn hello(name: &str) {
+    println!("Здравствуй, {}!", name);
+}
+
 fn main() -> Result<(), Box<dyn std::error::Error>> {
+    let b = MyBox(5);
+    assert_eq!(5, *b);
+    let s = String::from("foo");
+    hello(&s);
+    s.drop();
+    return Ok(());
+
     let df = DataFrame::<f64>::from_csv("./data/iris.csv", None)?;
     //print!("{}", df);
 

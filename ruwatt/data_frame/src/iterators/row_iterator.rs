@@ -1,4 +1,4 @@
-use num::{Float, Saturating};
+use num::Float;
 use super::super::{DataFrame, FrameDataCell};
 
 pub struct RowIterator<'a, T> where T: Float + 'a {
