@@ -2,6 +2,7 @@ use std::collections::HashMap;
 use data_frame::{ApplyClosure, ApplyError, DataFrame, FrameDataCell};
 use learning::{confusion_matrix, BinaryLinearClassificationCost, BinaryLinearClassification};
 use statistics::Statistics;
+use optimization::GradientDescent;
 
 fn convert_species(value: &FrameDataCell) -> Result<FrameDataCell, ApplyError> {
     if let FrameDataCell::String(value) = value {
@@ -51,6 +52,10 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     let mut model = BinaryLinearClassification {
         cost_function: BinaryLinearClassificationCost::CrossEntropy,
+        optimizator: GradientDescent {
+            step_count: 50,
+            ..Default::default()
+        },
         ..Default::default()
     };
     model.fit(&x_train, &y_train);

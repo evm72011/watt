@@ -1,4 +1,5 @@
-use num::Float;
+use num::{Float, ToPrimitive};
+use indicatif::ProgressBar;
 use std::{fmt::Debug, iter::Sum, time::Instant};
 use tensor::{dot, Tensor, Vector};
 use super::{gradient, hessian, ResultEntry, ResultLogs};
@@ -16,7 +17,8 @@ pub struct GradientDescent<'a, T> where T: Float + Debug {
     pub derivative_delta: T,
     pub results: ResultLogs<T>,
     pub result: Option<ResultEntry<T>>,
-    pub grad_prev: Tensor<T>
+    pub grad_prev: Tensor<T>,
+    pub verbose: bool
 }
 
 #[derive(Clone, PartialEq)]
@@ -41,17 +43,22 @@ impl<'a, T> Default for GradientDescent<'a, T> where T: Float + Debug {
             derivative_delta: T::from(0.0001).unwrap(),
             results: ResultLogs::new(),
             result: None,
-            grad_prev: Vector::ket(vec![T::zero()])
+            grad_prev: Vector::ket(vec![T::zero()]),
+            verbose: false
         }
     }
 }
 
 impl<'a, T> GradientDescent<'a, T> where T: Float + Sum + Debug {
     pub fn run(&mut self) {
+        self.log("Gradient descent started");
+        let bar = self.create_progress_bar();
         let start = Instant::now();
+
         let mut arg = self.start_point.clone();
         self.save_result((self.func)(&arg), arg.clone());
         for step in 0..self.step_count {
+            self.inc_progressbar(&bar);
             let grad = match self.gradient {
                 Some(grad_func) => grad_func(&arg),
                 None => gradient(self.func, &arg, self.derivative_delta)
@@ -61,7 +68,7 @@ impl<'a, T> GradientDescent<'a, T> where T: Float + Sum + Debug {
             self.save_result((self.func)(&arg), arg.clone());
         }
         self.result = self.results.get_optimal_result();
-        println!("Gradient descent elapsed in {:?}", start.elapsed());
+        self.log(&format!("Gradient descent elapsed in {:?}", start.elapsed()));
     }
 
     fn set_grad_length(&mut self, grad: Tensor<T>, step: i16, arg: &Tensor<T>) -> Tensor<T> {
@@ -108,6 +115,27 @@ impl<'a, T> GradientDescent<'a, T> where T: Float + Sum + Debug {
         };
         self.grad_prev = result.clone();
         result
+    }
+
+    fn log(&self, message: &str) {
+        if self.verbose {
+            println!("{}", message);
+        }
+    }
+
+    fn create_progress_bar(&self) -> Option<ProgressBar> {
+        let count = self.step_count.to_u64().unwrap();
+        if self.verbose {
+            Some(ProgressBar::new(count))
+        } else {
+            None
+        }
+    }
+
+    fn inc_progressbar(&self, bar: &Option<ProgressBar>) {
+        if let Some(ref bar) = bar {
+            bar.inc(1);
+        }
     }
 }
 

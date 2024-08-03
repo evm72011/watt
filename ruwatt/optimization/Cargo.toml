@@ -6,3 +6,4 @@ edition = "2021"
 [dependencies]
 num = "0.4.3"
 tensor = { path = "../tensor" }
+indicatif = "0.17.8"

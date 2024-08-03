@@ -2,6 +2,7 @@ use std::{collections::HashMap, error::Error};
 
 use data_frame::{ApplyClosure, ApplyError, DataFrame, FrameDataCell};
 use learning::{confusion_matrix, BinaryLinearClassification, BinaryLinearClassificationCost};
+use optimization::GradientDescent;
 use statistics::Statistics;
 use tensor::Matrix;
 
@@ -30,6 +31,10 @@ fn linear_regression_auto() -> Result<(), Box<dyn Error>> {
     
     let mut model = BinaryLinearClassification {
         cost_function: BinaryLinearClassificationCost::CrossEntropy,
+        optimizator: GradientDescent {
+            step_count: 50,
+            ..Default::default()
+        },
         ..Default::default()
     };
     model.fit(&x_train, &y_train);
