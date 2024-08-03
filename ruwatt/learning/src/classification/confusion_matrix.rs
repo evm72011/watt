@@ -23,8 +23,27 @@ pub fn confusion_matrix<T>(a: &Tensor<T>, b: &Tensor<T>) -> Tensor<f32> where T:
         .for_each(|(a_value, b_value)| {
             let a_index = value_to_index.get(a_value).unwrap();
             let b_index = value_to_index.get(b_value).unwrap();
-            let indices = vec![*a_index, *b_index];
+            let indices = vec![*b_index, *a_index];
             result.set(indices.clone(), result.get(indices) + 1.0)
         });
     result
+}
+
+#[cfg(test)]
+mod tests {
+    use tensor::{Matrix, Vector};
+
+    use super::confusion_matrix;
+
+    #[test]
+    fn confusion_matrix_test() {
+        let a = Vector::ket(vec![0.0, 1.0, 0.0, 1.0, 0.0 ]);
+        let b = Vector::ket(vec![0.0, 1.0, 0.0, 1.0, 1.0 ]);
+        let expected = Matrix::new(vec![
+            vec![2.0, 0.0],
+            vec![1.0, 2.0]
+        ]);
+        let recieved = confusion_matrix(&a, &b);
+        assert_eq!(recieved, expected)
+    }
 }

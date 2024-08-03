@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 use data_frame::{ApplyClosure, ApplyError, DataFrame, FrameDataCell};
-use learning::{confusion_matrix, LinearClassification};
+use learning::{confusion_matrix, LinearClassificationCost, LinearClassification};
 use statistics::Statistics;
 
 fn convert_species(value: &FrameDataCell) -> Result<FrameDataCell, ApplyError> {
@@ -50,6 +50,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     assert_eq!(y_test.shape, vec![34, 1]);
 
     let mut model = LinearClassification {
+        cost_function: LinearClassificationCost::CrossEntropy,
         ..Default::default()
     };
     model.fit(&x_train, &y_train);

@@ -2,7 +2,7 @@ use std::{fs, error::Error};
 use data_frame::{DataFrame, DataFrameReadOptions};
 use tensor::{Matrix, Tensor};
 use optimization::GradientDescent;
-use learning::{ LinearRegression, CostFunction };
+use learning::{ LinearRegression, LinearRegressionCost };
 use statistics::estimate_model;
 
 #[test]
@@ -27,7 +27,7 @@ fn linear_regression_students_debt() -> Result<(), Box<dyn Error>> {
     let y_test = test_data.col(1)?;  
 
     let mut model = LinearRegression {
-        cost_function: CostFunction::LeastSquares,
+        cost_function: LinearRegressionCost::LeastSquares,
         optimizator: GradientDescent {
             ..Default::default()
         },

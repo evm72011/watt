@@ -6,26 +6,24 @@ use optimization::{StepSize, GradientDescent};
 use tensor::{ dot, Tensor, Vector, assert_matrix };
 
 #[derive(PartialEq, Clone)]
-pub enum CostFunction {
+pub enum LinearRegressionCost {
     LeastSquares,
     Abs,
 }
 
 pub struct LinearRegression<'a, T=f64> where T: Float + Sum + Debug {
-    pub trained: bool,
     pub feature_count: usize,
     pub coef: Tensor<T>,
-    pub cost_function: CostFunction,
+    pub cost_function: LinearRegressionCost,
     pub optimizator: GradientDescent<'a, T>
 }
 
 impl<'a, T> Default for LinearRegression<'a, T> where T: Float + Sum+ Debug {
     fn default() -> Self {
         Self {
-            trained: false,
             feature_count: 0,
             coef: Tensor::empty(),
-            cost_function: CostFunction::LeastSquares,
+            cost_function: LinearRegressionCost::LeastSquares,
             optimizator: Default::default()
         }
     }
@@ -37,7 +35,7 @@ impl<'a, T> LinearRegression<'a, T> where T: Float + Send + Sync + Sum + Debug +
         self.validate_fit(x, y);
         self.feature_count = x.col_count();
 
-        let closures = self.create_closures(y.col_count());
+        let closures = self.create_cost_function(y.col_count());
         for closure in closures.iter() {
             let f = |w: &Tensor<T>| closure(w, &x, &y);
             let mut optimizator = GradientDescent {
@@ -49,11 +47,10 @@ impl<'a, T> LinearRegression<'a, T> where T: Float + Send + Sync + Sum + Debug +
             let result = optimizator.result.unwrap();
             self.coef.append_row(result.arg);
         }
-        self.trained = true;
     }
 
     pub fn predict(&mut self, x: &Tensor<T>) -> Tensor<T> {
-        assert!(self.trained, "Model is not trained");
+        assert!(self.trained(), "Model is not trained");
         assert_eq!(self.feature_count, x.col_count(), "Feature count must be {}", self.feature_count);
         let mut result = Tensor::empty();
         x.rows().for_each(|item| {
@@ -64,7 +61,7 @@ impl<'a, T> LinearRegression<'a, T> where T: Float + Send + Sync + Sum + Debug +
         result
     }
 
-    fn create_closures(&self, count: usize) -> Vec<Box<dyn Fn(&Tensor<T>, &Tensor<T>, &Tensor<T>) -> T + Send + Sync>>{
+    fn create_cost_function(&self, count: usize) -> Vec<Box<dyn Fn(&Tensor<T>, &Tensor<T>, &Tensor<T>) -> T + Send + Sync>>{
         (0..count)
                 .map(|index| {
                     let cost_function = self.cost_function.clone();
@@ -74,7 +71,7 @@ impl<'a, T> LinearRegression<'a, T> where T: Float + Send + Sync + Sum + Debug +
                             .map(|(x_test, y_test)| {
                                 let x_modified = x_test.prepend_one().to_ket();
                                 let value = dot(&w, &x_modified).to_scalar() - y_test.get_v(index);
-                                if cost_function == CostFunction::Abs { 
+                                if cost_function == LinearRegressionCost::Abs { 
                                     T::abs(value)
                                 } else {
                                     T::powi(value, 2) 
@@ -91,9 +88,13 @@ impl<'a, T> LinearRegression<'a, T> where T: Float + Send + Sync + Sum + Debug +
         assert_matrix!(y);
         assert_eq!(x.row_count(), y.row_count(), "Count of x train not correspond to y");
 
-        if CostFunction::Abs == self.cost_function && StepSize::Newton == self.optimizator.step_size {
+        if LinearRegressionCost::Abs == self.cost_function && StepSize::Newton == self.optimizator.step_size {
                 eprintln!("Warning: Using Abs cost function with Newton step size is not recommended.");
         } 
+    }
+
+    fn trained(&self) -> bool {
+        self.coef.is_empty()
     }
 }
 
@@ -101,7 +102,7 @@ impl<'a, T> LinearRegression<'a, T> where T: Float + Send + Sync + Sum + Debug +
 mod tests {
     use rand::prelude::*;
     use optimization::StepSize;
-    use super::{LinearRegression, CostFunction, GradientDescent};
+    use super::{LinearRegression, LinearRegressionCost, GradientDescent};
     use tensor::{assert_near, Matrix, Tensor};
 
     fn generate_x(count: usize, x_min: f64, x_max: f64) -> Vec<Vec<f64>>{
@@ -151,7 +152,7 @@ mod tests {
         assert_eq!(y_test.shape, vec![test_size, 3]);
 
         let mut model = LinearRegression {
-            cost_function: CostFunction::LeastSquares,
+            cost_function: LinearRegressionCost::LeastSquares,
             optimizator: GradientDescent {
                 step_count: 1000,
                 step_size: StepSize::Decrement(3.0),
