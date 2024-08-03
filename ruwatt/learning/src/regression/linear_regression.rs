@@ -83,6 +83,10 @@ impl<'a, T> LinearRegression<'a, T> where T: Float + Send + Sync + Sum + Debug +
             .collect()
     }
 
+    fn trained(&self) -> bool {
+        self.coef.is_empty()
+    }
+    
     fn validate_fit(&self, x: &Tensor<T>, y: &Tensor<T>) {
         assert_matrix!(x);
         assert_matrix!(y);
@@ -91,10 +95,6 @@ impl<'a, T> LinearRegression<'a, T> where T: Float + Send + Sync + Sum + Debug +
         if LinearRegressionCost::Abs == self.cost_function && StepSize::Newton == self.optimizator.step_size {
                 eprintln!("Warning: Using Abs cost function with Newton step size is not recommended.");
         } 
-    }
-
-    fn trained(&self) -> bool {
-        self.coef.is_empty()
     }
 }
 
