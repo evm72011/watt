@@ -53,14 +53,13 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let mut model = BinaryLinearClassification {
         cost_function: BinaryLinearClassificationCost::CrossEntropy,
         optimizator: GradientDescent {
-            step_count: 50,
+            step_count: 100,
             ..Default::default()
         },
         ..Default::default()
     };
     model.fit(&x_train, &y_train);
     let y_predict = model.predict(&x_test);
-
     let matrix = confusion_matrix(&y_test , &y_predict);
     println!("{}", matrix);
     Ok(())   

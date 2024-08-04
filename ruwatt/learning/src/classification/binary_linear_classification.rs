@@ -78,10 +78,16 @@ impl<'a, T> BinaryLinearClassification<'a, T> where T: Float + Debug + Sum {
         assert_matrix!(y);
         assert_eq!(x.row_count(), y.row_count(), "Count of x train not correspond to y");
 
-        if BinaryLinearClassificationCost::CrossEntropy == self.cost_function && 
-           y.data.iter().any(|&x| x != T::zero() && x != T::one()) {
-            panic!("CrossEntropy is only applicable for y values of 0 or 1");
-    } 
-
+        match self.cost_function {
+            BinaryLinearClassificationCost::CrossEntropy => {
+                let condition =  y.data.iter().any(|&x| x != T::zero() && x != T::one());
+                assert!(condition, "CrossEntropy is only applicable for y values of 0 or 1")
+            },
+            BinaryLinearClassificationCost::Softmax => {
+                let condition =  y.data.iter().any(|&x| T::abs(x) != T::one());
+                assert!(condition, "Softmax is only applicable for y values of -1 or 1")
+            },
+            _ => {}
+        }
     }
 }
