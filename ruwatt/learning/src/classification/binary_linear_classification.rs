@@ -23,7 +23,7 @@ impl<'a, T> Default for BinaryLinearClassification<'a, T> where T: Float + Debug
 impl<'a, T> BinaryLinearClassification<'a, T> where T: Float + Debug + Sum {
     pub fn fit(&mut self, x: &Tensor<T>, y: &Tensor<T>){
         self.validate_fit(x, y);
-        let f = |w: &Tensor<T>| self.create_cost_function(w, &x, &y);
+        let f = |w: &Tensor<T>| self.cost_function_wrapper(w, &x, &y);
         let mut optimizator = GradientDescent {
             func: &f,
             start_point: Vector::bra(vec![T::one(); x.col_count() + 1]),
@@ -46,7 +46,7 @@ impl<'a, T> BinaryLinearClassification<'a, T> where T: Float + Debug + Sum {
         Vector::ket(data)
     }
 
-    fn create_cost_function(&self, w: &Tensor<T>, x: &Tensor<T>, y: &Tensor<T>) -> T {
+    fn cost_function_wrapper(&self, w: &Tensor<T>, x: &Tensor<T>, y: &Tensor<T>) -> T {
         let count = T::from(y.data.len()).unwrap();
         x.rows()
             .zip(y.data.iter())

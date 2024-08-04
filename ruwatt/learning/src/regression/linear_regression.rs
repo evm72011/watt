@@ -35,9 +35,9 @@ impl<'a, T> LinearRegression<'a, T> where T: Float + Send + Sync + Sum + Debug +
         self.validate_fit(x, y);
         self.feature_count = x.col_count();
 
-        let closures = self.create_cost_function(y.col_count());
-        for closure in closures.iter() {
-            let f = |w: &Tensor<T>| closure(w, &x, &y);
+        let cost_function_wrappers = self.cost_function_wrappers(y.col_count());
+        for cost_function_wrapper in cost_function_wrappers.iter() {
+            let f = |w: &Tensor<T>| cost_function_wrapper(w, &x, &y);
             let mut optimizator = GradientDescent {
                 func: &f,
                 start_point: Vector::bra(vec![T::one(); x.col_count() + 1]),
@@ -61,7 +61,7 @@ impl<'a, T> LinearRegression<'a, T> where T: Float + Send + Sync + Sum + Debug +
         result
     }
 
-    fn create_cost_function(&self, count: usize) -> Vec<Box<dyn Fn(&Tensor<T>, &Tensor<T>, &Tensor<T>) -> T + Send + Sync>>{
+    fn cost_function_wrappers(&self, count: usize) -> Vec<Box<dyn Fn(&Tensor<T>, &Tensor<T>, &Tensor<T>) -> T + Send + Sync>>{
         (0..count)
                 .map(|index| {
                     let cost_function = self.cost_function.clone();
@@ -84,7 +84,7 @@ impl<'a, T> LinearRegression<'a, T> where T: Float + Send + Sync + Sum + Debug +
     }
 
     fn trained(&self) -> bool {
-        self.coef.is_empty()
+        !self.coef.is_empty()
     }
     
     fn validate_fit(&self, x: &Tensor<T>, y: &Tensor<T>) {

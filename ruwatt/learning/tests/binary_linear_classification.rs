@@ -51,7 +51,6 @@ fn convert_species_to_numbers(value: &FrameDataCell) -> Result<FrameDataCell, Ap
     }
 }
 
-
 #[test]
 fn least_squares_sigmoid() -> Result<(), Box<dyn Error>> {
     let allowed_values = vec![0.0, 1.0];

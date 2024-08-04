@@ -13,7 +13,7 @@ pub struct GradientDescent<'a, T> where T: Float + Debug {
     pub step_count: i16,
     pub betta: T, 
     pub step_size: StepSize<T>,
-    pub analyze_progress: bool,
+    pub save_progress: bool,
     pub derivative_delta: T,
     pub results: ResultLogs<T>,
     pub result: Option<ResultEntry<T>>,
@@ -39,7 +39,7 @@ impl<'a, T> Default for GradientDescent<'a, T> where T: Float + Debug {
             step_count: 1000,
             betta: T::from(0.7).unwrap(), 
             step_size: StepSize::Decrement(T::one()), 
-            analyze_progress: true,
+            save_progress: false,
             derivative_delta: T::from(0.0001).unwrap(),
             results: ResultLogs::new(),
             result: None,
@@ -96,14 +96,11 @@ impl<'a, T> GradientDescent<'a, T> where T: Float + Sum + Debug {
     }
 
     fn save_result(&mut self, value: T, arg: Tensor<T>) {
-        let result = ResultEntry { 
-            value, 
-            arg 
-        };
-        if self.analyze_progress {
+        let result = ResultEntry { value, arg };
+        if self.save_progress {
             self.results.add(result);
         } else {
-            self.results.init(result);
+            self.results.add_if_optimal(result);
         }
     }
 
