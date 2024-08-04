@@ -7,7 +7,7 @@ use optimization::GradientDescent;
 fn convert_species(value: &FrameDataCell) -> Result<FrameDataCell, ApplyError> {
     if let FrameDataCell::String(value) = value {
         let value = match value.as_str() {
-            "setosa" => 0.0,
+            "setosa" => -1.0,
             "versicolor" => 1.0,
             _ => 2.0
         };
@@ -20,7 +20,6 @@ fn convert_species(value: &FrameDataCell) -> Result<FrameDataCell, ApplyError> {
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     let df = DataFrame::<f64>::from_csv("./data/iris.csv", None)?;
-    //print!("{}", df);
 
     let mut df = df.filter(|row| {
         if let FrameDataCell::String(ref value) = row[4] {
@@ -33,7 +32,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let mut map: HashMap<&str, ApplyClosure::<f64>> = HashMap::new();
     map.insert("species", Box::new(&convert_species));
     df.apply(map)?;
-    //print!("{}", df);
+    print!("{}", df);
 
     let data = df.to_tensor(None);
     let (train_data, test_data) = data.split(0.66, 1);
@@ -51,7 +50,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     assert_eq!(y_test.shape, vec![34, 1]);
 
     let mut model = BinaryLinearClassification {
-        cost_function: BinaryLinearClassificationCost::CrossEntropy,
+        cost_function: BinaryLinearClassificationCost::LeastSquaresTanh,
         optimizator: GradientDescent {
             step_count: 100,
             ..Default::default()

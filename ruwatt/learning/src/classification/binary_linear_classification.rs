@@ -2,15 +2,7 @@ use num::Float;
 use optimization::GradientDescent;
 use std::{fmt::Debug, iter::Sum};
 use tensor::{assert_matrix, dot, Tensor, Vector};
-
-use super::sigmoid;
-
-#[derive(PartialEq, Clone)]
-pub enum BinaryLinearClassificationCost {
-    LeastSquares,
-    CrossEntropy,
-    Softmax
-}
+use super::{sigmoid, BinaryLinearClassificationCost};
 
 pub struct BinaryLinearClassification<'a, T=f64> where T: Float + Debug {
     pub coef: Tensor<T>,
@@ -22,7 +14,7 @@ impl<'a, T> Default for BinaryLinearClassification<'a, T> where T: Float + Debug
     fn default() -> Self {
         Self {
             coef: Tensor::empty(),
-            cost_function: BinaryLinearClassificationCost::LeastSquares,
+            cost_function: BinaryLinearClassificationCost::LeastSquaresSigmoid,
             optimizator: Default::default()
         }
     }
@@ -47,7 +39,8 @@ impl<'a, T> BinaryLinearClassification<'a, T> where T: Float + Debug + Sum {
         let mut data = vec![];
         x.rows().for_each(|item| {
             let x_modified = item.prepend_one().to_ket();
-            let value = sigmoid(dot(&self.coef, &x_modified).to_scalar()).round();
+            let activation = |v: T| self.cost_function.activation(v);
+            let value = activation(dot(&self.coef, &x_modified).to_scalar()).round();
             data.push(value)
         });
         Vector::ket(data)
@@ -59,14 +52,17 @@ impl<'a, T> BinaryLinearClassification<'a, T> where T: Float + Debug + Sum {
             .zip(y.data.iter())
             .map(|(x_test, &y_test)| {
                 let x_modified = x_test.prepend_one().to_ket();
-                let value = sigmoid(dot(&w, &x_modified).to_scalar());
+                let value = dot(&w, &x_modified).to_scalar();
+                let activation = |v: T| self.cost_function.activation(v);
                 match self.cost_function {
-                    BinaryLinearClassificationCost::LeastSquares => T::powi(value - y_test, 2),
-                    BinaryLinearClassificationCost::CrossEntropy => -(y_test * T::ln(value) + (T::one() - y_test) * T::ln(T::one() - value)) / count,
-                    BinaryLinearClassificationCost::Softmax => unimplemented!()
+                    BinaryLinearClassificationCost::LeastSquaresSigmoid | 
+                    BinaryLinearClassificationCost::LeastSquaresTanh => T::powi(activation(value) - y_test, 2),
+                    BinaryLinearClassificationCost::CrossEntropy => 
+                        -(y_test * T::ln(activation(value)) + (T::one() - y_test) * T::ln(T::one() - activation(value))),
+                    BinaryLinearClassificationCost::Softmax => -T::ln(sigmoid(y_test * value))
                 }
             })
-            .sum()
+            .sum::<T>() / count
     }
 
     fn trained(&self) -> bool {
@@ -78,16 +74,8 @@ impl<'a, T> BinaryLinearClassification<'a, T> where T: Float + Debug + Sum {
         assert_matrix!(y);
         assert_eq!(x.row_count(), y.row_count(), "Count of x train not correspond to y");
 
-        match self.cost_function {
-            BinaryLinearClassificationCost::CrossEntropy => {
-                let condition =  y.data.iter().any(|&x| x != T::zero() && x != T::one());
-                assert!(condition, "CrossEntropy is only applicable for y values of 0 or 1")
-            },
-            BinaryLinearClassificationCost::Softmax => {
-                let condition =  y.data.iter().any(|&x| T::abs(x) != T::one());
-                assert!(condition, "Softmax is only applicable for y values of -1 or 1")
-            },
-            _ => {}
-        }
+        let allowed_values = self.cost_function.allowed_values();
+        let condition =  y.data.iter().all(|x| allowed_values.contains(x));
+        assert!(condition, "{} is only applicable for y values {:?}", self.cost_function, allowed_values);
     }
 }
