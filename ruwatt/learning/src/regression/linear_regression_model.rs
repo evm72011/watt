@@ -60,17 +60,16 @@ impl<'a, T> LinearRegressionModel<'a, T> where T: Float + Send + Sync + Sum + De
     fn cost_function_wrappers(&self, count: usize) -> Vec<Box<dyn Fn(&Tensor<T>, &Tensor<T>, &Tensor<T>) -> T + Send + Sync>>{
         (0..count)
                 .map(|index| {
-                    let cost_function = self.method.clone();
+                    let method = self.method.clone();
                     Box::new(move |w: &Tensor<T>, x: &Tensor<T>, y: &Tensor<T>| {
                         x.rows()
                             .zip(y.rows())
                             .map(|(x_test, y_test)| {
                                 let x_modified = x_test.prepend_one().to_ket();
                                 let value = dot(&w, &x_modified).to_scalar() - y_test.get_v(index);
-                                if cost_function == LinearRegressionMethod::Abs { 
-                                    T::abs(value)
-                                } else {
-                                    T::powi(value, 2) 
+                                match method {
+                                    LinearRegressionMethod::Abs => T::abs(value),
+                                    LinearRegressionMethod::LeastSquares => T::powi(value, 2) 
                                 }
                             })
                             .sum()
@@ -89,7 +88,7 @@ impl<'a, T> LinearRegressionModel<'a, T> where T: Float + Send + Sync + Sum + De
         assert_eq!(x.row_count(), y.row_count(), "Count of x train not correspond to y");
 
         if LinearRegressionMethod::Abs == self.method && StepSize::Newton == self.optimizator.step_size {
-                eprintln!("Warning: Using Abs cost function with Newton step size is not recommended.");
+            eprintln!("Warning: Using Abs cost function with Newton step size is not recommended.");
         } 
     }
 }
