@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 use data_frame::{ApplyClosure, ApplyError, DataFrame, FrameDataCell};
-use learning::{confusion_matrix, BinaryLinearClassificationCost, BinaryLinearClassification};
+use learning::{confusion_matrix, BinaryLinearClassificationMethod, BinaryLinearClassificationModel};
 use statistics::Statistics;
 use optimization::GradientDescent;
 
@@ -49,8 +49,8 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     assert_eq!(x_test.shape, vec![34, 4]);
     assert_eq!(y_test.shape, vec![34, 1]);
 
-    let mut model = BinaryLinearClassification {
-        cost_function: BinaryLinearClassificationCost::LeastSquaresTanh,
+    let mut model = BinaryLinearClassificationModel {
+        method: BinaryLinearClassificationMethod::LeastSquaresTanh,
         optimizator: GradientDescent {
             step_count: 100,
             ..Default::default()

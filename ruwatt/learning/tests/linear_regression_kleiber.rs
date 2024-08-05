@@ -2,7 +2,7 @@ use std::{fs, error::Error};
 use data_frame::{DataFrame, DataFrameReadOptions};
 use tensor::Matrix;
 use optimization::{GradientDescent, StepSize};
-use learning::{ LinearRegression, LinearRegressionCost };
+use learning::{ LinearRegressionModel, LinearRegressionMethod };
 use statistics::estimate_model;
 
 #[test]
@@ -23,8 +23,8 @@ fn linear_regression_kleiber() -> Result<(), Box<dyn Error>> {
     let x_test = test_data.col(0)?;  
     let y_test = test_data.col(1)?;
 
-    let mut model = LinearRegression {
-        cost_function: LinearRegressionCost::LeastSquares,
+    let mut model = LinearRegressionModel {
+        method: LinearRegressionMethod::LeastSquares,
         optimizator: GradientDescent {
             step_size: StepSize::Newton,
             step_count: 1,

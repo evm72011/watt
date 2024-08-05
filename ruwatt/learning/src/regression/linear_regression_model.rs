@@ -5,31 +5,27 @@ use std::iter::Sum;
 use optimization::{StepSize, GradientDescent};
 use tensor::{ dot, Tensor, Vector, assert_matrix };
 
-#[derive(PartialEq, Clone)]
-pub enum LinearRegressionCost {
-    LeastSquares,
-    Abs,
-}
+use super::LinearRegressionMethod;
 
-pub struct LinearRegression<'a, T=f64> where T: Float + Sum + Debug {
+pub struct LinearRegressionModel<'a, T=f64> where T: Float + Sum + Debug {
     pub feature_count: usize,
     pub coef: Tensor<T>,
-    pub cost_function: LinearRegressionCost,
+    pub method: LinearRegressionMethod,
     pub optimizator: GradientDescent<'a, T>
 }
 
-impl<'a, T> Default for LinearRegression<'a, T> where T: Float + Sum+ Debug {
+impl<'a, T> Default for LinearRegressionModel<'a, T> where T: Float + Sum+ Debug {
     fn default() -> Self {
         Self {
             feature_count: 0,
             coef: Tensor::empty(),
-            cost_function: LinearRegressionCost::LeastSquares,
+            method: LinearRegressionMethod::LeastSquares,
             optimizator: Default::default()
         }
     }
 }
 
-impl<'a, T> LinearRegression<'a, T> where T: Float + Send + Sync + Sum + Debug + 'static {
+impl<'a, T> LinearRegressionModel<'a, T> where T: Float + Send + Sync + Sum + Debug + 'static {
 
     pub fn fit(&mut self, x: &Tensor<T>, y: &Tensor<T>) {
         self.validate_fit(x, y);
@@ -64,14 +60,14 @@ impl<'a, T> LinearRegression<'a, T> where T: Float + Send + Sync + Sum + Debug +
     fn cost_function_wrappers(&self, count: usize) -> Vec<Box<dyn Fn(&Tensor<T>, &Tensor<T>, &Tensor<T>) -> T + Send + Sync>>{
         (0..count)
                 .map(|index| {
-                    let cost_function = self.cost_function.clone();
+                    let cost_function = self.method.clone();
                     Box::new(move |w: &Tensor<T>, x: &Tensor<T>, y: &Tensor<T>| {
                         x.rows()
                             .zip(y.rows())
                             .map(|(x_test, y_test)| {
                                 let x_modified = x_test.prepend_one().to_ket();
                                 let value = dot(&w, &x_modified).to_scalar() - y_test.get_v(index);
-                                if cost_function == LinearRegressionCost::Abs { 
+                                if cost_function == LinearRegressionMethod::Abs { 
                                     T::abs(value)
                                 } else {
                                     T::powi(value, 2) 
@@ -92,7 +88,7 @@ impl<'a, T> LinearRegression<'a, T> where T: Float + Send + Sync + Sum + Debug +
         assert_matrix!(y);
         assert_eq!(x.row_count(), y.row_count(), "Count of x train not correspond to y");
 
-        if LinearRegressionCost::Abs == self.cost_function && StepSize::Newton == self.optimizator.step_size {
+        if LinearRegressionMethod::Abs == self.method && StepSize::Newton == self.optimizator.step_size {
                 eprintln!("Warning: Using Abs cost function with Newton step size is not recommended.");
         } 
     }
@@ -102,7 +98,7 @@ impl<'a, T> LinearRegression<'a, T> where T: Float + Send + Sync + Sum + Debug +
 mod tests {
     use rand::prelude::*;
     use optimization::StepSize;
-    use super::{LinearRegression, LinearRegressionCost, GradientDescent};
+    use super::{LinearRegressionModel, LinearRegressionMethod, GradientDescent};
     use tensor::{assert_near, Matrix, Tensor};
 
     fn generate_x(count: usize, x_min: f64, x_max: f64) -> Vec<Vec<f64>>{
@@ -151,8 +147,8 @@ mod tests {
         assert_eq!(x_test.shape, vec![test_size, 2]);
         assert_eq!(y_test.shape, vec![test_size, 3]);
 
-        let mut model = LinearRegression {
-            cost_function: LinearRegressionCost::LeastSquares,
+        let mut model = LinearRegressionModel {
+            method: LinearRegressionMethod::LeastSquares,
             optimizator: GradientDescent {
                 step_count: 1000,
                 step_size: StepSize::Decrement(3.0),

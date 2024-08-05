@@ -1,7 +1,7 @@
 use std::error::Error;
 use statistics::{estimate_model, Statistics};
 use optimization::{GradientDescent, StepSize};
-use learning::LinearRegression;
+use learning::LinearRegressionModel;
 use data_frame::DataFrame;
 
 #[test]
@@ -18,7 +18,7 @@ fn linear_regression_auto() -> Result<(), Box<dyn Error>> {
     let x_test = test_data.get_cols((1..=7).collect())?;  
     let y_test = test_data.col(0)?;
 
-    let mut model = LinearRegression {
+    let mut model = LinearRegressionModel {
         optimizator: GradientDescent {
             step_size: StepSize::Newton,
             step_count: 1,

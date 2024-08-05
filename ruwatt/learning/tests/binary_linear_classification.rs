@@ -1,7 +1,7 @@
 use std::{collections::HashMap, error::Error};
 
 use data_frame::{ApplyClosure, ApplyError, DataFrame, FrameDataCell};
-use learning::{confusion_matrix, BinaryLinearClassification, BinaryLinearClassificationCost};
+use learning::{confusion_matrix, BinaryLinearClassificationModel, BinaryLinearClassificationMethod};
 use optimization::GradientDescent;
 use statistics::Statistics;
 use tensor::{Matrix, Tensor};
@@ -56,8 +56,8 @@ fn least_squares_sigmoid() -> Result<(), Box<dyn Error>> {
     let allowed_values = vec![0.0, 1.0];
     let (x_train, y_train, x_test, y_test) = get_data(allowed_values)?;
 
-    let mut model = BinaryLinearClassification {
-        cost_function: BinaryLinearClassificationCost::LeastSquaresSigmoid,
+    let mut model = BinaryLinearClassificationModel {
+        method: BinaryLinearClassificationMethod::LeastSquaresSigmoid,
         optimizator: GradientDescent {
             step_count: 50,
             ..Default::default()
@@ -81,8 +81,8 @@ fn least_squares_tanh() -> Result<(), Box<dyn Error>> {
     let allowed_values = vec![-1.0, 1.0];
     let (x_train, y_train, x_test, y_test) = get_data(allowed_values)?;
 
-    let mut model = BinaryLinearClassification {
-        cost_function: BinaryLinearClassificationCost::LeastSquaresTanh,
+    let mut model = BinaryLinearClassificationModel {
+        method: BinaryLinearClassificationMethod::LeastSquaresTanh,
         optimizator: GradientDescent {
             step_count: 50,
             ..Default::default()
@@ -106,8 +106,8 @@ fn cross_entropy() -> Result<(), Box<dyn Error>> {
     let allowed_values = vec![0.0, 1.0];
     let (x_train, y_train, x_test, y_test) = get_data(allowed_values)?;
 
-    let mut model = BinaryLinearClassification {
-        cost_function: BinaryLinearClassificationCost::CrossEntropy,
+    let mut model = BinaryLinearClassificationModel {
+        method: BinaryLinearClassificationMethod::CrossEntropy,
         optimizator: GradientDescent {
             step_count: 50,
             ..Default::default()
@@ -131,8 +131,8 @@ fn softmax() -> Result<(), Box<dyn Error>> {
     let allowed_values = vec![-1.0, 1.0];
     let (x_train, y_train, x_test, y_test) = get_data(allowed_values)?;
 
-    let mut model = BinaryLinearClassification {
-        cost_function: BinaryLinearClassificationCost::Softmax,
+    let mut model = BinaryLinearClassificationModel {
+        method: BinaryLinearClassificationMethod::Softmax,
         optimizator: GradientDescent {
             step_count: 50,
             ..Default::default()

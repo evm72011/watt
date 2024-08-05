@@ -2,25 +2,25 @@ use num::Float;
 use optimization::GradientDescent;
 use std::{fmt::Debug, iter::Sum};
 use tensor::{assert_matrix, dot, Tensor, Vector};
-use super::{sigmoid, BinaryLinearClassificationCost};
+use super::{sigmoid, BinaryLinearClassificationMethod};
 
-pub struct BinaryLinearClassification<'a, T=f64> where T: Float + Debug {
+pub struct BinaryLinearClassificationModel<'a, T=f64> where T: Float + Debug {
     pub coef: Tensor<T>,
-    pub cost_function: BinaryLinearClassificationCost,
+    pub method: BinaryLinearClassificationMethod,
     pub optimizator: GradientDescent<'a, T>
 }
 
-impl<'a, T> Default for BinaryLinearClassification<'a, T> where T: Float + Debug {
+impl<'a, T> Default for BinaryLinearClassificationModel<'a, T> where T: Float + Debug {
     fn default() -> Self {
         Self {
             coef: Tensor::empty(),
-            cost_function: BinaryLinearClassificationCost::LeastSquaresSigmoid,
+            method: BinaryLinearClassificationMethod::LeastSquaresSigmoid,
             optimizator: Default::default()
         }
     }
 }
 
-impl<'a, T> BinaryLinearClassification<'a, T> where T: Float + Debug + Sum {
+impl<'a, T> BinaryLinearClassificationModel<'a, T> where T: Float + Debug + Sum {
     pub fn fit(&mut self, x: &Tensor<T>, y: &Tensor<T>){
         self.validate_fit(x, y);
         let f = |w: &Tensor<T>| self.cost_function_wrapper(w, &x, &y);
@@ -39,7 +39,7 @@ impl<'a, T> BinaryLinearClassification<'a, T> where T: Float + Debug + Sum {
         let mut data = vec![];
         x.rows().for_each(|item| {
             let x_modified = item.prepend_one().to_ket();
-            let activation = |v: T| self.cost_function.activation(v);
+            let activation = |v: T| self.method.activation(v);
             let value = activation(dot(&self.coef, &x_modified).to_scalar()).round();
             data.push(value)
         });
@@ -53,13 +53,13 @@ impl<'a, T> BinaryLinearClassification<'a, T> where T: Float + Debug + Sum {
             .map(|(x_test, &y_test)| {
                 let x_modified = x_test.prepend_one().to_ket();
                 let value = dot(&w, &x_modified).to_scalar();
-                let activation = |v: T| self.cost_function.activation(v);
-                match self.cost_function {
-                    BinaryLinearClassificationCost::LeastSquaresSigmoid | 
-                    BinaryLinearClassificationCost::LeastSquaresTanh => T::powi(activation(value) - y_test, 2),
-                    BinaryLinearClassificationCost::CrossEntropy => 
+                let activation = |v: T| self.method.activation(v);
+                match self.method {
+                    BinaryLinearClassificationMethod::LeastSquaresSigmoid | 
+                    BinaryLinearClassificationMethod::LeastSquaresTanh => T::powi(activation(value) - y_test, 2),
+                    BinaryLinearClassificationMethod::CrossEntropy => 
                         -(y_test * T::ln(activation(value)) + (T::one() - y_test) * T::ln(T::one() - activation(value))),
-                    BinaryLinearClassificationCost::Softmax => -T::ln(sigmoid(y_test * value))
+                    BinaryLinearClassificationMethod::Softmax => -T::ln(sigmoid(y_test * value))
                 }
             })
             .sum::<T>() / count
@@ -74,8 +74,8 @@ impl<'a, T> BinaryLinearClassification<'a, T> where T: Float + Debug + Sum {
         assert_matrix!(y);
         assert_eq!(x.row_count(), y.row_count(), "Count of x train not correspond to y");
 
-        let allowed_values = self.cost_function.allowed_values();
+        let allowed_values = self.method.allowed_values();
         let condition =  y.data.iter().all(|x| allowed_values.contains(x));
-        assert!(condition, "{} is only applicable for y values {:?}", self.cost_function, allowed_values);
+        assert!(condition, "{} is only applicable for y values {:?}", self.method, allowed_values);
     }
 }
