@@ -3,6 +3,7 @@ use std::{error::Error, fs::File};
 use std::io::{BufRead, BufReader};
 use num::Float;
 use super::super::{DataFrame, FrameDataCell, FrameHeader};
+use super::data_frame_read_options::DataValidationBehaviour;
 use super::{DataFrameReadOptions, DataFrameIOError};
 
 
@@ -16,12 +17,12 @@ impl<T> DataFrame<T> where T: Float + Debug + Default {
         let file = File::open(file_name)?;
         let mut reader = BufReader::new(file);
         let mut result = DataFrame::<T>::new();
-        result.parse_header(&mut reader, options)?;
-        result.parse_body(&mut reader)?;
+        result.parse_header(&mut reader, &options)?;
+        result.parse_body(&mut reader, &options.data_validation_behaviour)?;
         Ok(result)
     }
 
-    fn parse_header<R: BufRead>(&mut self, reader: &mut R, options: DataFrameReadOptions) -> Result<(), Box<dyn Error>> {
+    fn parse_header<R: BufRead>(&mut self, reader: &mut R, options: &DataFrameReadOptions) -> Result<(), Box<dyn Error>> {
         if options.parse_header {
             let mut header_line = String::new();
             reader.read_line(&mut header_line)?;
@@ -36,7 +37,7 @@ impl<T> DataFrame<T> where T: Float + Debug + Default {
         Ok(())
     }
 
-    fn parse_body<R: BufRead>(&mut self, reader: &mut R) -> Result<(), Box<dyn Error>> {
+    fn parse_body<R: BufRead>(&mut self, reader: &mut R, validation_behaviour: &DataValidationBehaviour) -> Result<(), Box<dyn Error>> {
         for (line_index, line) in reader.lines().enumerate() {
             match line {
                 Ok(line) => {
@@ -72,5 +73,15 @@ impl<T> DataFrame<T> where T: Float + Debug + Default {
             return Err(DataFrameIOError::TooMuchDataInLine(line_index));
         }
         Ok(())
+    }
+
+    
+    fn set_header_type(&mut self, index: usize, value: &FrameDataCell<T>) {
+        let value = value.default();
+        if FrameDataCell::NA == self.headers[index].data_type {
+            self.headers[index].data_type = value;
+        } else {
+           // assert_eq!(self.headers[index].data_type, value);
+        }
     }
 }

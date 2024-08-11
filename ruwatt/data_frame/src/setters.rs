@@ -12,15 +12,6 @@ impl<T> DataFrame<T> where T: Float + Default + Debug + Copy {
             });
     }
 
-    pub fn set_header_type(&mut self, index: usize, value: &FrameDataCell<T>) {
-        let value = value.default();
-        if FrameDataCell::NA == self.headers[index].data_type {
-            self.headers[index].data_type = value;
-        } else {
-            assert_eq!(self.headers[index].data_type, value);
-        }
-    }
-
     pub fn rename(&mut self, map: HashMap<&str, &str>) {
         for (name, new_name) in map.into_iter() {
             let col_index = self.get_col_index(name);

@@ -19,7 +19,9 @@ fn convert_species(value: &FrameDataCell) -> Result<FrameDataCell, ApplyError> {
 }
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
-    let df = DataFrame::<f64>::from_csv("./data/iris.csv", None)?;
+    let mut df = DataFrame::<f64>::from_csv("./data/breast_cancer_wisconsin.csv", None)?;
+    df.drop("id");
+    return Ok(());
 
     let mut df = df.filter(|row| {
         if let FrameDataCell::String(ref value) = row[4] {
