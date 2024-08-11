@@ -1,5 +1,5 @@
 use std::{fs, error::Error};
-use data_frame::{DataFrame, DataFrameReadOptions};
+use data_frame::{DataFrame, DataFrameReadOptions, DataValidationBehaviour};
 use tensor::{Matrix, Tensor};
 use optimization::GradientDescent;
 use learning::{ LinearRegressionModel, LinearRegressionMethod };
@@ -8,7 +8,8 @@ use statistics::estimate_model;
 #[test]
 fn linear_regression_students_debt() -> Result<(), Box<dyn Error>> {
     let options = DataFrameReadOptions {
-        parse_header: false
+        parse_header: false,
+        data_validation_behaviour: DataValidationBehaviour::Panic
     };
     let mut df = DataFrame::<f64>::from_csv("../data/student_debt.csv", Some(options))?;
     df.drop("0");

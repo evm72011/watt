@@ -55,6 +55,7 @@ impl<T> DataFrame<T> where T: Float + Debug + Default {
                         }
                         let value: FrameDataCell::<T> = value.parse().unwrap();
                         self.set_header_type(cell_index, &value);
+                        let value = self.validete_cell_value(line_index, cell_index, value, validation_behaviour);
                         line_data.push(value);
                     }
                     self.data.push(line_data);
@@ -74,14 +75,30 @@ impl<T> DataFrame<T> where T: Float + Debug + Default {
         }
         Ok(())
     }
-
     
     fn set_header_type(&mut self, index: usize, value: &FrameDataCell<T>) {
         let value = value.default();
         if FrameDataCell::NA == self.headers[index].data_type {
             self.headers[index].data_type = value;
+        }
+        /*
+         else {
+            assert_eq!(self.headers[index].data_type, value);
+        }
+        */
+    }
+
+    fn validete_cell_value(&self, line_index: usize, cell_index: usize, value: FrameDataCell<T>, behaviour: &DataValidationBehaviour) -> FrameDataCell<T> {
+        let header = &self.headers[cell_index];
+        if FrameDataCell::same_type(&header.data_type, &value) {
+            value
         } else {
-           // assert_eq!(self.headers[index].data_type, value);
+            match behaviour {
+                DataValidationBehaviour::SetNa => FrameDataCell::<T>::NA,
+                DataValidationBehaviour::SetData => value,
+                DataValidationBehaviour::Panic => 
+                    panic!("Cell value has differnt type than the header! Row: {line_index}, Coll: {}", header.name)
+            }
         }
     }
 }

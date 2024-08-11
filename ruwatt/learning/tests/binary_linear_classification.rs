@@ -1,6 +1,6 @@
 use std::{collections::HashMap, error::Error};
 
-use data_frame::{ApplyClosure, ApplyError, DataFrame, FrameDataCell};
+use data_frame::{ApplyChanger, ApplyError, DataFrame, FrameDataCell};
 use learning::{confusion_matrix, BinaryLinearClassificationModel, BinaryLinearClassificationMethod};
 use optimization::GradientDescent;
 use statistics::Statistics;
@@ -8,8 +8,8 @@ use tensor::{Matrix, Tensor};
 
 fn get_data(allowed_values: Vec<f64>) -> Result<(Tensor,Tensor,Tensor,Tensor), Box<dyn Error>> {
     let mut df = DataFrame::<f64>::from_csv("../data/iris.csv", None)?;
-    let mut map: HashMap<&str, ApplyClosure::<f64>> = HashMap::new();
-    map.insert("species", Box::new(&convert_species_to_numbers));
+    let mut map: HashMap<_, _> = HashMap::new();
+    map.insert("species", ApplyChanger::new(Box::new(&convert_species_to_numbers)));
     df.apply(map)?;
     
     let df = df.filter(|row| clear_data(row, &allowed_values));
@@ -67,7 +67,7 @@ fn least_squares_sigmoid() -> Result<(), Box<dyn Error>> {
     model.fit(&x_train, &y_train);
     let y_predict = model.predict(&x_test);
 
-    let recieved = confusion_matrix(&y_test , &y_predict).to_tensor(None);;
+    let recieved = confusion_matrix(&y_test , &y_predict).to_tensor(None);
     let expected = Matrix::new(vec![
         vec![ 17.0, 0.0],
         vec![ 1.0, 16.0],
@@ -92,7 +92,7 @@ fn least_squares_tanh() -> Result<(), Box<dyn Error>> {
     model.fit(&x_train, &y_train);
     let y_predict = model.predict(&x_test);
 
-    let recieved = confusion_matrix(&y_test , &y_predict).to_tensor(None);;
+    let recieved = confusion_matrix(&y_test , &y_predict).to_tensor(None);
     let expected = Matrix::new(vec![
         vec![ 18.0, 0.0],
         vec![ 0.0, 16.0],
@@ -142,7 +142,7 @@ fn softmax() -> Result<(), Box<dyn Error>> {
     model.fit(&x_train, &y_train);
     let y_predict = model.predict(&x_test);
 
-    let recieved = confusion_matrix(&y_test , &y_predict).to_tensor(None);;
+    let recieved = confusion_matrix(&y_test , &y_predict).to_tensor(None);
     let expected = Matrix::new(vec![
         vec![ 18.0, 0.0],
         vec![ 0.0, 16.0],

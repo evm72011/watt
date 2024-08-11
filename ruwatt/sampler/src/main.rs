@@ -1,19 +1,21 @@
 use std::collections::HashMap;
-use data_frame::{ApplyClosure, ApplyError, DataFrame, FrameDataCell};
+use data_frame::{ApplyChanger, ApplyClosure, ApplyError, DataFrame, FrameDataCell};
 use learning::{confusion_matrix, BinaryLinearClassificationMethod, BinaryLinearClassificationModel};
 use statistics::Statistics;
 use optimization::GradientDescent;
 
-fn convert_species(value: &FrameDataCell) -> Result<FrameDataCell, ApplyError> {
-    if let FrameDataCell::String(value) = value {
-        let value = match value.as_str() {
-            "setosa" => -1.0,
-            "versicolor" => 1.0,
-            _ => 2.0
-        };
-        Ok(FrameDataCell::Number(value))
+fn convert_class(value: &FrameDataCell) -> Result<FrameDataCell, ApplyError> {
+    if let FrameDataCell::Number(value) = value {
+        match value {
+            2.0 => Ok(FrameDataCell::Number(-1.0)),
+            4.0 => Ok(FrameDataCell::Number(1.0)),
+            _ => {
+                let msg = format!("The value is out of range: {value}");
+                Err(ApplyError(msg))
+            }
+        }
     } else {
-        let msg = String::from("Value in cell is not a string");
+        let msg = String::from("Value in cell is not a number");
         Err(ApplyError(msg))
     }
 }
@@ -21,30 +23,21 @@ fn convert_species(value: &FrameDataCell) -> Result<FrameDataCell, ApplyError> {
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     let mut df = DataFrame::<f64>::from_csv("./data/breast_cancer_wisconsin.csv", None)?;
     df.drop("id");
-    return Ok(());
+    df.remove_na();
 
-    let mut df = df.filter(|row| {
-        if let FrameDataCell::String(ref value) = row[4] {
-            value != "virginica"
-        } else {
-            false
-        }
-    });
-
-    let mut map: HashMap<&str, ApplyClosure::<f64>> = HashMap::new();
-    map.insert("species", Box::new(&convert_species));
+    let mut map: HashMap<_, _> = HashMap::new();
+    map.insert("class", ApplyChanger::new(Box::new(&convert_class)));
     df.apply(map)?;
-    print!("{}", df);
 
     let data = df.to_tensor(None);
     let (train_data, test_data) = data.split(0.66, 1);
-    let x_train = train_data.get_cols((0..=3).collect())?;  
+    let x_train = train_data.get_cols((0..=8).collect())?;  
     let x_train = Statistics::normalize(&x_train);
-    let y_train = train_data.col(4)?; 
+    let y_train = train_data.col(9)?; 
 
-    let x_test = test_data.get_cols((0..=3).collect())?;  
+    let x_test = test_data.get_cols((0..=8).collect())?;  
     let x_test = Statistics::normalize(&x_test);
-    let y_test = test_data.col(4)?;
+    let y_test = test_data.col(9)?;
 
     assert_eq!(x_train.shape, vec![66, 4]);
     assert_eq!(y_train.shape, vec![66, 1]);

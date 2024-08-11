@@ -55,4 +55,13 @@ impl<T> FrameDataCell<T> where T: Float + Default {
             .map(|&value| FrameDataCell::<T>::Number(value))
             .collect()
     }
+
+    pub fn same_type(a: &Self, b: &Self) -> bool {
+        match (a, b) {
+            (Self::NA, Self::NA) => true,
+            (Self::Number(_), Self::Number(_)) => true,
+            (Self::String(_), Self::String(_)) => true,
+            _ => false
+        }
+    }
 }

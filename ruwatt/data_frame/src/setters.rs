@@ -1,6 +1,8 @@
 use std::{collections::{HashMap, HashSet}, fmt::Debug};
 use num::Float;
-use super::{DataFrame, FrameDataCell};
+use crate::FrameDataCell;
+
+use super::DataFrame;
 
 impl<T> DataFrame<T> where T: Float + Default + Debug + Copy {
     pub fn drop(&mut self, name: &str) {
@@ -36,6 +38,13 @@ impl<T> DataFrame<T> where T: Float + Default + Debug + Copy {
         self.data.iter_mut().enumerate()
             .for_each(|(index, row)| row.extend(df.data[index].clone()));
         self.headers.extend(df.headers.clone());
+    }
+
+    pub fn remove_na(&mut self) {
+        self.data = self.rows()
+            .filter(|row| !row.contains(&FrameDataCell::<T>::NA))
+            .collect();
+        
     }
 }
 
