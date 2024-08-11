@@ -1,6 +1,6 @@
 use std::{collections::HashMap, error::Error};
 
-use data_frame::{ApplyChanger, ApplyError, DataFrame, FrameDataCell};
+use data_frame::{ApplyChanger, ApplyError, DataFrame, FrameDataCell, FrameHeader};
 use learning::{confusion_matrix, BinaryLinearClassificationModel, BinaryLinearClassificationMethod};
 use optimization::GradientDescent;
 use statistics::Statistics;
@@ -9,8 +9,14 @@ use tensor::{Matrix, Tensor};
 fn get_data(allowed_values: Vec<f64>) -> Result<(Tensor,Tensor,Tensor,Tensor), Box<dyn Error>> {
     let mut df = DataFrame::<f64>::from_csv("../data/iris.csv", None)?;
     let mut map: HashMap<_, _> = HashMap::new();
-    map.insert("species", ApplyChanger::new(Box::new(&convert_species_to_numbers)));
+    let changer = ApplyChanger {
+        cell_changer: Box::new(&convert_species_to_numbers),
+        new_header: Some(FrameHeader { data_type: FrameDataCell::Number(0.0), name: "species".to_string() })
+    };
+    map.insert("species", changer);
     df.apply(map)?;
+
+    println!("{:?}", df.headers);
     
     let df = df.filter(|row| clear_data(row, &allowed_values));
     let data = df.to_tensor(None);

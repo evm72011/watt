@@ -42,7 +42,6 @@ impl<T> DataFrame<T> where T: Float + Default {
 
             self.data.iter_mut().enumerate()
                 .for_each(|(index, row)| {
-                    println!("{index}");
                     row[col_index] = (*changer.cell_changer)(&row[col_index]).unwrap_or_else(|e| {
                         panic!("Error in line {} occurred: {}", index, e);
                     })

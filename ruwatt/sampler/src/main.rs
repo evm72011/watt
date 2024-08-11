@@ -1,5 +1,5 @@
 use std::collections::HashMap;
-use data_frame::{ApplyChanger, ApplyClosure, ApplyError, DataFrame, FrameDataCell};
+use data_frame::{ApplyChanger, ApplyError, DataFrame, FrameDataCell};
 use learning::{confusion_matrix, BinaryLinearClassificationMethod, BinaryLinearClassificationModel};
 use statistics::Statistics;
 use optimization::GradientDescent;
@@ -30,7 +30,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     df.apply(map)?;
 
     let data = df.to_tensor(None);
-    let (train_data, test_data) = data.split(0.66, 1);
+    let (train_data, test_data) = data.split(0.8, 1);
     let x_train = train_data.get_cols((0..=8).collect())?;  
     let x_train = Statistics::normalize(&x_train);
     let y_train = train_data.col(9)?; 
@@ -39,15 +39,16 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let x_test = Statistics::normalize(&x_test);
     let y_test = test_data.col(9)?;
 
-    assert_eq!(x_train.shape, vec![66, 4]);
-    assert_eq!(y_train.shape, vec![66, 1]);
-    assert_eq!(x_test.shape, vec![34, 4]);
-    assert_eq!(y_test.shape, vec![34, 1]);
+    assert_eq!(x_train.shape, vec![546, 9]);
+    assert_eq!(y_train.shape, vec![546, 1]);
+    assert_eq!(x_test.shape, vec![137, 9]);
+    assert_eq!(y_test.shape, vec![137, 1]);
 
     let mut model = BinaryLinearClassificationModel {
         method: BinaryLinearClassificationMethod::Softmax,
         optimizator: GradientDescent {
-            step_count: 50,
+            step_count: 200,
+            verbose: true,
             ..Default::default()
         },
         ..Default::default()
