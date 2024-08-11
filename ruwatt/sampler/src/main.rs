@@ -50,17 +50,19 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     assert_eq!(y_test.shape, vec![34, 1]);
 
     let mut model = BinaryLinearClassificationModel {
-        method: BinaryLinearClassificationMethod::LeastSquaresTanh,
+        method: BinaryLinearClassificationMethod::Softmax,
         optimizator: GradientDescent {
-            step_count: 100,
+            step_count: 50,
             ..Default::default()
         },
         ..Default::default()
     };
     model.fit(&x_train, &y_train);
+
     let y_predict = model.predict(&x_test);
     let matrix = confusion_matrix(&y_test , &y_predict);
     println!("{}", matrix);
+
     Ok(())   
 }
 

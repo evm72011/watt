@@ -1,8 +1,8 @@
 use num::Float;
-use optimization::GradientDescent;
+use optimization::{GradientDescent, StepSize};
 use std::{fmt::Debug, iter::Sum};
 use tensor::{assert_matrix, dot, Tensor, Vector};
-use super::{sigmoid, BinaryLinearClassificationMethod};
+use super::BinaryLinearClassificationMethod;
 
 pub struct BinaryLinearClassificationModel<'a, T=f64> where T: Float + Debug {
     pub coef: Tensor<T>,
@@ -54,12 +54,13 @@ impl<'a, T> BinaryLinearClassificationModel<'a, T> where T: Float + Debug + Sum 
                 let x_modified = x_test.prepend_one().to_ket();
                 let value = dot(&w, &x_modified).to_scalar();
                 let activation = |v: T| self.method.activation(v);
+                let _1 = T::one();
                 match self.method {
                     BinaryLinearClassificationMethod::LeastSquaresSigmoid | 
                     BinaryLinearClassificationMethod::LeastSquaresTanh => T::powi(activation(value) - y_test, 2),
                     BinaryLinearClassificationMethod::CrossEntropy => 
-                        -(y_test * T::ln(activation(value)) + (T::one() - y_test) * T::ln(T::one() - activation(value))),
-                    BinaryLinearClassificationMethod::Softmax => -T::ln(sigmoid(y_test * value))
+                        -(y_test * T::ln(activation(value)) + (_1 - y_test) * T::ln(_1 - activation(value))),
+                    BinaryLinearClassificationMethod::Softmax => T::ln(_1 + T::exp(-y_test * value))
                 }
             })
             .sum::<T>() / count
@@ -77,5 +78,10 @@ impl<'a, T> BinaryLinearClassificationModel<'a, T> where T: Float + Debug + Sum 
         let allowed_values = self.method.allowed_values();
         let condition =  y.data.iter().all(|x| allowed_values.contains(x));
         assert!(condition, "{} is only applicable for y values {:?}", self.method, allowed_values);
+
+        if self.optimizator.step_size == StepSize::Newton &&
+           self.optimizator.regularization.is_none() {
+            println!("Warning! Newton step size needs regularization here")
+        }
     }
 }

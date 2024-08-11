@@ -5,6 +5,11 @@ use tensor::{dot, Tensor, Vector};
 use super::{gradient, hessian, ResultEntry, ResultLogs};
 
 #[derive(Clone)]
+pub enum GradientDescentRegularization<T> where T: Float {
+    MaxLength(T)
+}
+
+#[derive(Clone)]
 pub struct GradientDescent<'a, T> where T: Float + Debug {
     pub func: &'a dyn Fn(&Tensor<T>) -> T,
     pub gradient: Option<&'a dyn Fn(&Tensor<T>) -> Tensor<T>>,
@@ -18,7 +23,8 @@ pub struct GradientDescent<'a, T> where T: Float + Debug {
     pub results: ResultLogs<T>,
     pub result: Option<ResultEntry<T>>,
     pub grad_prev: Tensor<T>,
-    pub verbose: bool
+    pub verbose: bool,
+    pub regularization: Option<GradientDescentRegularization<T>>
 }
 
 #[derive(Clone, PartialEq)]
@@ -44,7 +50,8 @@ impl<'a, T> Default for GradientDescent<'a, T> where T: Float + Debug {
             results: ResultLogs::new(),
             result: None,
             grad_prev: Vector::ket(vec![T::zero()]),
-            verbose: false
+            verbose: false,
+            regularization: None
         }
     }
 }
@@ -65,6 +72,10 @@ impl<'a, T> GradientDescent<'a, T> where T: Float + Sum + Debug {
             };
             let grad = self.set_grad_length(grad, step, &arg);
             arg = arg - grad;
+            if self.check_regularization_stop(&arg) { 
+                self.log(&format!("Stopped by regularization check"));
+                break; 
+            }
             self.save_result((self.func)(&arg), arg.clone());
         }
         self.result = self.results.get_optimal_result();
@@ -112,6 +123,15 @@ impl<'a, T> GradientDescent<'a, T> where T: Float + Sum + Debug {
         };
         self.grad_prev = result.clone();
         result
+    }
+
+    fn check_regularization_stop(&self, arg: &Tensor<T>) -> bool {
+        match &self.regularization {
+            None => false,
+            Some(regularization) => match regularization {
+                GradientDescentRegularization::MaxLength(length) => arg.length() > *length
+            }
+        }
     }
 
     fn log(&self, message: &str) {

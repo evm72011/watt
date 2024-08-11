@@ -67,7 +67,7 @@ fn least_squares_sigmoid() -> Result<(), Box<dyn Error>> {
     model.fit(&x_train, &y_train);
     let y_predict = model.predict(&x_test);
 
-    let recieved = confusion_matrix(&y_test , &y_predict);
+    let recieved = confusion_matrix(&y_test , &y_predict).to_tensor(None);;
     let expected = Matrix::new(vec![
         vec![ 17.0, 0.0],
         vec![ 1.0, 16.0],
@@ -92,7 +92,7 @@ fn least_squares_tanh() -> Result<(), Box<dyn Error>> {
     model.fit(&x_train, &y_train);
     let y_predict = model.predict(&x_test);
 
-    let recieved = confusion_matrix(&y_test , &y_predict);
+    let recieved = confusion_matrix(&y_test , &y_predict).to_tensor(None);;
     let expected = Matrix::new(vec![
         vec![ 18.0, 0.0],
         vec![ 0.0, 16.0],
@@ -117,7 +117,7 @@ fn cross_entropy() -> Result<(), Box<dyn Error>> {
     model.fit(&x_train, &y_train);
     let y_predict = model.predict(&x_test);
 
-    let recieved = confusion_matrix(&y_test , &y_predict);
+    let recieved = confusion_matrix(&y_test , &y_predict).to_tensor(None);
     let expected = Matrix::new(vec![
         vec![ 17.0, 0.0],
         vec![ 1.0, 16.0],
@@ -142,7 +142,7 @@ fn softmax() -> Result<(), Box<dyn Error>> {
     model.fit(&x_train, &y_train);
     let y_predict = model.predict(&x_test);
 
-    let recieved = confusion_matrix(&y_test , &y_predict);
+    let recieved = confusion_matrix(&y_test , &y_predict).to_tensor(None);;
     let expected = Matrix::new(vec![
         vec![ 18.0, 0.0],
         vec![ 0.0, 16.0],
