@@ -7,9 +7,9 @@ fn pad_string(input: &String, length: usize) -> String {
     if input.len() >= length {
         input.to_string()
     } else {
-    let padding = " ".repeat(length - input.len());
-    format!("{}{}", input, padding)
-}
+        let padding = " ".repeat(length - input.len());
+        format!("{}{}", input, padding)
+    }
 } 
 
 fn print_header<T>(df: &DataFrame<T>, f: &mut Formatter) -> Result where T: Float {

@@ -1,7 +1,7 @@
 use std::{collections::HashMap, error::Error};
 
 use data_frame::{ApplyChanger, ApplyError, DataFrame, FrameDataCell, FrameHeader};
-use learning::{confusion_matrix, BinaryLinearClassificationModel, BinaryLinearClassificationMethod};
+use learning::{BinaryLinearClassificationMethod, BinaryLinearClassificationModel, ConfusionMatrix};
 use optimization::GradientDescent;
 use statistics::Statistics;
 use tensor::{Matrix, Tensor};
@@ -73,10 +73,10 @@ fn least_squares_sigmoid() -> Result<(), Box<dyn Error>> {
     model.fit(&x_train, &y_train);
     let y_predict = model.predict(&x_test);
 
-    let recieved = confusion_matrix(&y_test , &y_predict).to_tensor(None);
+    let recieved = ConfusionMatrix::new(&y_test , &y_predict).to_tensor();
     let expected = Matrix::new(vec![
-        vec![ 0.0,      17.0, 1.0],
-        vec![ 1.0,      0.0, 16.0],
+        vec![ 17.0, 1.0],
+        vec![ 0.0, 16.0],
     ]);
     assert_eq!(recieved, expected);
     Ok(()) 
@@ -98,10 +98,10 @@ fn least_squares_tanh() -> Result<(), Box<dyn Error>> {
     model.fit(&x_train, &y_train);
     let y_predict = model.predict(&x_test);
 
-    let recieved = confusion_matrix(&y_test , &y_predict).to_tensor(None);
+    let recieved = ConfusionMatrix::new(&y_test , &y_predict).to_tensor();
     let expected = Matrix::new(vec![
-        vec![ -1.0, 18.0, 0.0],
-        vec![  1.0,  0.0, 16.0],
+        vec![ 18.0, 0.0],
+        vec![ 0.0, 16.0],
     ]);
     assert_eq!(recieved, expected);
     Ok(()) 
@@ -123,10 +123,10 @@ fn cross_entropy() -> Result<(), Box<dyn Error>> {
     model.fit(&x_train, &y_train);
     let y_predict = model.predict(&x_test);
 
-    let recieved = confusion_matrix(&y_test , &y_predict).to_tensor(None);
+    let recieved = ConfusionMatrix::new(&y_test , &y_predict).to_tensor();
     let expected = Matrix::new(vec![
-        vec![ 0.0,      17.0, 1.0],
-        vec![ 1.0,      0.0, 16.0],
+        vec![ 17.0, 1.0],
+        vec![ 0.0, 16.0],
     ]);
     assert_eq!(recieved, expected);
     Ok(()) 
@@ -148,10 +148,10 @@ fn softmax() -> Result<(), Box<dyn Error>> {
     model.fit(&x_train, &y_train);
     let y_predict = model.predict(&x_test);
 
-    let recieved = confusion_matrix(&y_test , &y_predict).to_tensor(None);
+    let recieved = ConfusionMatrix::new(&y_test , &y_predict).to_tensor();
     let expected = Matrix::new(vec![
-        vec![ -1.0,     18.0, 0.0],
-        vec![ 1.0,       0.0, 16.0],
+        vec![ 18.0, 0.0],
+        vec![ 0.0,  16.0],
     ]);
     assert_eq!(recieved, expected);
     Ok(()) 
