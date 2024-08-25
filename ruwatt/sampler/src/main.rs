@@ -47,7 +47,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let mut model = BinaryLinearClassificationModel {
         method: BinaryLinearClassificationMethod::Softmax,
         optimizator: GradientDescent {
-            step_count: 200,
+            step_count: 50,
             verbose: true,
             ..Default::default()
         },

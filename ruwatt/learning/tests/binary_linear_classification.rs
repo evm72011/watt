@@ -75,8 +75,8 @@ fn least_squares_sigmoid() -> Result<(), Box<dyn Error>> {
 
     let recieved = confusion_matrix(&y_test , &y_predict).to_tensor(None);
     let expected = Matrix::new(vec![
-        vec![ 17.0, 0.0],
-        vec![ 1.0, 16.0],
+        vec![ 0.0,      17.0, 1.0],
+        vec![ 1.0,      0.0, 16.0],
     ]);
     assert_eq!(recieved, expected);
     Ok(()) 
@@ -100,8 +100,8 @@ fn least_squares_tanh() -> Result<(), Box<dyn Error>> {
 
     let recieved = confusion_matrix(&y_test , &y_predict).to_tensor(None);
     let expected = Matrix::new(vec![
-        vec![ 18.0, 0.0],
-        vec![ 0.0, 16.0],
+        vec![ -1.0, 18.0, 0.0],
+        vec![  1.0,  0.0, 16.0],
     ]);
     assert_eq!(recieved, expected);
     Ok(()) 
@@ -125,8 +125,8 @@ fn cross_entropy() -> Result<(), Box<dyn Error>> {
 
     let recieved = confusion_matrix(&y_test , &y_predict).to_tensor(None);
     let expected = Matrix::new(vec![
-        vec![ 17.0, 0.0],
-        vec![ 1.0, 16.0],
+        vec![ 0.0,      17.0, 1.0],
+        vec![ 1.0,      0.0, 16.0],
     ]);
     assert_eq!(recieved, expected);
     Ok(()) 
@@ -150,8 +150,8 @@ fn softmax() -> Result<(), Box<dyn Error>> {
 
     let recieved = confusion_matrix(&y_test , &y_predict).to_tensor(None);
     let expected = Matrix::new(vec![
-        vec![ 18.0, 0.0],
-        vec![ 0.0, 16.0],
+        vec![ -1.0,     18.0, 0.0],
+        vec![ 1.0,       0.0, 16.0],
     ]);
     assert_eq!(recieved, expected);
     Ok(()) 
