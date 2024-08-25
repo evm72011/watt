@@ -2,25 +2,26 @@ use num::Float;
 use optimization::{GradientDescent, StepSize};
 use std::{fmt::Debug, iter::Sum};
 use tensor::{assert_matrix, dot, Tensor, Vector};
-use super::BinaryLinearClassificationMethod;
+use super::BLCMethod;
 
-pub struct BinaryLinearClassificationModel<'a, T=f64> where T: Float + Debug {
+/// Binary Linear Classification
+pub struct BLC<'a, T=f64> where T: Float + Debug {
     pub coef: Tensor<T>,
-    pub method: BinaryLinearClassificationMethod,
+    pub method: BLCMethod,
     pub optimizator: GradientDescent<'a, T>
 }
 
-impl<'a, T> Default for BinaryLinearClassificationModel<'a, T> where T: Float + Debug {
+impl<'a, T> Default for BLC<'a, T> where T: Float + Debug {
     fn default() -> Self {
         Self {
             coef: Tensor::empty(),
-            method: BinaryLinearClassificationMethod::LeastSquaresSigmoid,
+            method: BLCMethod::LeastSquaresSigmoid,
             optimizator: Default::default()
         }
     }
 }
 
-impl<'a, T> BinaryLinearClassificationModel<'a, T> where T: Float + Debug + Sum {
+impl<'a, T> BLC<'a, T> where T: Float + Debug + Sum {
     pub fn fit(&mut self, x: &Tensor<T>, y: &Tensor<T>){
         self.validate_fit(x, y);
         let f = |w: &Tensor<T>| self.cost_function_wrapper(w, &x, &y);
@@ -56,11 +57,9 @@ impl<'a, T> BinaryLinearClassificationModel<'a, T> where T: Float + Debug + Sum 
                 let activation = |v: T| self.method.activation(v);
                 let _1 = T::one();
                 match self.method {
-                    BinaryLinearClassificationMethod::LeastSquaresSigmoid | 
-                    BinaryLinearClassificationMethod::LeastSquaresTanh => T::powi(activation(value) - y_test, 2),
-                    BinaryLinearClassificationMethod::CrossEntropy => 
-                        -(y_test * T::ln(activation(value)) + (_1 - y_test) * T::ln(_1 - activation(value))),
-                    BinaryLinearClassificationMethod::Softmax => T::ln(_1 + T::exp(-y_test * value))
+                    BLCMethod::LeastSquaresSigmoid | BLCMethod::LeastSquaresTanh => T::powi(activation(value) - y_test, 2),
+                    BLCMethod::CrossEntropy => -(y_test * T::ln(activation(value)) + (_1 - y_test) * T::ln(_1 - activation(value))),
+                    BLCMethod::Softmax => T::ln(_1 + T::exp(-y_test * value))
                 }
             })
             .sum::<T>() / count

@@ -1,7 +1,7 @@
 use std::{collections::HashMap, error::Error};
 
 use data_frame::{ApplyChanger, ApplyError, DataFrame, FrameDataCell};
-use learning::{BinaryLinearClassificationMethod, BinaryLinearClassificationModel, ConfusionMatrix};
+use learning::{BLCMethod, BLC, ConfusionMatrix};
 use optimization::GradientDescent;
 use statistics::Statistics;
 use tensor::Matrix;
@@ -47,8 +47,8 @@ fn breast_cancer_wisconsin() -> Result<(), Box<dyn Error>> {
     assert_eq!(x_test.shape, vec![137, 9]);
     assert_eq!(y_test.shape, vec![137, 1]);
 
-    let mut model = BinaryLinearClassificationModel {
-        method: BinaryLinearClassificationMethod::Softmax,
+    let mut model = BLC {
+        method: BLCMethod::Softmax,
         optimizator: GradientDescent {
             step_count: 50,
             ..Default::default()

@@ -1,7 +1,7 @@
 use std::{collections::HashMap, error::Error};
 
 use data_frame::{ApplyChanger, ApplyError, DataFrame, FrameDataCell, FrameHeader};
-use learning::{BinaryLinearClassificationMethod, BinaryLinearClassificationModel, ConfusionMatrix};
+use learning::{BLCMethod, BLC, ConfusionMatrix};
 use optimization::GradientDescent;
 use statistics::Statistics;
 use tensor::{Matrix, Tensor};
@@ -62,8 +62,8 @@ fn least_squares_sigmoid() -> Result<(), Box<dyn Error>> {
     let allowed_values = vec![0.0, 1.0];
     let (x_train, y_train, x_test, y_test) = get_data(allowed_values)?;
 
-    let mut model = BinaryLinearClassificationModel {
-        method: BinaryLinearClassificationMethod::LeastSquaresSigmoid,
+    let mut model = BLC {
+        method: BLCMethod::LeastSquaresSigmoid,
         optimizator: GradientDescent {
             step_count: 50,
             ..Default::default()
@@ -87,8 +87,8 @@ fn least_squares_tanh() -> Result<(), Box<dyn Error>> {
     let allowed_values = vec![-1.0, 1.0];
     let (x_train, y_train, x_test, y_test) = get_data(allowed_values)?;
 
-    let mut model = BinaryLinearClassificationModel {
-        method: BinaryLinearClassificationMethod::LeastSquaresTanh,
+    let mut model = BLC {
+        method: BLCMethod::LeastSquaresTanh,
         optimizator: GradientDescent {
             step_count: 50,
             ..Default::default()
@@ -112,8 +112,8 @@ fn cross_entropy() -> Result<(), Box<dyn Error>> {
     let allowed_values = vec![0.0, 1.0];
     let (x_train, y_train, x_test, y_test) = get_data(allowed_values)?;
 
-    let mut model = BinaryLinearClassificationModel {
-        method: BinaryLinearClassificationMethod::CrossEntropy,
+    let mut model = BLC {
+        method: BLCMethod::CrossEntropy,
         optimizator: GradientDescent {
             step_count: 50,
             ..Default::default()
@@ -137,8 +137,8 @@ fn softmax() -> Result<(), Box<dyn Error>> {
     let allowed_values = vec![-1.0, 1.0];
     let (x_train, y_train, x_test, y_test) = get_data(allowed_values)?;
 
-    let mut model = BinaryLinearClassificationModel {
-        method: BinaryLinearClassificationMethod::Softmax,
+    let mut model = BLC {
+        method: BLCMethod::Softmax,
         optimizator: GradientDescent {
             step_count: 50,
             ..Default::default()
