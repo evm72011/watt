@@ -55,11 +55,10 @@ impl<'a, T> BLC<'a, T> where T: Float + Debug + Sum {
                 let x_modified = x_test.prepend_one().to_ket();
                 let value = dot(&w, &x_modified).to_scalar();
                 let activation = |v: T| self.method.activation(v);
-                let _1 = T::one();
                 match self.method {
                     BLCMethod::LeastSquaresSigmoid | BLCMethod::LeastSquaresTanh => T::powi(activation(value) - y_test, 2),
-                    BLCMethod::CrossEntropy => -(y_test * T::ln(activation(value)) + (_1 - y_test) * T::ln(_1 - activation(value))),
-                    BLCMethod::Softmax => T::ln(_1 + T::exp(-y_test * value))
+                    BLCMethod::CrossEntropy => -(y_test * T::ln(activation(value)) + (T::one() - y_test) * T::ln(T::one() - activation(value))),
+                    BLCMethod::Softmax => T::ln(T::one() + T::exp(-y_test * value))
                 }
             })
             .sum::<T>() / count
