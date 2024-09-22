@@ -69,7 +69,7 @@ fn print_vec<T>(vector: Vec<T>, f: &mut Formatter) -> Result where T: Display  {
 
 fn print_header(values: &Vec<i32>, f: &mut Formatter) -> Result {
     let mut vector: Vec<_> = values.iter().map(|v| v.to_string()).collect();
-    vector.insert(0, pad_string(String::from("a\\p"), 10));
+    vector.insert(0, pad_string(String::from("act\\pred"), 10));
     print_vec(vector, f)
 }
 

@@ -26,7 +26,7 @@ impl<T> Statistics<T> where T: Float + Sum {
             .map(|(col, mean)| {
                 let variance = col.data.iter().cloned()
                     .map(|value| T::powi(value - mean, 2))
-                    .sum::<T>() / row_count;
+                    .sum::<T>() / row_count;  //TODO  row_count - 1 ?
                 variance.sqrt()
             })
             .collect();
